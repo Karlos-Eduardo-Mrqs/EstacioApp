@@ -39,8 +39,6 @@ export default function App() {
           />
         )}
 
-        
-
         {/* CALENDÁRIO COMPLETO DO SEMESTRE (SETEMBRO A DEZEMBRO) */}
         <View style={styles.blocoSection}>
           <Text style={styles.tituloSecaoBloco}>AGENDA DO SEMESTRE (SETEMBRO A DEZEMBRO)</Text>
@@ -59,6 +57,28 @@ export default function App() {
           </ScrollView>
           <Text style={styles.legendaCalendario}>Dias em amarelo possuem eventos acadêmicos</Text>
         </View>
+        
+        {diaFocado && (
+          <View style={styles.areaEventosDoDia}>
+            <Text style={styles.tituloDiaFocado}>Eventos de {diaFocado.replace('-', ' de ')}</Text>
+            {eventosDoDia.length > 0 ? (
+              eventosDoDia.map(evento => (
+                <View key={evento.id} style={styles.cartaoDiaFocado}>
+                  <View style={{flex: 1, marginRight: 10}}>
+                    <Text style={styles.tituloCartaoPequeno}>{evento.titulo}</Text>
+                    <Text style={{fontSize: 10, color: '#666'}}>📍 {evento.local} | 🕛 {evento.horas_acc || 0}h Acc</Text>
+                  </View>
+                  {/* Ao clicar aqui, o EventoDetalhe é acionado imediatamente */}
+                  <TouchableOpacity onPress={() => setEventoSelecionado(evento)}>
+                    <Text style={styles.btnTextoMiniAzul}>Ver Descrição</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.textoMutavel}>Nenhum evento agendado para este dia.</Text>
+            )}
+          </View>
+        )}
 
         {/* COLUNAS DE EVENTOS (PRÓXIMOS E DA SEMANA) */}
         <View style={styles.duasColunasContainer}>

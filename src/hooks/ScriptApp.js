@@ -22,13 +22,12 @@ export function useScriptApp(styles) {
   ];
 
   const handleDiaClick = (mesNome, diaNumero, temEvento) => {
-    // Padroniza a chave exatamente como está salva no bancoEventosCalendario
-    const chave = `${mesNome}-${diaNumero}`;
-    const chaveAlternativa = mesNome.includes('Dezembro') ? `Dezembro-${diaNumero}` : chave;
+    const chaveExata = `${mesNome}-${diaNumero}`;
+    const chaveCurta = mesNome.includes('Dezembro') ? `Dezembro-${diaNumero}` : chaveExata;
     
-    setDiaFocado(chave);
+    setDiaFocado(chaveExata);
     
-    const eventosEncontrados = bancoEventosCalendario[chave] || bancoEventosCalendario[chaveAlternativa] || [];
+    const eventosEncontrados = bancoEventosCalendario[chaveExata] || bancoEventosCalendario[chaveCurta] || [];
     
     if (temEvento && eventosEncontrados.length > 0) {
       setEventosDoDia(eventosEncontrados);

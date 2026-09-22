@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { listaCursos, cursosTecnicos, bancoEventosCalendario, semestre } from '../app/Dados';
 
-// Mude de UseScriptApp para useScriptApp (u minúsculo)
 export function useScriptApp(styles) {
   const [eventoSelecionado, setEventoSelecionado] = useState(null);  
   const [diaFocado, setDiaFocado] = useState(null); 
@@ -9,40 +9,29 @@ export function useScriptApp(styles) {
 
   const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-  const bancoEventosCalendario = {
-    'Setembro-2': [
-      { id: 1, titulo: 'Recepção de Calouros', local: 'Auditório', tipo: 'Evento', dia: 2, mes: 'Set', turma: 'Geral', autor: 'Diretoria', descricao: 'Boas-vindas.',horas_acc:15 },
-    ],
-    'Setembro-15': [
-      { id: 3, titulo: 'Prazo: Horas', local: 'SIA', tipo: 'Aviso', dia: 15, mes: 'Set', turma: 'Geral', autor: 'Coordenação', descricao: 'Último dia.',horas_acc:10}
-    ],
-    'Outubro-12': [
-      { id: 4, titulo: 'Feira de TI', local: 'Pátio', tipo: 'Evento', dia: 12, mes: 'Out', turma: 'Tecnologia', autor: 'Prof. Carlos', descricao: 'Empresas de tecnologia.',horas_acc:12 }
-    ],
-    'Novembro-20': [
-      { id: 5, titulo: 'Feriado', local: 'Campus', tipo: 'Aviso', dia: 20, mes: 'Nov', turma: 'Geral', autor: 'Diretoria', descricao: 'Não haverá aula.',horas_acc:10 }
-    ]
-  };
-
-  const semestre = [
-    { id: 1, nome: 'Setembro', totalDias: 30, espacosVazios: 2, destaques: [2, 15] },
-    { id: 2, nome: 'Outubro', totalDias: 31, espacosVazios: 4, destaques: [12] },
-    { id: 3, nome: 'Novembro', totalDias: 30, espacosVazios: 0, destaques: [20] },
-  ];
-
   const listaProximos = [
-    { id: 10, dia: 25, mes: 'Set', titulo: 'Seminário Direito', local: 'Sala 104', tipo: 'Evento', turma: 'Direito', autor: 'Coordenação', descricao: 'Seminário aberto.', horas_acc:10}
+    { id: 18, dia: 18, mes: 'Set', titulo: 'Maratona de Programação - Hackathon', local: 'Lab de TI', tipo: 'Evento', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 }
   ];
 
   const listaSemana = [
-    { id: 12, dia: 18, mes: 'Set', titulo: 'Plantão Dúvidas', local: 'Biblioteca', tipo: 'Serviço', turma: 'Todas', autor: 'Monitoria', descricao: 'Plantão de matemática.',horas_acc:18 },
+    { id: 18, dia: 18, mes: 'Set', titulo: 'Maratona de Programação - Hackathon', local: 'Lab de TI', tipo: 'Evento', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 }
+  ];
+
+  const eventosProximoMes = [
+    { id: 11, dia: 2, mes: 'Outubro', titulo: 'Abertura da Semana da Ciência e Tecnologia', local: 'Auditório Principal', tipo: 'Evento', turma: 'Geral', autor: 'Diretoria', descricao: 'Apresentação magna de inovações tecnológicas.', horas_acc: 15 }
   ];
 
   const handleDiaClick = (mesNome, diaNumero, temEvento) => {
+    // Padroniza a chave exatamente como está salva no bancoEventosCalendario
     const chave = `${mesNome}-${diaNumero}`;
+    const chaveAlternativa = mesNome.includes('Dezembro') ? `Dezembro-${diaNumero}` : chave;
+    
     setDiaFocado(chave);
-    if (temEvento) {
-      setEventosDoDia(bancoEventosCalendario[chave]);
+    
+    const eventosEncontrados = bancoEventosCalendario[chave] || bancoEventosCalendario[chaveAlternativa] || [];
+    
+    if (temEvento && eventosEncontrados.length > 0) {
+      setEventosDoDia(eventosEncontrados);
     } else {
       setEventosDoDia([]);
     }
@@ -63,6 +52,7 @@ export function useScriptApp(styles) {
           key={`dia-${dia}`} 
           style={[styles.celulaDia, isDestaque && styles.diaDestaque, isSelecionado && styles.diaSelecionado]}
           onPress={() => handleDiaClick(mesNome, dia, isDestaque)}
+          activeOpacity={0.7}
         >
           <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>{dia}</Text>
         </TouchableOpacity>
@@ -82,11 +72,13 @@ export function useScriptApp(styles) {
     </View>
   );
 
-  // Retorna tudo o que o App.js vai precisar para desenhar a tela
   return {
     eventoSelecionado, setEventoSelecionado,
     diaFocado, eventosDoDia,
-    diasSemana, semestre, listaProximos, listaSemana,
+    diasSemana, semestre, listaProximos, listaSemana, 
+    cursos: listaCursos, 
+    cursosTecnicos, 
+    eventosProximoMes,
     renderizarDias, renderCartaoPequeno
   };
 }

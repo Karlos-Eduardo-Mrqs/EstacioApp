@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { listaCursos, cursosTecnicos, bancoEventosCalendario, semestre } from '../app/Dados';
+import { listaCursos, listaCursosTecnico, bancoEventosCalendario, semestre } from '../app/Dados';
 
 export function useScriptApp(styles) {
   const [eventoSelecionado, setEventoSelecionado] = useState(null);  
@@ -9,25 +9,48 @@ export function useScriptApp(styles) {
 
   const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-  const listaProximos = [
-    { id: 18, dia: 18, mes: 'Set', titulo: 'Maratona de Programação - Hackathon', local: 'Lab de TI', tipo: 'Evento', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 }
-  ];
+  // Captura a data real do sistema
+  const hoje = new Date();
+  const diaAtual = hoje.getDate(); // Pega o dia de hoje (ex: 22)
+  const mesAtualIndex = hoje.getMonth(); // 8 = Setembro (Janeiro é 0)
 
-  const listaSemana = [
-    { id: 18, dia: 18, mes: 'Set', titulo: 'Maratona de Programação - Hackathon', local: 'Lab de TI', tipo: 'Evento', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 }
-  ];
+  // Mapeamento dos meses para corresponder ao formato do banco de dados
+  const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const mesAtualNome = nomesMeses[mesAtualIndex];
+  const proximoMesNome = nomesMeses[mesAtualIndex + 1] || 'Outubro';
 
-  const eventosProximoMes = [
-    { id: 11, dia: 2, mes: 'Outubro', titulo: 'Abertura da Semana da Ciência e Tecnologia', local: 'Auditório Principal', tipo: 'Evento', turma: 'Geral', autor: 'Diretoria', descricao: 'Apresentação magna de inovações tecnológicas.', horas_acc: 15 }
-  ];
+  // Transforma o dicionário do banco de eventos em uma única lista plana para facilitar os filtros
+  const todosOsEventos = Object.entries(bancoEventosCalendario).flatMap(([chave, lista]) => lista);
+
+  // 1. Próximos Eventos (eventos futuros a partir do dia de hoje)
+  const listaProximos = todosOsEventos.filter(ev => {
+    if (ev.mes === mesAtualNome || ev.mes === mesAtualNome.substring(0, 3)) {
+      return ev.dia >= diaAtual;
+    }
+    // Inclui meses seguintes
+    return ev.mes !== mesAtualNome;
+  }).slice(0, 6);;
+
+  // 2. Eventos da Semana (janela de 7 dias a partir de hoje)
+  const listaSemana = todosOsEventos.filter(ev => {
+    const mesmoMes = (ev.mes === mesAtualNome || ev.mes === mesAtualNome.substring(0, 3));
+    return mesmoMes && ev.dia >= diaAtual && ev.dia <= diaAtual + 7;
+  }).slice(0, 6);;
+
+  // 3. Eventos para o Próximo Mês gerados dinamicamente
+  const eventosProximoMes = todosOsEventos.filter(ev => {
+    const nomeProximoCurto = proximoMesNome.substring(0, 3);
+    return ev.mes === proximoMesNome || ev.mes === nomeProximoCurto;
+  }).slice(0, 6);;
 
   const handleDiaClick = (mesNome, diaNumero, temEvento) => {
     const chaveExata = `${mesNome}-${diaNumero}`;
-    const chaveCurta = mesNome.includes('Dezembro') ? `Dezembro-${diaNumero}` : chaveExata;
+    const mesBase = mesNome.split(' ')[0];
+    const chaveAlternativa = `${mesBase}-${diaNumero}`;
     
-    setDiaFocado(chaveExata);
+    setDiaFocado(`${diaNumero} de ${mesBase}`);
     
-    const eventosEncontrados = bancoEventosCalendario[chaveExata] || bancoEventosCalendario[chaveCurta] || [];
+    const eventosEncontrados = bancoEventosCalendario[chaveExata] || bancoEventosCalendario[chaveAlternativa] || [];
     
     if (temEvento && eventosEncontrados.length > 0) {
       setEventosDoDia(eventosEncontrados);
@@ -44,7 +67,7 @@ export function useScriptApp(styles) {
     for (let dia = 1; dia <= totalDias; dia++) {
       const isDestaque = destaques.includes(dia);
       const chaveAtual = `${mesNome}-${dia}`;
-      const isSelecionado = diaFocado === chaveAtual;
+      const isSelecionado = diaFocado === `${dia} de ${mesNome.split(' ')[0]}`;
 
       celulas.push(
         <TouchableOpacity 
@@ -74,9 +97,11 @@ export function useScriptApp(styles) {
   return {
     eventoSelecionado, setEventoSelecionado,
     diaFocado, eventosDoDia,
-    diasSemana, semestre, listaProximos, listaSemana, 
+    diasSemana, semestre, 
+    listaProximos, 
+    listaSemana, 
     cursos: listaCursos, 
-    cursosTecnicos, 
+    cursosTecnicos: listaCursosTecnico, 
     eventosProximoMes,
     renderizarDias, renderCartaoPequeno
   };

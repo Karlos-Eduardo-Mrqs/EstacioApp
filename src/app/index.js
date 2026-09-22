@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import EventoDetalhe from './EventoDetalhe';
 import { useScriptApp } from './ScriptApp';
-import { appStyles as styles } from '../styles/muralStyles'; // IMPORT DO ESTILO
+import { appStyles as styles } from '../styles/muralStyles';
 
 export default function App() {
   const {

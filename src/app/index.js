@@ -179,7 +179,7 @@ export default function App() {
                   style={modalStyles.btnSiteOficial} 
                   onPress={() => Linking.openURL(cursoSelecionado.link)}
                 >
-                  <Text style={modalStyles.textoBtnSite}>+ Informações (Site Oficial)</Text>
+                  <Text style={modalStyles.textoBtnSite}>+ Informações</Text>
                 </TouchableOpacity>
               </View>
             </View>

@@ -76,7 +76,7 @@ export const bancoEventosCalendario = {
   'Setembro-5': [{ id: 2, titulo: 'Início das Inscrições para AAT', local: 'SIA online', tipo: 'Aviso', dia: 5, mes: 'Set', turma: 'Geral', autor: 'Secretaria', descricao: 'Prazo inicial para envio de atividades complementares.', horas_acc: 5 }],
   'Setembro-8': [{ id: 3, titulo: 'Palestra: Inteligência Artificial no Mercado', local: 'Auditório 2', tipo: 'Evento', dia: 8, mes: 'Set', turma: 'Tecnologia', autor: 'Prof. Carlos', descricao: 'Discussão sobre o impacto das IAs generativas na empregabilidade.', horas_acc: 10 }],
   'Setembro-12': [{ id: 4, titulo: 'Workshop de Finanças Pessoais', local: 'Sala 204', tipo: 'Evento', dia: 12, mes: 'Set', turma: 'Administração', autor: 'Profª. Ana', descricao: 'Estratégias de investimento para jovens profissionais.', horas_acc: 10 }],
-  'Setembro-15': [{ id: 5, titulo: 'Prazo Limite: Requerimento de Prova 2ª Chamada', local: 'SIA', tipo: 'Aviso', dia: 15, mes: 'Set', turma: 'Geral', autor: 'Coordenação', descricao: 'Fique atento ao prazo final para solicitação no sistema.', horas_acc: 0 }],
+  'Setembro-15': [{ id: 5, titulo: 'Prazo Limite: Requerimento de Prova 2ª Chamada', local: 'SIA', tipo: 'Aviso', dia: 15, mes: 'Set', turma: 'Geral', autor: 'Coordenação', descricao: 'Fique atento ao prazo final para solicitação no sistema.', horas_acc: 10 }],
   'Setembro-18': [{ id: 6, titulo: 'Maratona de Programação - Hackathon Estácio', local: 'Laboratório de TI', tipo: 'Evento', dia: 18, mes: 'Set', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 }],
   'Setembro-20': [{ id: 7, titulo: 'Simulação de Júri Popular', local: 'Tribunal Simulado', tipo: 'Evento', dia: 20, mes: 'Set', turma: 'Direito', autor: 'Núcleo Jurídico', descricao: 'Prática processual aberta para acadêmicos de direito.', horas_acc: 15 }],
   'Setembro-22': [{ id: 8, titulo: 'Campanha de Saúde e Bem-Estar', local: 'Pátio Central', tipo: 'Serviço', dia: 22, mes: 'Set', turma: 'Enfermagem / Nutrição', autor: 'Enfermagem', descricao: 'Aferição de pressão e orientação nutricional gratuita.', horas_acc: 10 }],
@@ -101,13 +101,13 @@ export const bancoEventosCalendario = {
   'Novembro-14': [{ id: 32, titulo: 'Palestra de Empregabilidade e LinkedIn', local: 'Auditório Principal', tipo: 'Evento', dia: 14, mes: 'Nov', turma: 'Geral', autor: 'Carreiras', descricao: 'Como otimizar seu perfil profissional.', horas_acc: 8 }],
   'Novembro-20': [{ id: 33, titulo: 'Consciência Negra: Mesa Redonda', local: 'Salão Social', tipo: 'Evento', dia: 20, mes: 'Nov', turma: 'Geral', autor: 'Diretoria', descricao: 'Discussão sobre diversidade e inclusão social.', horas_acc: 10 }],
   'Novembro-24': [{ id: 34, titulo: 'Plantão de Revisão para Provas Finais', local: 'Biblioteca', tipo: 'Serviço', dia: 24, mes: 'Nov', turma: 'Todas', autor: 'Monitoria', descricao: 'Apoio aos estudos para o encerramento do semestre.', horas_acc: 5 }],
-  'Novembro-28': [{ id: 35, titulo: 'Prazo Final de Envio de Atividades AAT', local: 'SIA online', tipo: 'Aviso', dia: 28, mes: 'Nov', turma: 'Geral', autor: 'Secretaria', descricao: 'Último dia para submissão de horas complementares.', horas_acc: 0 }],
+  'Novembro-28': [{ id: 35, titulo: 'Prazo Final de Envio de Atividades AAT', local: 'SIA online', tipo: 'Aviso', dia: 28, mes: 'Nov', turma: 'Geral', autor: 'Secretaria', descricao: 'Último dia para submissão de horas complementares.', horas_acc: 10 }],
 
   // DEZEMBRO
   'Dezembro (Até 15)-2': [{ id: 21, titulo: 'Início das Provas Finais', local: 'Salas de Aula', tipo: 'Evento', dia: 2, mes: 'Dez', turma: 'Geral', autor: 'Coordenação', descricao: 'Início das avaliações do encerramento de semestre.', horas_acc: 10 }],
   'Dezembro (Até 15)-5': [{ id: 22, titulo: 'Feira de Projetos Finais', local: 'Pátio Central', tipo: 'Evento', dia: 5, mes: 'Dez', turma: 'Tecnologia / Eng', autor: 'Corpo Docente', descricao: 'Apresentação dos trabalhos de conclusão de semestre.', horas_acc: 15 }],
   'Dezembro (Até 15)-10': [{ id: 23, titulo: 'Prazo Limite: Lançamento de Notas', local: 'SIA', tipo: 'Aviso', dia: 10, mes: 'Dez', turma: 'Geral', autor: 'Secretaria', descricao: 'Último dia para os professores lançarem as menções.', horas_acc: 10 }],
-  'Dezembro (Até 15)-15': [{ id: 24, titulo: 'Encerramento Oficial do Semestre Letivo', local: 'Campus', tipo: 'Aviso', dia: 15, mes: 'Dez', turma: 'Geral', autor: 'Diretoria', descricao: 'Boas férias a todos os alunos e corpo docente!', horas_acc: 0 }]
+  'Dezembro (Até 15)-15': [{ id: 24, titulo: 'Encerramento Oficial do Semestre Letivo', local: 'Campus', tipo: 'Aviso', dia: 15, mes: 'Dez', turma: 'Geral', autor: 'Diretoria', descricao: 'Boas férias a todos os alunos e corpo docente!', horas_acc: 10 }]
 };
 
 export const semestre = [

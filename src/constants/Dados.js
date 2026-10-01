@@ -5,9 +5,13 @@ export const listaCursos = [
     descricao: 'Bacharelado focado em gestão corporativa, finanças e empreendedorismo.', 
     modalidade: 'EAD, Presencial, Semipresencial',
     link: 'https://estacio.br/cursos/graduacao/administracao',
+    coordenadores: [
+      { nome: 'Prof. Carlos Alberto', email: 'carlos.alberto@estacio.br', telefone: '(21) 98888-1111' },
+      { nome: 'Profª. Juliana Mendes', email: 'juliana.mendes@estacio.br', telefone: '(21) 97777-2222' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Palestra: Gestão 4.0', data: '12 de Set' },
-      { titulo: 'Simulação de Mercado', data: '28 de Set' }
+      { titulo: 'Palestra: Gestão 4.0', data: '12 de Set', local: 'Auditório Principal', tipo: 'Evento', descricao: 'Discussão sobre inovação corporativa.' },
+      { titulo: 'Simulação de Mercado', data: '28 de Set', local: 'Laboratório de Informática', tipo: 'Oficina', descricao: 'Prática de estratégias empresariais.' }
     ]
   },
   { 
@@ -16,9 +20,12 @@ export const listaCursos = [
     descricao: 'Bacharelado voltado para a saúde, reeducação alimentar e gestão de UAN.', 
     modalidade: 'Presencial, Semipresencial',
     link: 'https://estacio.br/cursos/graduacao/nutricao',
+    coordenadores: [
+      { nome: 'Profª. Beatriz Lima', email: 'beatriz.lima@estacio.br', telefone: '(21) 96666-3333' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Oficina de Dietoterapia', data: '15 de Set' },
-      { titulo: 'Feira de Saúde Comunitária', data: '05 de Out' }
+      { titulo: 'Oficina de Dietoterapia', data: '15 de Set', local: 'Clínica Escola', tipo: 'Oficina', descricao: 'Técnicas avançadas de nutrição clínica.' },
+      { titulo: 'Feira de Saúde Comunitária', data: '05 de Out', local: 'Pátio Central', tipo: 'Serviço', descricao: 'Atendimento à comunidade local.' }
     ]
   },
   { 
@@ -27,9 +34,12 @@ export const listaCursos = [
     descricao: 'Bacharelado focado em ciências jurídicas, petições e práticas forenses.', 
     modalidade: 'Presencial',
     link: 'https://estacio.br/cursos/graduacao/direito',
+    coordenadores: [
+      { nome: 'Prof. Roberto Silveira', email: 'roberto.silveira@estacio.br', telefone: '(21) 95555-4444' },
+      { nome: 'Profª. Fernanda Costa', email: 'fernanda.costa@estacio.br', telefone: '(21) 94444-5555' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Simulação de Júri Popular', data: '20 de Set' },
-      { titulo: 'Seminário de Direitos Humanos', data: '14 de Out' }
+      { titulo: 'Simulação de Júri Popular', data: '20 de Set', local: 'Tribunal Simulado', tipo: 'Evento', descricao: 'Prática processual aberta para acadêmicos.' }
     ]
   },
   { 
@@ -38,34 +48,95 @@ export const listaCursos = [
     descricao: 'Bacharelado voltado para assistência clínica, urgência e emergência.', 
     modalidade: 'Presencial, Semipresencial',
     link: 'https://estacio.br/cursos/graduacao/enfermagem',
+    coordenadores: [
+      { nome: 'Profª. Márcia Antunes', email: 'marcia.antunes@estacio.br', telefone: '(21) 93333-6666' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Campanha de Vacinação Campus', data: '22 de Set' },
-      { titulo: 'Simpósio de Primeiros Socorros', data: '02 de Nov' }
+      { titulo: 'Campanha de Vacinação Campus', data: '22 de Set', local: 'Pátio Central', tipo: 'Serviço', descricao: 'Aferição e imunização gratuita.' }
+    ]
+  },
+  { 
+    id: '5', 
+    titulo: 'Psicologia', 
+    descricao: 'Bacharelado voltado ao estudo do comportamento humano, saúde mental e processos psicológicos.', 
+    modalidade: 'Presencial',
+    link: 'https://estacio.br/cursos/graduacao/psicologia',
+    coordenadores: [
+      { nome: 'Prof. André Valença', email: 'andre.valenca@estacio.br', telefone: '(21) 92222-7777' },
+      { nome: 'Profª. Carla Dias', email: 'carla.dias@estacio.br', telefone: '(21) 91111-8888' }
+    ],
+    eventosPrincipais: [
+      { titulo: 'Roda de Conversa: Saúde Mental', data: '10 de Out', local: 'Auditório 2', tipo: 'Evento', descricao: 'Debate sobre bem-estar acadêmico.' }
+    ]
+  },
+  { 
+    id: '6', 
+    titulo: 'Engenharia Civil', 
+    descricao: 'Focado no projeto, execução e gerenciamento de obras, estruturas e infraestrutura.', 
+    modalidade: 'Presencial',
+    link: 'https://estacio.br/cursos/graduacao/engenharia-civil',
+    coordenadores: [
+      { nome: 'Prof. Marcelo Souza', email: 'marcelo.souza@estacio.br', telefone: '(21) 90000-9999' }
+    ],
+    eventosPrincipais: [
+      { titulo: 'Visita Técnica a Canteiro de Obras', data: '25 de Out', local: 'Externa', tipo: 'Aula Prática', descricao: 'Acompanhamento prático de fundações.' }
     ]
   }
 ];
 
 export const listaCursosTecnico = [
   { 
-    id: '1', 
+    id: 't1', 
     titulo: 'Análise e Des. de Sistemas', 
     descricao: 'Tecnólogo focado em arquitetura mobile, web, cloud e APIs modernas.', 
     modalidade: 'EAD, Presencial, Ao vivo',
     link: 'https://estacio.br/cursos/graduacao/analise-e-desenvolvimento-de-sistemas',
+    coordenadores: [
+      { nome: 'Prof. Diego Ramos', email: 'diego.ramos@estacio.br', telefone: '(21) 99888-1234' },
+      { nome: 'Profª. Larissa Nunes', email: 'larissa.nunes@estacio.br', telefone: '(21) 99777-4321' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Maratona de Programação (Hackathon)', data: '18 de Set' },
-      { titulo: 'Workshop de Cloud AWS', data: '10 de Out' }
+      { titulo: 'Maratona de Programação (Hackathon)', data: '18 de Set', local: 'Lab de TI', tipo: 'Evento', descricao: 'Desenvolvimento de soluções mobile.' }
     ]
   },
   { 
-    id: '2', 
-    titulo: 'Técnico em Informática', 
-    descricao: 'Curso técnico focado em suporte, redes de computadores e manutenção.', 
+    id: 't2', 
+    titulo: 'Ciência da Computação', 
+    descricao: 'Bacharelado focado em fundamentos teóricos da computação, algoritmos, inteligência artificial e engenharia de software.', 
     modalidade: 'Presencial',
-    link: 'https://estacio.br/cursos/tecnico/informatica',
+    link: 'https://estacio.br/cursos/graduacao/ciencia-da-computacao',
+    coordenadores: [
+      { nome: 'Prof. Dr. Ricardo Prado', email: 'ricardo.prado@estacio.br', telefone: '(21) 99666-5678' }
+    ],
     eventosPrincipais: [
-      { titulo: 'Montagem e Manutenção ao Vivo', data: '25 de Set' },
-      { titulo: 'Oficina de Redes e Roteadores', data: '20 de Out' }
+      { titulo: 'Seminário de Inteligência Artificial', data: '22 de Set', local: 'Auditório Principal', tipo: 'Evento', descricao: 'Discussão sobre modelos generativos e redes neurais.' }
+    ]
+  },
+  { 
+    id: 't3', 
+    titulo: 'Técnico em Desenvolvimento de Sistemas', 
+    descricao: 'Focado na criação de aplicações multiplataforma, lógica de programação e integração de bancos de dados.', 
+    modalidade: 'Presencial, EAD',
+    link: 'https://estacio.br/cursos/tecnico/desenvolvimento-de-sistemas',
+    coordenadores: [
+      { nome: 'Prof. Gabriel Farias', email: 'gabriel.farias@estacio.br', telefone: '(21) 99555-8765' },
+      { nome: 'Profª. Mônica Freitas', email: 'monica.freitas@estacio.br', telefone: '(21) 99444-4321' }
+    ],
+    eventosPrincipais: [
+      { titulo: 'Oficina de Versionamento com Git', data: '12 de Out', local: 'Lab 02', tipo: 'Oficina', descricao: 'Boas práticas de controle de código fonte.' }
+    ]
+  },
+  { 
+    id: 't4', 
+    titulo: 'Técnico em Enfermagem', 
+    descricao: 'Capacitação voltada para procedimentos de enfermagem, suporte básico e cuidados ao paciente.', 
+    modalidade: 'Presencial',
+    link: 'https://estacio.br/cursos/tecnico/enfermagem',
+    coordenadores: [
+      { nome: 'Profª. Sandra Regina', email: 'sandra.regina@estacio.br', telefone: '(21) 99333-1122' }
+    ],
+    eventosPrincipais: [
+      { titulo: 'Treinamento de Primeiros Socorros', data: '18 de Out', local: 'Laboratório de Saúde', tipo: 'Prática', descricao: 'Simulações de atendimento de urgência.' }
     ]
   }
 ];
@@ -95,7 +166,7 @@ export const bancoEventosCalendario = {
   'Outubro-27': [{ id: 19, titulo: 'Exposição de Trabalhos Acadêmicos', local: 'Corredor Bloco A', tipo: 'Evento', dia: 27, mes: 'Out', turma: 'Geral', autor: 'Corpo Docente', descricao: 'Mostra de maquetes e projetos interdisciplinares.', horas_acc: 10 }],
   'Outubro-30': [{ id: 20, titulo: 'Simulado Geral Enade / Provas', local: 'Plataforma Online', tipo: 'Evento', dia: 30, mes: 'Out', turma: 'Formandos', autor: 'Qualidade Acadêmica', descricao: 'Preparatório oficial para avaliação institucional.', horas_acc: 10 }],
   
-  // NOVEMBRO (6 Eventos com os dias devidamente destacados)
+  // NOVEMBRO
   'Novembro-5': [{ id: 30, titulo: 'Simpósio de Ética Profissional', local: 'Auditório 2', tipo: 'Evento', dia: 5, mes: 'Nov', turma: 'Direito', autor: 'Coordenação', descricao: 'Debate sobre ética nas profissões modernas.', horas_acc: 10 }],
   'Novembro-10': [{ id: 31, titulo: 'Mostra de Inovação Tecnológica', local: 'Lab de Informática', tipo: 'Evento', dia: 10, mes: 'Nov', turma: 'Tecnologia', autor: 'Prof. Carlos', descricao: 'Apresentação de protótipos e sistemas criados pelos alunos.', horas_acc: 15 }],
   'Novembro-14': [{ id: 32, titulo: 'Palestra de Empregabilidade e LinkedIn', local: 'Auditório Principal', tipo: 'Evento', dia: 14, mes: 'Nov', turma: 'Geral', autor: 'Carreiras', descricao: 'Como otimizar seu perfil profissional.', horas_acc: 8 }],
@@ -113,7 +184,7 @@ export const bancoEventosCalendario = {
 export const semestre = [
   { id: 1, nome: 'Setembro', totalDias: 30, espacosVazios: 2, destaques: [2, 5, 8, 12, 15, 18, 20, 22, 25, 28] },
   { id: 2, nome: 'Outubro', totalDias: 31, espacosVazios: 4, destaques: [2, 5, 8, 10, 14, 18, 20, 24, 27, 30] },
-  { id: 3, nome: 'Novembro', totalDias: 30, espacosVazios: 0, destaques: [5, 10, 14, 20, 24, 28] }, // <-- Destaques adicionados aqui!
+  { id: 3, nome: 'Novembro', totalDias: 30, espacosVazios: 0, destaques: [5, 10, 14, 20, 24, 28] },
   { id: 4, nome: 'Dezembro (Até 15)', totalDias: 15, espacosVazios: 2, destaques: [2, 5, 10, 15] },
 ];
 

@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { styles } from '../styles/carrosselStyles';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = 280;
@@ -61,57 +62,3 @@ export default function Carrossel() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginVertical: 15,
-  },
-  tituloSecao: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#032551',
-    borderBottomWidth: 2,
-    borderBottomColor: '#054ca9',
-    paddingBottom: 5,
-    marginBottom: 12,
-    marginHorizontal: 15,
-  },
-  track: {
-    paddingHorizontal: 15,
-    gap: 16,
-  },
-  itemCard: {
-    width: ITEM_WIDTH,
-    backgroundColor: '#032551',
-    borderRadius: 16,
-    padding: 20,
-    justifyContent: 'space-between',
-    borderWidth: 2,
-    borderColor: '#ffbf1d', // Amarelo institucional Estácio
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  iconContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#ffbf1d',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#ffffff',
-    marginBottom: 6,
-  },
-  itemDescription: {
-    fontSize: 13,
-    color: '#e0e0e0',
-    lineHeight: 18,
-  },
-});

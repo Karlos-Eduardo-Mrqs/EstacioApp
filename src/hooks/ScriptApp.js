@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { listaCursos, listaCursosTecnico, bancoEventosCalendario, semestre } from '../app/Dados';
+import { listaCursos, listaCursosTecnico, bancoEventosCalendario, semestre } from '../constants/Dados';
 
 export function useScriptApp(styles) {
   const [eventoSelecionado, setEventoSelecionado] = useState(null);  

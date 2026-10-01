@@ -4,7 +4,7 @@ import EventoDetalhe from './EventoDetalhe';
 import Carrossel from '../components/Carrossel';
 import DepthCarousel from '../components/CarrosselCursos'; 
 import { useScriptApp } from '../hooks/ScriptApp';
-import { appStyles as styles } from '../styles/muralStyles';
+import { appStyles as styles, estilosCarrosselEvento, modalStyles } from '../styles/muralStyles';
 
 export default function App() {
   const {
@@ -152,36 +152,132 @@ export default function App() {
       )}
 
       {/* MODAL DE DETALHES DO CURSO */}
+      {/* MODAL DE DETALHES DO CURSO (PADRÃO INSTITUCIONAL ESTÁCIO) */}
       {cursoSelecionado && (
-        <Modal animationType="fade" transparent={true} visible={true} onRequestClose={() => setCursoSelecionado(null)}>
+        <Modal animationType="slide" transparent={true} visible={true} onRequestClose={() => setCursoSelecionado(null)}>
           <View style={modalStyles.overlay}>
             <View style={modalStyles.modalConteudo}>
+              
+              {/* CABEÇALHO DO MODAL */}
               <View style={modalStyles.cabecalhoModal}>
-                <Text style={modalStyles.tituloModal}>{cursoSelecionado.titulo}</Text>
+                <View style={{flex: 1}}>
+                  <Text style={modalStyles.subtituloModalHeader}>Graduação / Curso</Text>
+                  <Text style={modalStyles.tituloModal}>{cursoSelecionado.titulo}</Text>
+                </View>
                 <TouchableOpacity onPress={() => setCursoSelecionado(null)} style={modalStyles.btnFechar}>
                   <Text style={modalStyles.textoFechar}>X</Text>
                 </TouchableOpacity>
               </View>
 
-              <View style={modalStyles.corpoModal}>
-                <Text style={modalStyles.textoDetalhe}>📖 <Text style={modalStyles.textoBold}>Sobre:</Text> {cursoSelecionado.descricao}</Text>
-                <Text style={modalStyles.textoDetalhe}>📌 <Text style={modalStyles.textoBold}>Modalidades:</Text> {cursoSelecionado.modalidade}</Text>
+              <ScrollView showsVerticalScrollIndicator={false} style={modalStyles.corpoModalScroll}>
                 
-                <Text style={[modalStyles.textoBold, {marginTop: 15, marginBottom: 5, color: '#054ca9'}]}>Principais Eventos do Curso:</Text>
-                {cursoSelecionado.eventosPrincipais && cursoSelecionado.eventosPrincipais.map((ev, index) => (
-                  <View key={index} style={modalStyles.eventoItem}>
-                    <Text style={{fontSize: 12, color: '#333'}}>• {ev.titulo}</Text>
-                    <Text style={{fontSize: 11, fontWeight: 'bold', color: '#666'}}>{ev.data}</Text>
-                  </View>
-                ))}
+                {/* BLOCO 1: APRESENTAÇÃO */}
+                <View style={modalStyles.blocoSecao}>
+                  <Text style={modalStyles.tituloBlocoSecao}>APRESENTAÇÃO</Text>
+                  <View style={modalStyles.linhaAmarela} />
+                  <Text style={modalStyles.textoApresentacao}>{cursoSelecionado.descricao}</Text>
+                  <Text style={modalStyles.textoModalidade}>📌 <Text style={{fontWeight: 'bold'}}>Modalidades:</Text> {cursoSelecionado.modalidade}</Text>
+                  
+                  {/* Botão de + Informações (Link Oficial) */}
+                  <TouchableOpacity 
+                    style={modalStyles.btnSiteOficial} 
+                    onPress={() => Linking.openURL(cursoSelecionado.link)}
+                  >
+                    <Text style={modalStyles.textoBtnSite}>+ Informações (Site Oficial)</Text>
+                  </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity 
-                  style={modalStyles.btnSiteOficial} 
-                  onPress={() => Linking.openURL(cursoSelecionado.link)}
-                >
-                  <Text style={modalStyles.textoBtnSite}>+ Informações</Text>
-                </TouchableOpacity>
-              </View>
+                {/* BLOCO 2: EVENTOS E AVISOS DO CURSO */}
+                <View style={modalStyles.blocoSecao}>
+                  <Text style={modalStyles.tituloBlocoSecao}>EVENTOS E AVISOS DO CURSO</Text>
+                  <View style={modalStyles.linhaAmarela} />
+                  
+                  {cursoSelecionado.eventosPrincipais && cursoSelecionado.eventosPrincipais.length > 0 ? (
+                    cursoSelecionado.eventosPrincipais.map((ev, index) => (
+                      <View key={index} style={modalStyles.eventoCardModal}>
+                        <Text style={modalStyles.tagEventoModal}>{ev.tipo || 'Evento'}</Text>
+                        <Text style={modalStyles.tituloEventoModal} numberOfLines={2}>{ev.titulo}</Text>
+                        <Text style={modalStyles.dataEventoModal}>📅 {ev.data} {ev.local ? `| 📍 ${ev.local}` : ''}</Text>
+                        
+                        <TouchableOpacity 
+                          style={modalStyles.btnDetalhesModal} 
+                          onPress={() => {
+                            setCursoSelecionado(null);
+                            setEventoSelecionado({
+                              id: `curso-ev-${index}`,
+                              titulo: ev.titulo,
+                              tipo: ev.tipo || 'Evento',
+                              dia: ev.data,
+                              local: ev.local || cursoSelecionado.titulo,
+                              turma: cursoSelecionado.titulo,
+                              autor: `Coordenação de ${cursoSelecionado.titulo}`,
+                              descricao: ev.descricao || `Evento oficial vinculado ao curso de ${cursoSelecionado.titulo}.`,
+                              horas_acc: 10
+                            });
+                          }}
+                        >
+                          <Text style={modalStyles.textoBtnDetalhesModal}>+ Detalhes</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={modalStyles.textoVazio}>Nenhum evento ou aviso publicado ainda.</Text>
+                  )}
+                </View>
+
+                {/* BLOCO 3: FALE COM A COORDENAÇÃO */}
+                <View style={modalStyles.blocoSecao}>
+                  <Text style={modalStyles.tituloBlocoSecao}>FALE COM A COORDENAÇÃO</Text>
+                  <View style={modalStyles.linhaAmarela} />
+                  
+                  {cursoSelecionado.coordenadores && cursoSelecionado.coordenadores.length > 0 ? (
+                    /* 2º CASO: Se possui coordenadores, exibe o card detalhado (de baixo) */
+                    cursoSelecionado.coordenadores.map((coord, index) => (
+                      <View key={index} style={[modalStyles.cardCoordenacao, index > 0 && { marginTop: 15, paddingTop: 15, borderTopWidth: 1, borderTopColor: '#eee' }]}>
+                        <View style={modalStyles.topoCoordenacao}>
+                          <View style={modalStyles.avatarCoordenacao}>
+                            <Text style={{fontSize: 16, color: '#ffffff'}}>👤</Text>
+                          </View>
+                          <View style={{flex: 1}}>
+                            <Text style={modalStyles.nomeCoordenacao}>{coord.nome}</Text>
+                            <Text style={modalStyles.descricaoCoordenacao}>Coordenação de {cursoSelecionado.titulo}</Text>
+                          </View>
+                        </View>
+                        
+                        <View style={{marginTop: 8, gap: 4}}>
+                          <TouchableOpacity onPress={() => Linking.openURL(`mailto:${coord.email}`)}>
+                            <Text style={{fontSize: 11, color: '#054ca9', fontWeight: 'bold'}}>✉️ {coord.email}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => Linking.openURL(`tel:${coord.telefone}`)}>
+                            <Text style={{fontSize: 11, color: '#054ca9', fontWeight: 'bold'}}>📞 {coord.telefone}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))
+                  ) : (
+                    /* 1º CASO: Senão, exibe o card genérico (de cima) */
+                    <View style={modalStyles.cardCoordenacao}>
+                      <View style={modalStyles.topoCoordenacao}>
+                        <View style={modalStyles.avatarCoordenacao}>
+                          <Text style={{fontSize: 16, color: '#ffffff'}}>👤</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                          <Text style={modalStyles.nomeCoordenacao}>Coordenação de {cursoSelecionado.titulo}</Text>
+                          <Text style={modalStyles.descricaoCoordenacao}>Quer saber mais sobre o curso? Entre em contato com a coordenação acadêmica.</Text>
+                        </View>
+                      </View>
+                      
+                      <TouchableOpacity 
+                        style={[modalStyles.btnContato, {marginTop: 10}]}
+                        onPress={() => Linking.openURL('mailto:coordenacao@estacio.br?subject=Dúvida sobre o curso ' + cursoSelecionado.titulo)}
+                      >
+                        <Text style={modalStyles.textoBtnContato}>Enviar E-mail</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+
+              </ScrollView>
             </View>
           </View>
         </Modal>
@@ -189,81 +285,3 @@ export default function App() {
     </View>
   );
 }
-
-// Estilos específicos para os novos cartões em formato de carrossel de eventos
-const estilosCarrosselEvento = StyleSheet.create({
-  containerScroll: {
-    paddingHorizontal: 15,
-    gap: 12,
-  },
-  cartao: {
-    width: 230,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    padding: 14,
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderTopWidth: 4,
-    borderTopColor: '#054ca9',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  tag: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#e3f2fd',
-    color: '#054ca9',
-    fontSize: 9,
-    fontWeight: 'bold',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    marginBottom: 6,
-  },
-  titulo: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#032551',
-    marginBottom: 6,
-    height: 34,
-  },
-  data: {
-    fontSize: 11,
-    color: '#555',
-    marginBottom: 2,
-  },
-  local: {
-    fontSize: 11,
-    color: '#777',
-    marginBottom: 10,
-  },
-  botaoDetalhes: {
-    backgroundColor: '#054ca9',
-    paddingVertical: 6,
-    borderRadius: 4,
-    alignItems: 'center',
-  },
-  textoBotao: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: 'bold',
-  },
-});
-
-const modalStyles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  modalConteudo: { width: '100%', maxWidth: 340, backgroundColor: '#ffffff', borderRadius: 8, overflow: 'hidden' },
-  cabecalhoModal: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#054ca9', padding: 15 },
-  tituloModal: { fontSize: 15, fontWeight: 'bold', color: '#ffffff', flex: 1 },
-  btnFechar: { paddingHorizontal: 8 },
-  textoFechar: { fontSize: 16, fontWeight: 'bold', color: '#ffffff' },
-  corpoModal: { padding: 15 },
-  textoDetalhe: { fontSize: 13, color: '#444', marginBottom: 8, lineHeight: 18 },
-  textoBold: { fontWeight: 'bold', color: '#000' },
-  eventoItem: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#f4f6f8', padding: 8, borderRadius: 4, marginBottom: 5 },
-  btnSiteOficial: { marginTop: 15, backgroundColor: '#ffbf1d', paddingVertical: 10, borderRadius: 6, alignItems: 'center' },
-  textoBtnSite: { fontWeight: 'bold', color: '#032551', fontSize: 12 }
-});

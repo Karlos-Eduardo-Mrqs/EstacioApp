@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from 'react-native';
+import { CoresInstitucionais } from './theme'; // Importa o nosso ficheiro centralizado
 
 // Pega a largura da tela do dispositivo e calcula a largura do item do carrossel
 const { width } = Dimensions.get('window');
@@ -11,9 +12,9 @@ export const styles = StyleSheet.create({
   tituloSecao: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#032551',
+    color: CoresInstitucionais.azulPrincipal,
     borderBottomWidth: 2,
-    borderBottomColor: '#054ca9',
+    borderBottomColor: CoresInstitucionais.azulSecundario,
     paddingBottom: 5,
     marginBottom: 12,
     marginHorizontal: 15,
@@ -24,12 +25,12 @@ export const styles = StyleSheet.create({
   },
   itemCard: {
     width: ITEM_WIDTH,
-    backgroundColor: '#032551',
+    backgroundColor: CoresInstitucionais.azulPrincipal,
     borderRadius: 16,
     padding: 20,
     justifyContent: 'space-between',
     borderWidth: 2,
-    borderColor: '#ffbf1d', // Amarelo institucional Estácio
+    borderColor: CoresInstitucionais.amareloEstacio, // Amarelo institucional Estácio
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -40,7 +41,7 @@ export const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#ffbf1d',
+    backgroundColor: CoresInstitucionais.amareloEstacio,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -48,12 +49,12 @@ export const styles = StyleSheet.create({
   itemTitle: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#ffffff',
+    color: CoresInstitucionais.brancoPuro,
     marginBottom: 6,
   },
   itemDescription: {
     fontSize: 13,
-    color: '#e0e0e0',
+    color: CoresInstitucionais.textoCinza,
     lineHeight: 18,
   },
 });

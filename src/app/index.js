@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet, Linking } 
 import EventoDetalhe from './EventoDetalhe';
 import Carrossel from '../components/Carrossel';
 import DepthCarousel from '../components/CarrosselCursos'; 
+import ModalDesenvolvedores from '../components/ModalDesenvolvedores';
 import { useScriptApp } from '../hooks/ScriptApp';
 import { appStyles as styles, estilosCarrosselEvento, modalStyles } from '../styles/muralStyles';
 
@@ -14,6 +15,7 @@ export default function App() {
     renderizarDias
   } = useScriptApp(styles);
 
+  const [modalDevsVisivel, setModalDevsVisivel] = useState(false);
   const [cursoSelecionado, setCursoSelecionado] = useState(null);
 
   // Função auxiliar para renderizar cartões em formato de carrossel horizontal
@@ -35,12 +37,21 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 0 }}>
+          
         {/* CABEÇALHO */}
         <View style={styles.cabecalho}>
-          <Text style={styles.tituloCabecalho}>Mural Nova América</Text>
-          <Text style={styles.subtituloCabecalho}>Campus Nova América - Estácio</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.tituloCabecalho}>Mural Nova América</Text>
+            <Text style={styles.subtituloCabecalho}>Campus Nova América - Estácio</Text>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.btnLoginCabecalho} 
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.textoBtnLogin}>🔑 Admin</Text>
+          </TouchableOpacity>
         </View>
 
         {/* AVISOS DA GERÊNCIA */}
@@ -99,9 +110,7 @@ export default function App() {
           />
         )}
 
-        {/* ========================================================= */}
         {/* CARROSSEL: PRÓXIMOS EVENTOS */}
-        {/* ========================================================= */}
         <View style={styles.blocoSection}>
           <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
@@ -113,9 +122,7 @@ export default function App() {
           </ScrollView>
         </View>
 
-        {/* ========================================================= */}
         {/* CARROSSEL: EVENTOS DA SEMANA */}
-        {/* ========================================================= */}
         <View style={styles.blocoSection}>
           <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
@@ -127,11 +134,9 @@ export default function App() {
           </ScrollView>
         </View>
 
-        {/* ========================================================= */}
-        {/* CARROSSEL: EVENTOS PARA O PRÓXIMO MÊS (OUTUBRO) */}
-        {/* ========================================================= */}
+        {/* CARROSSEL: EVENTOS PARA O PRÓXIMO MÊS */}
         <View style={styles.blocoSection}>
-          <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS (OUTUBRO)</Text>
+          <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
             {eventosProximoMes.length > 0 ? (
               eventosProximoMes.map(renderCartaoCarrossel)
@@ -143,6 +148,20 @@ export default function App() {
 
         {/* CARROSSEL GERAL NO FINAL DA PÁGINA */}
         <Carrossel />
+        
+        {/* RODAPÉ */}
+        <View style={styles.rodape}>
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={styles.textoRodapeInstitucional}>
+              Universidade Estácio de Sá · Campus Nova América  |  Mural Acadêmico
+            </Text>
+          </View>
+        
+          <TouchableOpacity style={styles.cardDesenvolvedores} onPress={() => setModalDevsVisivel(true)}>
+            {/* MODAL DA EQUIPA DE DESENVOLVIMENTO */}
+          <ModalDesenvolvedores visible={modalDevsVisivel} onClose={() => setModalDevsVisivel(false)} />
+          </TouchableOpacity>
+        </View>
 
       </ScrollView>
 
@@ -151,7 +170,6 @@ export default function App() {
         <EventoDetalhe evento={eventoSelecionado} onClose={() => setEventoSelecionado(null)} />
       )}
 
-      {/* MODAL DE DETALHES DO CURSO */}
       {/* MODAL DE DETALHES DO CURSO (PADRÃO INSTITUCIONAL ESTÁCIO) */}
       {cursoSelecionado && (
         <Modal animationType="slide" transparent={true} visible={true} onRequestClose={() => setCursoSelecionado(null)}>
@@ -276,12 +294,14 @@ export default function App() {
                     </View>
                   )}
                 </View>
-
               </ScrollView>
             </View>
           </View>
         </Modal>
       )}
+    
+
+
     </View>
   );
 }

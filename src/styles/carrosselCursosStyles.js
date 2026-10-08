@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { CoresInstitucionais } from './theme'; // Importa o nosso ficheiro centralizado
 
 export const styles = StyleSheet.create({
   container: {
     marginVertical: 15,
-    backgroundColor: '#032551',
+    backgroundColor: CoresInstitucionais.azulPrincipal,
     paddingVertical: 15,
     borderRadius: 10,
     marginHorizontal: 10,
@@ -19,21 +20,21 @@ export const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 8,
     borderRadius: 6,
-    backgroundColor: '#054ca9',
+    backgroundColor: CoresInstitucionais.azulSecundario,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ffbf1d',
+    borderColor: CoresInstitucionais.amareloEstacio,
   },
   botaoTabAtivo: {
-    backgroundColor: '#ffbf1d',
+    backgroundColor: CoresInstitucionais.amareloEstacio,
   },
   textoTab: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: CoresInstitucionais.brancoPuro,
   },
   textoTabAtivo: {
-    color: '#032551',
+    color: CoresInstitucionais.azulPrincipal,
   },
   scrollContainer: {
     paddingHorizontal: 10,
@@ -41,7 +42,7 @@ export const styles = StyleSheet.create({
   },
   depthCard: {
     width: 240,
-    backgroundColor: '#ffffff',
+    backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 12,
     padding: 16,
     justifyContent: 'space-between',
@@ -51,10 +52,10 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     borderTopWidth: 4,
-    borderTopColor: '#ffbf1d',
+    borderTopColor: CoresInstitucionais.amareloEstacio,
   },
   badgeContainer: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: CoresInstitucionais.azulClaroFundo,
     alignSelf: 'flex-start',
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -64,17 +65,17 @@ export const styles = StyleSheet.create({
   badgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#054ca9',
+    color: CoresInstitucionais.azulSecundario,
   },
   cardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#032551',
+    color: CoresInstitucionais.azulPrincipal,
     marginBottom: 6,
   },
   cardDescription: {
     fontSize: 11,
-    color: '#555',
+    color: CoresInstitucionais.textoCinza,
     lineHeight: 16,
     marginBottom: 10,
   },
@@ -88,12 +89,12 @@ export const styles = StyleSheet.create({
   },
   cardModalidade: {
     fontSize: 10,
-    color: '#666',
+    color: CoresInstitucionais.textoCinza,
     flex: 1,
   },
   verMais: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#054ca9',
+    color: CoresInstitucionais.azulSecundario,
   },
 });

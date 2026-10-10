@@ -8,7 +8,7 @@ export default function RodapeInstitucional({ onOpenDevs, onOpenSobre }) {
       <Text style={styles.textoRodapeInstitucional}>
         Universidade Estácio de Sá · Campus Nova América  |  Mural Acadêmico
       </Text>
-      
+
       <View style={detalheStyles.rodapeBotoesContainer}>
         <TouchableOpacity style={detalheStyles.botaoRodapeCompacto} onPress={onOpenDevs}>
           <Text style={detalheStyles.textoBotaoRodape}>⚙️ Desenvolvedores</Text>

@@ -8,28 +8,28 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
   const desenvolvedores = [
     {
       nome: "Carlos Eduardo",
-      papel: "Front-end & Liderança",
+      papel: "Interface · Componentes · Gestão de Estado",
       instagram: "karlmbarreto",
       linkedin: "in/carlos-eduardo-marques-003926389",
       github: "Karlos-Eduardo-Mrqs"
     },
     {
       nome: "Lucas Andrade",
-      papel: "Desenvolvimento Mobile",
+      papel: "Desenvolvimento Mobile · Ecrãs · Navegação",
       instagram: "Luucas_andrade21",
       linkedin: "in/lucas-andrade-313b09236",
       github: "Lucas-deAndrade21"
     },
     {
       nome: "Victor Leon",
-      papel: "Back-end & Componentes",
+      papel: "Lógica de Dados · Estruturação · Componentes",
       instagram: "victorleon",
       linkedin: "in/victorlmmartello",
       github: "VictorLMMartello"
     },
     {
       nome: "Vinícius Amador",
-      papel: "Integração & Suporte",
+      papel: "Integração · Testes · Suporte Técnico",
       instagram: "vinicius_amador",
       linkedin: "in/vinicius-amador",
       github: "ViniciusAmador"
@@ -72,7 +72,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
                     onPress={() => Linking.openURL(`https://instagram.com/${dev.instagram}`)}
                   >
                     <Ionicons name="logo-instagram" size={13} color={CoresInstitucionais.azulPrincipal} />
-                    <Text style={modalDesenvolvedoresStyles.linkText}>Insta</Text>
+                    <Text style={modalDesenvolvedoresStyles.linkText}>Instagram</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity 

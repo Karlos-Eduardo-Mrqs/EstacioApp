@@ -1,11 +1,11 @@
 import { StyleSheet, Dimensions } from 'react-native';
-import { CoresInstitucionais } from './theme'; // Importa o nosso ficheiro centralizado
+import { CoresInstitucionais } from '../styles/theme'; // Importa o nosso ficheiro centralizado
 
 // Pega a largura da tela do dispositivo e calcula a largura do item do carrossel
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = width * 0.8; // Exemplo: 80% da largura da tela
 
-export const styles = StyleSheet.create({
+export const carrosselStyles = StyleSheet.create({
   container: {
     marginVertical: 15,
   },
@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'space-between',
     borderWidth: 2,
-    borderColor: CoresInstitucionais.amareloEstacio, // Amarelo institucional Estácio
+    borderColor: CoresInstitucionais.amarelo, // Amarelo institucional Estácio
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: CoresInstitucionais.amareloEstacio,
+    backgroundColor: CoresInstitucionais.amarelo,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 14,
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
   },
   itemDescription: {
     fontSize: 13,
-    color: CoresInstitucionais.textoCinza,
+    color: CoresInstitucionais.brancoPuro,
     lineHeight: 18,
   },
 });

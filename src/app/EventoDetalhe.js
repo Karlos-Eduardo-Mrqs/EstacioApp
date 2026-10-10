@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { View, Text, Modal, TouchableOpacity, Alert } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import { detalheStyles as styles } from '../styles/muralStyles'; // IMPORT DO ESTILO
+import { detalheStyles as styles} from '../styles/detalhesStyles';
 
 export default function EventoDetalhe({ evento, onClose }) {
   const viewRef = useRef();

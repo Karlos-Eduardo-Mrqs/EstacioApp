@@ -4,9 +4,10 @@ export const CoresInstitucionais = {
   azulSecundario: '#054ca9',  // Usado em botões de ação e destaques secundários
   azulClaroFundo: '#e3f2fd',  // Usado em badges e fundos leves de tags
   preto: '#000000',
-  // Cores de Destaque e Avisos
-  amareloEstacio: '#ffbf1d',  // Amarelo institucional para bordas e detalhes
 
+  // Cores de Destaque e Avisos
+  amarelo: '#ffbf1d',  // Amarelo para bordas e detalhes
+  
   // Cores Neutras e Superfícies
   fundoGeral: '#f8f9fa',      // Fundo padrão das telas
   azulClaroFundo: '#e3f2fd',  // Fundo de seções e blocos secundários

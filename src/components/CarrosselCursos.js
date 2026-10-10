@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { styles } from '../styles/carrosselCursosStyles';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+// ⚠️ CORREÇÃO AQUI: Importa com o nome correto e renomeia como 'styles'
+import { carrosselCursosStyles as styles } from '../styles/carrosselCursosStyles';
 
 export default function DepthCarousel({ cursos, cursosTecnicos, onSelectCurso }) {
   const [tipoAtivo, setTipoAtivo] = useState('destaque'); // 'destaque' ou 'tecnico'
@@ -11,7 +12,7 @@ export default function DepthCarousel({ cursos, cursosTecnicos, onSelectCurso })
       {/* Botões de Alternância */}
       <View style={styles.headerBotoes}>
         <TouchableOpacity 
-          style={[styles.botaoTab, tipoAtivo === 'destaque' && styles.botaoTabAtivo]} 
+          style={[styles.botaoTab, tipoAtivo === 'destaque' && styles.botaoTabAtivo]}
           onPress={() => setTipoAtivo('destaque')}
         >
           <Text style={[styles.textoTab, tipoAtivo === 'destaque' && styles.textoTabAtivo]}>Cursos em Destaque</Text>
@@ -26,7 +27,7 @@ export default function DepthCarousel({ cursos, cursosTecnicos, onSelectCurso })
       </View>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-        {listaAtual.map((curso, index) => (
+        {listaAtual && listaAtual.map((curso, index) => (
           <TouchableOpacity key={curso.id} style={styles.depthCard} activeOpacity={0.9} onPress={() => onSelectCurso(curso)}>
             <View style={styles.badgeContainer}>
               <Text style={styles.badgeText}>#{index + 1}</Text>
@@ -36,7 +37,6 @@ export default function DepthCarousel({ cursos, cursosTecnicos, onSelectCurso })
             <View style={styles.footerCard}>
               <Text style={styles.cardModalidade} numberOfLines={1}>📌 {curso.modalidade}</Text>
               <Text style={styles.verMais}>+ Detalhes</Text>
-              
             </View>
           </TouchableOpacity>
         ))}

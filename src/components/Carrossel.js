@@ -1,7 +1,9 @@
 import React, { useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from '../styles/carrosselStyles';
+
+// ⚠️ CORREÇÃO AQUI: Importa com o nome correto e renomeia como 'styles'
+import { carrosselStyles as styles } from '../styles/carrosselStyles';
 
 const { width } = Dimensions.get('window');
 const ITEM_WIDTH = 280;

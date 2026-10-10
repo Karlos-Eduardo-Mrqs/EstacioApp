@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { CoresInstitucionais } from './theme'; // Importa o nosso ficheiro centralizado
 
-export const styles = StyleSheet.create({
+export const carrosselCursosStyles = StyleSheet.create({
   container: {
     marginVertical: 15,
     backgroundColor: CoresInstitucionais.azulPrincipal,
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     color: CoresInstitucionais.brancoPuro,
   },
   textoTabAtivo: {
-    color: CoresInstitucionais.azulPrincipal,
+    color: CoresInstitucionais.amarelo,
   },
   scrollContainer: {
     paddingHorizontal: 10,
@@ -95,6 +95,6 @@ export const styles = StyleSheet.create({
   verMais: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: CoresInstitucionais.azulSecundario,
+    color: CoresInstitucionais.azulPrincipal,
   },
 });

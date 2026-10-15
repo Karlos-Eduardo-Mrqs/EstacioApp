@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import DepthCarousel from './CarrosselCursos';
-import Carrossel from './Carrossel';
-import { appStyles as styles } from '../styles/mainStyles';
-import { carrosselEventosStyles as estilosCarrosselEvento } from '../styles/carrosselEventosStyles';
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
+import { appStyles as styles } from "../../styles/mural/mainStyles";
+import Carrossel from "./Carrossel";
+import DepthCarousel from "./CarrosselCursos";
 
 export default function ListaCarrosseis({
   cursos,
@@ -18,12 +17,18 @@ export default function ListaCarrosseis({
   const renderCartaoCarrossel = (evento) => (
     <View key={evento.id} style={estilosCarrosselEvento.cartao}>
       <Text style={estilosCarrosselEvento.tag}>{evento.tipo}</Text>
-      <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>{evento.titulo}</Text>
-      <Text style={estilosCarrosselEvento.data}>📅 {evento.dia} de {evento.mes}</Text>
-      <Text style={estilosCarrosselEvento.local} numberOfLines={1}>📍 {evento.local}</Text>
-      
-      <TouchableOpacity 
-        style={estilosCarrosselEvento.botaoDetalhes} 
+      <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
+        {evento.titulo}
+      </Text>
+      <Text style={estilosCarrosselEvento.data}>
+        📅 {evento.dia} de {evento.mes}
+      </Text>
+      <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
+        📍 {evento.local}
+      </Text>
+
+      <TouchableOpacity
+        style={estilosCarrosselEvento.botaoDetalhes}
         onPress={() => onSelectEvento(evento)}
       >
         <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
@@ -35,21 +40,27 @@ export default function ListaCarrosseis({
     <View>
       {/* CARROSSEL DE CURSOS */}
       {cursos && (
-        <DepthCarousel 
-          cursos={cursos} 
-          cursosTecnicos={cursosTecnicos || []} 
-          onSelectCurso={onSelectCurso} 
+        <DepthCarousel
+          cursos={cursos}
+          cursosTecnicos={cursosTecnicos || []}
+          onSelectCurso={onSelectCurso}
         />
       )}
 
       {/* CARROSSEL: PRÓXIMOS EVENTOS */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={estilosCarrosselEvento.containerScroll}
+        >
           {listaProximos && listaProximos.length > 0 ? (
             listaProximos.map(renderCartaoCarrossel)
           ) : (
-            <Text style={styles.textoMutavel}>Nenhum próximo evento encontrado.</Text>
+            <Text style={styles.textoMutavel}>
+              Nenhum próximo evento encontrado.
+            </Text>
           )}
         </ScrollView>
       </View>
@@ -57,11 +68,17 @@ export default function ListaCarrosseis({
       {/* CARROSSEL: EVENTOS DA SEMANA */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={estilosCarrosselEvento.containerScroll}
+        >
           {listaSemana && listaSemana.length > 0 ? (
             listaSemana.map(renderCartaoCarrossel)
           ) : (
-            <Text style={styles.textoMutavel}>Nenhum evento agendado para esta semana.</Text>
+            <Text style={styles.textoMutavel}>
+              Nenhum evento agendado para esta semana.
+            </Text>
           )}
         </ScrollView>
       </View>
@@ -69,11 +86,17 @@ export default function ListaCarrosseis({
       {/* CARROSSEL: EVENTOS PARA O PRÓXIMO MÊS */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={estilosCarrosselEvento.containerScroll}
+        >
           {eventosProximoMes && eventosProximoMes.length > 0 ? (
             eventosProximoMes.map(renderCartaoCarrossel)
           ) : (
-            <Text style={styles.textoMutavel}>Nenhum evento para o próximo mês.</Text>
+            <Text style={styles.textoMutavel}>
+              Nenhum evento para o próximo mês.
+            </Text>
           )}
         </ScrollView>
       </View>

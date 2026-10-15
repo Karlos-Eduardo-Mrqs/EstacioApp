@@ -1,8 +1,8 @@
-import { StyleSheet, Dimensions } from 'react-native';
-import { CoresInstitucionais } from '../styles/theme'; // Importa o nosso ficheiro centralizado
+import { Dimensions, StyleSheet } from "react-native";
+import { CoresInstitucionais } from "../theme"; // Importa o nosso ficheiro centralizado
 
 // Pega a largura da tela do dispositivo e calcula a largura do item do carrossel
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 const ITEM_WIDTH = width * 0.8; // Exemplo: 80% da largura da tela
 
 export const carrosselStyles = StyleSheet.create({
@@ -11,7 +11,7 @@ export const carrosselStyles = StyleSheet.create({
   },
   tituloSecao: {
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     borderBottomWidth: 2,
     borderBottomColor: CoresInstitucionais.azulSecundario,
@@ -28,11 +28,11 @@ export const carrosselStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.azulPrincipal,
     borderRadius: 16,
     padding: 20,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     borderWidth: 2,
     borderColor: CoresInstitucionais.amarelo, // Amarelo institucional Estácio
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -42,13 +42,13 @@ export const carrosselStyles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     backgroundColor: CoresInstitucionais.amarelo,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 14,
   },
   itemTitle: {
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: "900",
     color: CoresInstitucionais.brancoPuro,
     marginBottom: 6,
   },

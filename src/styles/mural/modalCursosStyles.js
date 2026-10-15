@@ -1,30 +1,50 @@
-import { StyleSheet } from 'react-native';
-import { CoresInstitucionais} from '../styles/theme';
+import { StyleSheet } from "react-native";
+import { CoresInstitucionais } from "../theme";
 
 export const modalCursosStyles = StyleSheet.create({
-  overlay: { 
-    flex: 1, 
-    backgroundColor: 'rgba(3, 37, 81, 0.6)', 
-    justifyContent: 'flex-end', 
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(3, 37, 81, 0.6)",
+    justifyContent: "flex-end",
   },
-  modalConteudo: { 
-    width: '100%', 
-    height: '92%', 
-    backgroundColor: '#f4f6f9', 
-    borderTopLeftRadius: 20, 
-    borderTopRightRadius: 20, 
-    overflow: 'hidden',
+  modalConteudo: {
+    width: "100%",
+    height: "92%",
+    backgroundColor: "#f4f6f9",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: "hidden",
   },
-  cabecalhoModal: { 
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: CoresInstitucionais.azulPrincipal,
-    padding: 16,borderBottomWidth: 3,borderBottomColor: CoresInstitucionais.amarelo
+  cabecalhoModal: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: CoresInstitucionais.azulPrincipal,
+    padding: 16,
+    borderBottomWidth: 3,
+    borderBottomColor: CoresInstitucionais.amarelo,
   },
-  subtituloModalHeader: { fontSize: 10, color: CoresInstitucionais.amarelo, textTransform: 'uppercase', fontWeight: 'bold' },
-  tituloModal: { fontSize: 16, fontWeight: 'bold', color: CoresInstitucionais.brancoPuro, flex: 1, marginRight: 10 },
+  subtituloModalHeader: {
+    fontSize: 10,
+    color: CoresInstitucionais.amarelo,
+    textTransform: "uppercase",
+    fontWeight: "bold",
+  },
+  tituloModal: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: CoresInstitucionais.brancoPuro,
+    flex: 1,
+    marginRight: 10,
+  },
   btnFechar: { padding: 4 },
-  textoFechar: { fontSize: 18, fontWeight: 'bold', color: CoresInstitucionais.brancoPuro },
+  textoFechar: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: CoresInstitucionais.brancoPuro,
+  },
   corpoModalScroll: { padding: 12, paddingBottom: 40 },
-  
+
   blocoSecao: {
     backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 8,
@@ -36,7 +56,7 @@ export const modalCursosStyles = StyleSheet.create({
   },
   tituloBlocoSecao: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     letterSpacing: 0.5,
   },
@@ -62,15 +82,15 @@ export const modalCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.amarelo,
     paddingVertical: 10,
     borderRadius: 6,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 4,
   },
   textoBtnSite: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     fontSize: 11,
   },
-  
+
   eventoCardModal: {
     backgroundColor: CoresInstitucionais.fundoGeral,
     borderRadius: 6,
@@ -85,16 +105,16 @@ export const modalCursosStyles = StyleSheet.create({
     fontSize: 8,
     backgroundColor: CoresInstitucionais.azulClaroFundo,
     color: CoresInstitucionais.azulPrincipal,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 3,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 4,
   },
   tituloEventoModal: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     marginBottom: 4,
   },
@@ -107,28 +127,28 @@ export const modalCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.azulSecundario,
     paddingVertical: 6,
     borderRadius: 4,
-    alignItems: 'center',
+    alignItems: "center",
   },
   textoBtnDetalhesModal: {
     color: CoresInstitucionais.brancoPuro,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 
   textoVazio: {
     fontSize: 11,
     color: CoresInstitucionais.textoCinza,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
 
   cardCoordenacao: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
+    flexDirection: "column",
+    alignItems: "stretch",
     gap: 10,
   },
   topoCoordenacao: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
   },
   avatarCoordenacao: {
@@ -136,12 +156,12 @@ export const modalCursosStyles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     backgroundColor: CoresInstitucionais.azulSecundario,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   nomeCoordenacao: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
   },
   descricaoCoordenacao: {
@@ -153,11 +173,11 @@ export const modalCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.azulSecundario,
     paddingVertical: 8,
     borderRadius: 4,
-    alignItems: 'center',
+    alignItems: "center",
   },
   textoBtnContato: {
     color: CoresInstitucionais.brancoPuro,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

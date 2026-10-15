@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { CoresInstitucionais } from './theme'; // Importa o nosso ficheiro centralizado
+import { StyleSheet } from "react-native";
+import { CoresInstitucionais } from "../theme"; // Importa o nosso ficheiro centralizado
 
 export const carrosselCursosStyles = StyleSheet.create({
   container: {
@@ -10,8 +10,8 @@ export const carrosselCursosStyles = StyleSheet.create({
     marginHorizontal: 10,
   },
   headerBotoes: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 15,
     gap: 10,
     paddingHorizontal: 15,
@@ -21,7 +21,7 @@ export const carrosselCursosStyles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 6,
     backgroundColor: CoresInstitucionais.azulSecundario,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
     borderColor: CoresInstitucionais.amareloEstacio,
   },
@@ -30,7 +30,7 @@ export const carrosselCursosStyles = StyleSheet.create({
   },
   textoTab: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.brancoPuro,
   },
   textoTabAtivo: {
@@ -45,9 +45,9 @@ export const carrosselCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 12,
     padding: 16,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
@@ -56,7 +56,7 @@ export const carrosselCursosStyles = StyleSheet.create({
   },
   badgeContainer: {
     backgroundColor: CoresInstitucionais.azulClaroFundo,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -64,12 +64,12 @@ export const carrosselCursosStyles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulSecundario,
   },
   cardTitle: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     marginBottom: 6,
   },
@@ -81,11 +81,11 @@ export const carrosselCursosStyles = StyleSheet.create({
   },
   footerCard: {
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
     paddingTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   cardModalidade: {
     fontSize: 10,
@@ -94,7 +94,7 @@ export const carrosselCursosStyles = StyleSheet.create({
   },
   verMais: {
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
   },
 });

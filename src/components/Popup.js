@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { View, Text, Modal } from 'react-native';
-import { popupStyles as styles } from '../styles/popupStyles'; // 👈 ADICIONE ESTA IMPORTAÇÃO
+import { useEffect } from "react";
+import { Modal, Text, View } from "react-native";
+import { popupStyles as styles } from "../styles/popupStyles"; // 👈 ADICIONE ESTA IMPORTAÇÃO
 
 export default function ToastPopup({ visible, titulo, mensagem, onClose }) {
   useEffect(() => {
@@ -16,7 +16,12 @@ export default function ToastPopup({ visible, titulo, mensagem, onClose }) {
   if (!visible) return null;
 
   return (
-    <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
+    <Modal
+      transparent
+      animationType="fade"
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={styles.overlay}>
         <View style={styles.toastContainer}>
           <View style={styles.headerRow}>

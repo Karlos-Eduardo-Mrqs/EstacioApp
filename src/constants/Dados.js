@@ -203,3 +203,30 @@ export const listaSemanaMock = [
   { id: 18, dia: 18, mes: 'Set', titulo: 'Maratona de Programação - Hackathon', local: 'Lab de TI', tipo: 'Evento', dia: 18, mes: 'Set', turma: 'Análise de Sistemas', autor: 'Coordenação TI', descricao: 'Desenvolvimento de soluções mobile em 12 horas.', horas_acc: 20 },
   { id: 20, dia: 20, mes: 'Set', titulo: 'Simulação de Júri Popular', local: 'Tribunal Simulado', tipo: 'Evento', dia: 20, mes: 'Set', turma: 'Direito', autor: 'Núcleo Jurídico', descricao: 'Prática processual aberta para acadêmicos de direito.', horas_acc: 15 }
 ];
+
+export const USUARIOS_MOCK = [
+  {
+    id: 1,
+    nome: 'Ana',
+    email: 'ana.coordenacao@estacio.br',
+    senha: '123',
+    perfil: 'Coordenador',
+    curso: 'Engenharia de Software',
+  },
+  {
+    id: 2,
+    nome: 'Junior',
+    email: 'junior.coordenacao@estacio.br',
+    senha: '123',
+    perfil: 'Coordenador',
+    curso: 'Administração',
+  },
+  {
+    id: 3,
+    nome: 'Mariana',
+    email: 'mariana.gerencia@estacio.br',
+    senha: '123',
+    perfil: 'Gerência Acadêmica',
+    setor: 'Direção de Ensino',
+  },
+];

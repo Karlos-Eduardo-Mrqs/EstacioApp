@@ -1,0 +1,252 @@
+import { StyleSheet, Platform, StatusBar } from 'react-native';
+import { CoresInstitucionais } from "../theme";
+
+export const appStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: CoresInstitucionais.fundoGeral },
+
+  cabecalho: {
+    backgroundColor: CoresInstitucionais.azulPrincipal,
+    padding: 16,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 44,
+    paddingBottom: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderBottomWidth: 3,
+    borderBottomColor: CoresInstitucionais.amarelo,
+  },
+  tituloCabecalho: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: CoresInstitucionais.brancoPuro,
+    flex: 1,
+    marginRight: 10,
+  },
+  subtituloCabecalho: {
+    fontSize: 10,
+    color: CoresInstitucionais.amarelo,
+    textTransform: "uppercase",
+    fontWeight: "bold",
+    marginTop: 2,
+  },
+  btnLoginCabecalho: {
+    backgroundColor: CoresInstitucionais.amarelo,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.amarelo,
+    marginLeft: 10,
+  },
+  textoBtnLogin: {
+    color: CoresInstitucionais.azulPrincipal,
+    fontWeight: "bold",
+    fontSize: 11,
+  },
+
+  blocoSection: {
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    margin: 10,
+    padding: 15,
+    borderRadius: 8,
+    elevation: 1,
+  },
+  tituloSecaoBloco: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: CoresInstitucionais.azulPrincipal,
+    borderBottomWidth: 2,
+    borderBottomColor: CoresInstitucionais.azulEscuro,
+    paddingBottom: 5,
+    marginBottom: 10,
+  },
+  caixaAviso: { minHeight: 40 },
+  textoMutavel: {
+    color: CoresInstitucionais.textoCinza,
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+
+  scrollCalendario: { gap: 10, paddingBottom: 5 },
+  calendarioBoxMini: {
+    width: 220,
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.bordaSuave,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  mesHeaderAzul: {
+    backgroundColor: CoresInstitucionais.azulEscuro,
+    padding: 6,
+    alignItems: "center",
+  },
+  mesTituloBranco: {
+    color: CoresInstitucionais.azulPrincipal,
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  calendarioGrid: { flexDirection: "row", flexWrap: "wrap", padding: 5 },
+  celulaDia: { width: "14.2%", alignItems: "center", paddingVertical: 4 },
+  textoDiaSemana: { color: CoresInstitucionais.textoCinza, fontSize: 9 },
+  textoDia: { fontSize: 11, color: CoresInstitucionais.textoCinzaEscuro },
+  diaDestaque: {
+    backgroundColor: CoresInstitucionais.amarelo,
+    borderRadius: 12,
+  },
+  textoDiaDestaque: { fontWeight: "bold", color: CoresInstitucionais.preto },
+  diaSelecionado: {
+    borderWidth: 2,
+    borderColor: CoresInstitucionais.azulEscuro,
+    borderRadius: 12,
+  },
+  textoDiaSelecionado: {
+    color: CoresInstitucionais.azulEscuro,
+    fontWeight: "bold",
+  },
+  legendaCalendario: {
+    fontSize: 9,
+    color: CoresInstitucionais.textoCinza,
+    textAlign: "center",
+    marginTop: 8,
+  },
+
+  areaEventosDoDia: {
+    marginTop: 15,
+    marginHorizontal: 15,
+    padding: 15,
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.bordaSuave,
+    elevation: 2,
+  },
+
+  tituloDiaFocado: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: CoresInstitucionais.azulSecundario,
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  cartaoDiaFocado: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: CoresInstitucionais.fundoGeral,
+    padding: 14,
+    borderRadius: 6,
+    marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: CoresInstitucionais.azulEscuro,
+  },
+  btnTextoMiniAzul: {
+    color: CoresInstitucionais.textoCinzaEscuro,
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+
+  duasColunasContainer: {
+    flexDirection: "row",
+    marginHorizontal: 10,
+    marginBottom: 20,
+    gap: 10,
+  },
+  coluna: {
+    flex: 1,
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    padding: 10,
+    borderRadius: 8,
+    elevation: 1,
+  },
+
+  cartaoPequeno: {
+    backgroundColor: CoresInstitucionais.fundoGeral,
+    padding: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.bordaSuave,
+    marginBottom: 10,
+  },
+  tagCartaoPequeno: {
+    fontSize: 8,
+    backgroundColor: CoresInstitucionais.azulClaroFundo,
+    color: CoresInstitucionais.azulEscuro,
+    alignSelf: "flex-start",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
+  tituloCartaoPequeno: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: CoresInstitucionais.azulPrincipal,
+    marginBottom: 4,
+  },
+  dataCartaoPequeno: {
+    fontSize: 10,
+    color: CoresInstitucionais.textoCinza,
+    marginBottom: 8,
+  },
+  btnVerDescricaoMini: {
+    backgroundColor: CoresInstitucionais.azulEscuro,
+    paddingVertical: 6,
+    borderRadius: 4,
+    alignItems: "center",
+  },
+  btnTextoMini: {
+    color: CoresInstitucionais.brancoPuro,
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+
+  // --- RODAPÉ NO APPSTYLES ---
+  rodape: {
+    backgroundColor: CoresInstitucionais.azulPrincipal,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderTopWidth: 3,
+    borderTopColor: CoresInstitucionais.amareloEstacio,
+    marginTop: 15,
+    alignItems: "center", // Centraliza o conteúdo
+  },
+  textoRodapeInstitucional: {
+    fontSize: 9,
+    color: "#cfd8dc",
+    textAlign: "center",
+    marginBottom: 10,
+    letterSpacing: 0.3,
+  },
+  cardDesenvolvedores: {
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    borderRadius: 6,
+    padding: 10,
+    width: "100%",
+    borderLeftWidth: 3,
+    borderLeftColor: CoresInstitucionais.amarelo,
+    elevation: 2,
+  },
+  devHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  devTituloCard: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: CoresInstitucionais.azulPrincipal,
+  },
+  devSubToque: {
+    fontSize: 9,
+    color: CoresInstitucionais.azulSecundario,
+    fontStyle: "italic",
+  },
+  devNomesResumo: {
+    fontSize: 9,
+    color: CoresInstitucionais.textoCinza,
+  },
+});

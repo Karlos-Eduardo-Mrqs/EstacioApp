@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Modal, ScrollView, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScriptApp } from "../hooks/ScriptApp";
 
 // Importação dos novos componentes modulares
@@ -52,8 +53,8 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f4f5f7' }} edges={['top', 'bottom']}>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* COMPONENTE DO CABEÇALHO */}
         <Cabecalho onAdminPress={() => setModalLoginVisivel(true)} />
 
@@ -121,6 +122,6 @@ export default function App() {
         onClose={() => setCursoSelecionado(null)}
         onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
       />
-    </View>
+    </SafeAreaView>
   );
 }

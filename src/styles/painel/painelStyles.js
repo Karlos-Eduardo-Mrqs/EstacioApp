@@ -1,10 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { CoresInstitucionais } from '../theme';
 
 export const painelStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: CoresInstitucionais.fundoGeral_Alternativo,
+    backgroundColor: '#f4f5f7',
   },
 
   container: {
@@ -15,13 +14,13 @@ export const painelStyles = StyleSheet.create({
   tituloPagina: {
     fontSize: 24,
     fontWeight: '700',
-    color: CoresInstitucionais.azulPrincipal_Alternativo,
+    color: '#172554',
     marginBottom: 5,
   },
 
   subtituloPagina: {
     fontSize: 14,
-    color: CoresInstitucionais.textoCinza_Alternativo,
+    color: '#64748b',
     marginBottom: 18,
   },
 
@@ -40,7 +39,7 @@ export const painelStyles = StyleSheet.create({
     height: 46,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: CoresInstitucionais.brancoPuro,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#dbe2ea',
     borderRadius: 9,
@@ -49,7 +48,7 @@ export const painelStyles = StyleSheet.create({
 
   iconePesquisa: {
     fontSize: 25,
-    color: CoresInstitucionais.textoCinza_Alternativo,
+    color: '#64748b',
     marginRight: 8,
   },
 
@@ -93,7 +92,7 @@ export const painelStyles = StyleSheet.create({
   // LISTA
 
   cabecalhoLista: {
-    backgroundColor: CoresInstitucionais.brancoPuro,
+    backgroundColor: '#ffffff',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     paddingHorizontal: 14,
@@ -119,7 +118,7 @@ export const painelStyles = StyleSheet.create({
   // CARTÃO COMPACTO
 
   usuarioCard: {
-    backgroundColor: CoresInstitucionais.brancoPuro,
+    backgroundColor: '#ffffff',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
@@ -262,7 +261,7 @@ export const painelStyles = StyleSheet.create({
   // LISTA VAZIA
 
   listaVazia: {
-    backgroundColor: CoresInstitucionais.brancoPuro,
+    backgroundColor: '#ffffff',
     padding: 28,
     alignItems: 'center',
     borderWidth: 1,
@@ -353,7 +352,7 @@ export const painelStyles = StyleSheet.create({
     borderColor: '#d7dce2',
     borderRadius: 8,
     paddingHorizontal: 12,
-    backgroundColor: coresInstitucionais.brancoPuro,
+    backgroundColor: '#ffffff',
     color: '#1e293b',
     fontSize: 13,
   },
@@ -403,7 +402,7 @@ export const painelStyles = StyleSheet.create({
   },
 
   textoCriar: {
-    color: coresInstitucionais.brancoPuro,
+    color: '#ffffff',
     fontSize: 13,
     fontWeight: '700',
   },

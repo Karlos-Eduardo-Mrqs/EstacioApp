@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform, StatusBar } from 'react-native';
 import { CoresInstitucionais } from "../theme";
 
 export const appStyles = StyleSheet.create({
@@ -7,6 +7,8 @@ export const appStyles = StyleSheet.create({
   cabecalho: {
     backgroundColor: CoresInstitucionais.azulPrincipal,
     padding: 16,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 44,
+    paddingBottom: 30,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",

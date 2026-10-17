@@ -8,6 +8,8 @@ export default function CalendarioAcademico({
   diaFocado,
   eventosDoDia,
   onSelectEvento,
+  carregandoEventos,
+  erroEventos,
 }) {
   return (
     <View>
@@ -49,7 +51,6 @@ export default function CalendarioAcademico({
                       mes.nome,
                       mes.totalDias,
                       mes.espacosVazios,
-                      mes.destaques,
                     )}
                 </View>
               </View>
@@ -58,6 +59,14 @@ export default function CalendarioAcademico({
         <Text style={styles.legendaCalendario}>
           Dias em amarelo possuem eventos acadêmicos
         </Text>
+        {carregandoEventos && (
+          <Text style={styles.textoMutavel}>Carregando eventos...</Text>
+        )}
+        {erroEventos && (
+          <Text style={[styles.textoMutavel, { color: "#b00020" }]}>
+            Não foi possível carregar os eventos: {erroEventos}
+          </Text>
+        )}
       </View>
 
       {/* CAIXA DE EVENTOS DO DIA CLICADO */}

@@ -219,10 +219,6 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
     </View>
   );
 
-  const voltar = () => {
-    if (onClose) onClose();
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: '#f4f5f7' }}>
       <FlatList
@@ -235,9 +231,6 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
         ListHeaderComponent={
           <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <TouchableOpacity style={styles.backButton} onPress={voltar}>
-                <Text style={styles.backText}>← voltar</Text>
-              </TouchableOpacity>
 
               <TouchableOpacity 
                 onPress={handleLogout}

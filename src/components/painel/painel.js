@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StatusBar, Pl
 import { painelStyles as styles } from '../../styles/painel/painelStyles';
 import PainelCadastro from '../painel/painelCadastro'; 
 
-export default function GerenciarUsuarios() {
+export default function GerenciarUsuarios({ onClose, onLogout }) {
   // ============================================================
   // ESTADOS PRINCIPAIS
   // ============================================================
@@ -24,9 +24,16 @@ export default function GerenciarUsuarios() {
     },
     {
       id: '3',
-      nome: 'Gerência Acadêmica',
-      email: 'mariana.gerencia@estacio.br',
-      perfil: 'Gerência Acadêmica',
+      nome: 'Ciencia da Computação',
+      email: 'mariana.coordenador@estacio.br',
+      perfil: 'Coordenador',
+      ativo: true,
+    },
+    {
+      id: '4',
+      nome: 'Psicologia',
+      email: 'samantha.coordenador@estacio.br',
+      perfil: 'Coordenador',
       ativo: true,
     },
   ]);
@@ -140,6 +147,31 @@ export default function GerenciarUsuarios() {
     );
   };
 
+  const handleLogout = () => {
+    const realizarLogout = () => {
+      if (onLogout) {
+        onLogout();
+      } else if (onClose) {
+        onClose();
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmou = window.confirm('Deseja realmente sair do sistema?');
+      if (confirmou) realizarLogout();
+      return;
+    }
+
+    Alert.alert(
+      'Sair da conta',
+      'Deseja realmente encerrar a sua sessão?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Sair', style: 'destructive', onPress: realizarLogout },
+      ]
+    );
+  };
+
   // ============================================================
   // RENDERIZAÇÃO DO ITEM DA LISTA
   // ============================================================
@@ -187,6 +219,10 @@ export default function GerenciarUsuarios() {
     </View>
   );
 
+  const voltar = () => {
+    if (onClose) onClose();
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f4f5f7' }}>
       <FlatList
@@ -198,7 +234,30 @@ export default function GerenciarUsuarios() {
         contentContainerStyle={styles.container}
         ListHeaderComponent={
           <View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <TouchableOpacity style={styles.backButton} onPress={voltar}>
+                <Text style={styles.backText}>← voltar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                onPress={handleLogout}
+                style={{
+                  backgroundColor: '#fee2e2',
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 8,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Sair do sistema"
+              >
+                <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 14 }}>
+                  🚪 Sair
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <Text style={styles.tituloPagina}>Gerenciamento de utilizadores</Text>
+
             <Text style={styles.subtituloPagina}>
               Cadastre, ative, desative ou remova utilizadores do sistema.
             </Text>
@@ -260,21 +319,10 @@ export default function GerenciarUsuarios() {
       />
 
       {/* COMPONENTE DO MODAL DE CADASTRO */}
-      <PainelCadastro 
-        visible={modalCadastro} 
-        onClose={fecharCadastro} 
-        nome={nome} 
-        setNome={setNome} 
-        email={email} 
-        setEmail={setEmail}
-        senha={senha} 
-        setSenha={setSenha} 
-        perfil={perfil} 
-        setPerfil={setPerfil} 
-        onCriar={criarUsuario} 
-        styles={styles}
+      <PainelCadastro visible={modalCadastro} onClose={fecharCadastro} nome={nome} setNome={setNome} 
+      email={email} setEmail={setEmail} senha={senha} setSenha={setSenha} 
+      perfil={perfil} setPerfil={setPerfil} onCriar={criarUsuario} styles={styles}
       />
     </View>
   );
-  
 }

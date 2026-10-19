@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, ScrollView,TouchableOpacity, Text } from "react-native";
+import { Modal, ScrollView } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScriptApp } from "../hooks/ScriptApp";
 

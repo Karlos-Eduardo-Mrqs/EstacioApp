@@ -207,11 +207,11 @@ export const listaSemanaMock = [
 export const USUARIOS_MOCK = [
   {
     id: 1,
-    nome: 'Ana',
-    email: 'ana.coordenacao@estacio.br',
+    nome: 'Patricia',
+    email: 'patricia.gerencia@estacio.br',
     senha: '123',
-    perfil: 'Coordenador',
-    curso: 'Engenharia de Software',
+    perfil: 'Gerência Acadêmica',
+    setor: 'Direção de Ensino',
   },
   {
     id: 2,
@@ -223,10 +223,10 @@ export const USUARIOS_MOCK = [
   },
   {
     id: 3,
-    nome: 'Mariana',
-    email: 'mariana.gerencia@estacio.br',
+    nome: 'Jorge',
+    email: 'jorge.coordenacao@estacio.br',
     senha: '123',
-    perfil: 'Gerência Acadêmica',
-    setor: 'Direção de Ensino',
+    perfil: 'Coordenador',
+    setor: 'TI',
   },
 ];

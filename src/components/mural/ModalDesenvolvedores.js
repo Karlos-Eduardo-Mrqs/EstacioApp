@@ -1,12 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import {
-    Linking,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Linking,Modal,ScrollView,Text,TouchableOpacity,View} from "react-native";
 import { modalDesenvolvedoresStyles } from "../../styles/mural/modalDesenvolvedoresStyles";
 import { CoresInstitucionais } from "../../styles/theme";
 
@@ -16,7 +9,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
       nome: "Carlos Eduardo",
       papel: "Interface · Componentes · Gestão de Estado",
       instagram: "karlmbarreto",
-      linkedin: "in/carlos-eduardo-marques-003926389",
+      linkedin: "in/carlos-eduardom-barreto/",
       github: "Karlos-Eduardo-Mrqs",
     },
     {
@@ -36,9 +29,9 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
     {
       nome: "Vinícius Amador",
       papel: "Integração · Testes · Suporte Técnico",
-      instagram: "vinicius_amador",
-      linkedin: "in/vinicius-amador",
-      github: "ViniciusAmador",
+      instagram: "instagram.com",
+      linkedin: "in/vinicius-amador-velasco-9400b6376",
+      github: "github.com",
     },
   ];
 
@@ -65,10 +58,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
           </View>
 
           {/* Corpo com Scroll para os Cartões */}
-          <ScrollView
-            contentContainerStyle={modalDesenvolvedoresStyles.corpoModalScroll}
-            showsVerticalScrollIndicator={false}
-          >
+          <ScrollView contentContainerStyle={modalDesenvolvedoresStyles.corpoModalScroll} showsVerticalScrollIndicator={false}>
             {desenvolvedores.map((dev, index) => (
               <View key={index} style={modalDesenvolvedoresStyles.cardDev}>
                 {/* Foto e Nome Centralizados */}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, ScrollView, View } from "react-native";
+import { Modal, ScrollView,TouchableOpacity, Text } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScriptApp } from "../hooks/ScriptApp";
 
@@ -19,7 +19,7 @@ import EventoDetalhe from "./EventoDetalhe";
 
 // Estilos
 import { appStyles as styles } from "../styles/mural/mainStyles";
-import PainelCadastro from "../components/painel/painelCadastro";
+import PixelAnimationTest from "./PixelAnimationTest";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);
@@ -29,6 +29,7 @@ export default function App() {
   const [modalLoginVisivel, setModalLoginVisivel] = useState(false);
   const [modalPainelVisivel, setModalPainelVisivel] = useState(false);
   const [utilizadorLogado, setUtilizadorLogado] = useState(null);
+  const [modalTesteVisivel, setModalTesteVisivel] = useState(false);
 
   // Quando o login for bem-sucedido:
   const handleLoginSucesso = (usuario) => {
@@ -83,6 +84,24 @@ export default function App() {
           onSelectCurso={(curso) => setCursoSelecionado(curso)}
           onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
         />
+
+        {/* MODAL DE TESTE DE ANIMAÇÃO */}
+        <Modal 
+          visible={modalTesteVisivel} 
+          transparent={false} 
+          animationType="slide" 
+          onRequestClose={() => setModalTesteVisivel(false)}
+        >
+          <PixelAnimationTest onClose={() => setModalTesteVisivel(false)} />
+        </Modal>
+
+        {/* BOTÃO PARA ABRIR O MODAL DE TESTE DE ANIMAÇÃO */
+          /* Este botão só aparece se o modal de teste não estiver visível 
+            <TouchableOpacity onPress={() => setModalTesteVisivel(true)}>
+              <Text>🎮 Testar Animação</Text>
+            </TouchableOpacity>
+          */
+        }
 
         {/* COMPONENTE DO RODAPÉ */}
         <RodapeInstitucional

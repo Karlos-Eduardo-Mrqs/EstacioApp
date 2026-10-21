@@ -48,7 +48,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "predeploy": "expo export --platform web",
+    "deploy-hosting": "npm run predeploy && firebase deploy --only hosting"
   },
   "private": true
 }

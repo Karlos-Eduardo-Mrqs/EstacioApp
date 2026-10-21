@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { listaCursos, listaCursosTecnico, semestre } from '../constants/Dados';
 import { supabase } from '../../lib/supabase';
 
 const TABELA_EVENTO = 'evento';
@@ -16,9 +15,34 @@ const CAMPOS_EVENTO = {
 };
 
 const nomesMeses = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  'Janeiro', 'Fevereiro', 'Março', 'Abril',
+  'Maio', 'Junho', 'Julho', 'Agosto',
+  'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
+
+function gerarMesesCalendario(quantidade = 4) {
+  const hoje = new Date();
+
+  return Array.from({ length: quantidade }, (_, indice) => {
+    const dataMes = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth() + indice,
+      1
+    );
+
+    const ano = dataMes.getFullYear();
+    const numeroMes = dataMes.getMonth();
+
+    return {
+      id: `${ano}-${numeroMes + 1}`,
+      nome: nomesMeses[numeroMes],
+      ano,
+      numeroMes,
+      totalDias: new Date(ano, numeroMes + 1, 0).getDate(),
+      espacosVazios: dataMes.getDay(),
+    };
+  });
+}
 
 function converterData(data) {
   if (typeof data !== 'string') return null;
@@ -39,13 +63,38 @@ function converterData(data) {
   return dataConvertida;
 }
 
+// function mapearEvento(registro, indice) {
+//   const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
+//   const titulo = registro[CAMPOS_EVENTO.titulo];
+
+//   if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
+//     throw new Error(
+//       `O evento na posição ${indice + 1} não possui um nome ou uma data válida. Confira os campos configurados.`,
+//     );
+//   }
+
+//   return {
+//     id: registro[CAMPOS_EVENTO.id] ?? `${dataEvento.toISOString()}-${indice}`,
+//     titulo,
+//     dataEvento,
+//     dia: dataEvento.getDate(),
+//     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
+//     tipo: registro[CAMPOS_EVENTO.tipo] ?? 'Evento',
+//     local: registro[CAMPOS_EVENTO.local] ?? '',
+//     turma: registro[CAMPOS_EVENTO.turma] ?? '',
+//     autor: registro[CAMPOS_EVENTO.autor] ?? '',
+//     descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
+//     horas_acc: registro[CAMPOS_EVENTO.horasAcc] ?? 0,
+//   };
+// }
+//Nova versão da função mapearEvento com validação aprimorada
 function mapearEvento(registro, indice) {
   const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
   const titulo = registro[CAMPOS_EVENTO.titulo];
 
   if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
     throw new Error(
-      `O evento na posição ${indice + 1} não possui um nome ou uma data válida. Confira os campos configurados.`,
+      `O evento na posição ${indice + 1} não possui um nome ou uma data válida.`
     );
   }
 
@@ -55,12 +104,12 @@ function mapearEvento(registro, indice) {
     dataEvento,
     dia: dataEvento.getDate(),
     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
-    tipo: registro[CAMPOS_EVENTO.tipo] ?? 'Evento',
-    local: registro[CAMPOS_EVENTO.local] ?? '',
-    turma: registro[CAMPOS_EVENTO.turma] ?? '',
-    autor: registro[CAMPOS_EVENTO.autor] ?? '',
+    tipo: 'Evento',
+    local: '',
+    turma: '',
+    autor: registro[CAMPOS_EVENTO.palestrante] ?? '',
     descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
-    horas_acc: registro[CAMPOS_EVENTO.horasAcc] ?? 0,
+    horas_acc: 0,
   };
 }
 
@@ -71,8 +120,57 @@ export function useScriptApp(styles) {
   const [todosOsEventos, setTodosOsEventos] = useState([]);
   const [carregandoEventos, setCarregandoEventos] = useState(true);
   const [erroEventos, setErroEventos] = useState(null);
+  const [cursosDoBanco, setCursosDoBanco] = useState([]);
+  const [carregandoCursos, setCarregandoCursos] = useState(true);
+  const [erroCursos, setErroCursos] = useState(null);
+  const semestre = gerarMesesCalendario(4);
 
   const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarCursos() {
+      setCarregandoCursos(true);
+      setErroCursos(null);
+
+      try {
+        const { data, error } = await supabase
+          .from('curso')
+          .select('id, nome')
+          .order('nome', { ascending: true });
+
+        if (error) throw error;
+
+        const cursos = (data ?? []).map((curso) => ({
+          id: curso.id,
+          titulo: curso.nome,
+          descricao: 'Conheça este curso da Estácio.',
+          modalidade: 'Graduação',
+        }));
+
+        if (ativo) {
+          setCursosDoBanco(cursos);
+        }
+      } catch (error) {
+        if (ativo) {
+          setErroCursos(
+            error instanceof Error
+              ? error.message
+              : 'Não foi possível carregar os cursos.'
+          );
+        }
+      } finally {
+        if (ativo) setCarregandoCursos(false);
+      }
+    }
+
+    carregarCursos();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
   useEffect(() => {
     let ativo = true;
@@ -147,21 +245,37 @@ export function useScriptApp(styles) {
     )
     .slice(0, 6);
 
-  const handleDiaClick = (mesNome, diaNumero) => {
-    const mesBase = mesNome.split(' ')[0];
-    const mesIndex = nomesMeses.indexOf(mesBase);
-    setDiaFocado(`${diaNumero} de ${mesBase}`);
+  // const handleDiaClick = (mesNome, diaNumero) => {
+  //   const mesBase = mesNome.split(' ')[0];
+  //   const mesIndex = nomesMeses.indexOf(mesBase);
+  //   setDiaFocado(`${diaNumero} de ${mesBase}`);
+
+  //   const eventosEncontrados = todosOsEventos.filter(
+  //     (evento) =>
+  //       evento.dataEvento.getFullYear() === hoje.getFullYear() &&
+  //       evento.dataEvento.getMonth() === mesIndex &&
+  //       evento.dataEvento.getDate() === diaNumero,
+  //   );
+  //   setEventosDoDia(eventosEncontrados);
+  // };
+  
+  //Nova versão da função handleDiaClick que considera o ano do mês
+  const handleDiaClick = (mesNome, diaNumero, anoMes) => {
+    const mesIndex = nomesMeses.indexOf(mesNome);
+
+    setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
 
     const eventosEncontrados = todosOsEventos.filter(
       (evento) =>
-        evento.dataEvento.getFullYear() === hoje.getFullYear() &&
+        evento.dataEvento.getFullYear() === anoMes &&
         evento.dataEvento.getMonth() === mesIndex &&
-        evento.dataEvento.getDate() === diaNumero,
+        evento.dataEvento.getDate() === diaNumero
     );
+
     setEventosDoDia(eventosEncontrados);
   };
 
-  const renderizarDias = (mesNome, totalDias, espacosVazios) => {
+  const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) => {
     let celulas = [];
     for (let i = 0; i < espacosVazios; i++) {
       celulas.push(<View key={`vazio-${i}`} style={styles.celulaDia}></View>);
@@ -170,9 +284,9 @@ export function useScriptApp(styles) {
       const mesIndex = nomesMeses.indexOf(mesNome.split(' ')[0]);
       const isDestaque = todosOsEventos.some(
         (evento) =>
-          evento.dataEvento.getFullYear() === hoje.getFullYear() &&
+          evento.dataEvento.getFullYear() === anoMes &&
           evento.dataEvento.getMonth() === mesIndex &&
-          evento.dataEvento.getDate() === dia,
+          evento.dataEvento.getDate() === dia
       );
       const isSelecionado = diaFocado === `${dia} de ${mesNome.split(' ')[0]}`;
 
@@ -180,7 +294,7 @@ export function useScriptApp(styles) {
         <TouchableOpacity 
           key={`dia-${dia}`} 
           style={[styles.celulaDia, isDestaque && styles.diaDestaque, isSelecionado && styles.diaSelecionado]}
-          onPress={() => handleDiaClick(mesNome, dia)}
+          onPress={() => handleDiaClick(mesNome, dia, anoMes)}
           activeOpacity={0.7}
         >
           <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>{dia}</Text>
@@ -207,8 +321,10 @@ export function useScriptApp(styles) {
     diasSemana, semestre, 
     listaProximos, 
     listaSemana, 
-    cursos: listaCursos, 
-    cursosTecnicos: listaCursosTecnico, 
+    cursos: cursosDoBanco,
+    cursosTecnicos: [],
+    carregandoCursos,
+    erroCursos,
     eventosProximoMes,
     renderizarDias, renderCartaoPequeno
   };

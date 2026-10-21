@@ -26,7 +26,7 @@ export default function CalendarioAcademico({
       {/* CALENDÁRIO COMPLETO DO SEMESTRE */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>
-          AGENDA DO SEMESTRE (SETEMBRO A DEZEMBRO)
+          AGENDA ACADÊMICA — PRÓXIMOS 4 MESES
         </Text>
         <ScrollView
           horizontal
@@ -51,6 +51,7 @@ export default function CalendarioAcademico({
                       mes.nome,
                       mes.totalDias,
                       mes.espacosVazios,
+                      mes.ano,
                     )}
                 </View>
               </View>

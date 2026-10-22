@@ -1,117 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { supabase } from '../../lib/supabase';
-
-const TABELA_EVENTO = 'evento';
-const CAMPOS_EVENTO = {
-  id: 'id',
-  titulo: 'titulo',
-  data: 'data',
-  curso: 'curso_id',
-  palestrante: 'palestrante',
-  descricao: 'descricao',
-  horasAcc: 'horasAAC',
-  status: 'status',
-};
-
-const nomesMeses = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril',
-  'Maio', 'Junho', 'Julho', 'Agosto',
-  'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
-
-function gerarMesesCalendario(quantidade = 4) {
-  const hoje = new Date();
-
-  return Array.from({ length: quantidade }, (_, indice) => {
-    const dataMes = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth() + indice,
-      1
-    );
-
-    const ano = dataMes.getFullYear();
-    const numeroMes = dataMes.getMonth();
-
-    return {
-      id: `${ano}-${numeroMes + 1}`,
-      nome: nomesMeses[numeroMes],
-      ano,
-      numeroMes,
-      totalDias: new Date(ano, numeroMes + 1, 0).getDate(),
-      espacosVazios: dataMes.getDay(),
-    };
-  });
-}
-
-function converterData(data) {
-  if (typeof data !== 'string') return null;
-
-  const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(data);
-  if (!partes) return null;
-
-  const [, ano, mes, dia] = partes;
-  const dataConvertida = new Date(Number(ano), Number(mes) - 1, Number(dia));
-  if (
-    dataConvertida.getFullYear() !== Number(ano) ||
-    dataConvertida.getMonth() !== Number(mes) - 1 ||
-    dataConvertida.getDate() !== Number(dia)
-  ) {
-    return null;
-  }
-
-  return dataConvertida;
-}
-
-// function mapearEvento(registro, indice) {
-//   const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
-//   const titulo = registro[CAMPOS_EVENTO.titulo];
-
-//   if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
-//     throw new Error(
-//       `O evento na posição ${indice + 1} não possui um nome ou uma data válida. Confira os campos configurados.`,
-//     );
-//   }
-
-//   return {
-//     id: registro[CAMPOS_EVENTO.id] ?? `${dataEvento.toISOString()}-${indice}`,
-//     titulo,
-//     dataEvento,
-//     dia: dataEvento.getDate(),
-//     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
-//     tipo: registro[CAMPOS_EVENTO.tipo] ?? 'Evento',
-//     local: registro[CAMPOS_EVENTO.local] ?? '',
-//     turma: registro[CAMPOS_EVENTO.turma] ?? '',
-//     autor: registro[CAMPOS_EVENTO.autor] ?? '',
-//     descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
-//     horas_acc: registro[CAMPOS_EVENTO.horasAcc] ?? 0,
-//   };
-// }
-//Nova versão da função mapearEvento com validação aprimorada
-function mapearEvento(registro, indice) {
-  const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
-  const titulo = registro[CAMPOS_EVENTO.titulo];
-
-  if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
-    throw new Error(
-      `O evento na posição ${indice + 1} não possui um nome ou uma data válida.`
-    );
-  }
-
-  return {
-    id: registro[CAMPOS_EVENTO.id] ?? `${dataEvento.toISOString()}-${indice}`,
-    titulo,
-    dataEvento,
-    dia: dataEvento.getDate(),
-    mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
-    tipo: 'Evento',
-    local: '',
-    turma: '',
-    autor: registro[CAMPOS_EVENTO.palestrante] ?? '',
-    descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
-    horas_acc: 0,
-  };
-}
+import { View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { buscarCursosDoBanco, buscarEventosDoBanco } from '../services/apiServices';
+import { gerarMesesCalendario, nomesMeses } from './Calendario';
 
 export function useScriptApp(styles) {
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
@@ -120,13 +11,80 @@ export function useScriptApp(styles) {
   const [todosOsEventos, setTodosOsEventos] = useState([]);
   const [carregandoEventos, setCarregandoEventos] = useState(true);
   const [erroEventos, setErroEventos] = useState(null);
+
   const [cursosDoBanco, setCursosDoBanco] = useState([]);
   const [carregandoCursos, setCarregandoCursos] = useState(true);
   const [erroCursos, setErroCursos] = useState(null);
-  const semestre = gerarMesesCalendario(4);
 
+  // Estado para gerir as notificações salvas
+  const [notificacoesSalvas, setNotificacoesSalvas] = useState([]);
+
+  const semestre = gerarMesesCalendario(4);
   const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
+  // Carregar notificações salvas no armazenamento local ao iniciar
+  useEffect(() => {
+    async function carregarNotificacoes() {
+      try {
+        const salvas = await AsyncStorage.getItem('@eventos_notificados');
+        if (salvas) {
+          setNotificacoesSalvas(JSON.parse(salvas));
+        }
+      } catch (e) {
+        console.log("Erro ao carregar notificações", e);
+      }
+    }
+    carregarNotificacoes();
+  }, []);
+
+  // Função para salvar uma notificação
+  const salvarNotificacao = async (evento) => {
+    try {
+      const jaExiste = notificacoesSalvas.some((item) => item.id === evento.id);
+      if (jaExiste) {
+        if (Platform.OS === 'web') {
+          alert("Este evento já está nas suas notificações!");
+        } else {
+          Alert.alert("Aviso", "Este evento já está nas suas notificações!");
+        }
+        return;
+      }
+
+      const novaLista = [evento, ...notificacoesSalvas];
+      setNotificacoesSalvas(novaLista);
+      await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
+
+      if (Platform.OS === 'web') {
+        alert("Sucesso! Evento adicionado às suas notificações!");
+      } else {
+        Alert.alert("Sucesso!", "Evento adicionado às suas notificações!");
+      }
+    } catch (e) {
+      if (Platform.OS === 'web') {
+        alert("Erro ao salvar a notificação.");
+      } else {
+        Alert.alert("Erro", "Não foi possível salvar a notificação.");
+      }
+    }
+  };
+
+  const removerNotificacao = async (id) => {
+    try {
+      const novaLista = notificacoesSalvas.filter((item) => item.id !== id);
+      setNotificacoesSalvas(novaLista);
+      await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
+
+      if (Platform.OS === 'web') {
+        alert("Notificação removida com sucesso!");
+      } else {
+        Alert.alert("Sucesso", "Notificação removida com sucesso!");
+      }
+    } catch (e) {
+      console.log("Erro ao remover notificação", e);
+    }
+  };
+
+  // Carregar Cursos
   useEffect(() => {
     let ativo = true;
 
@@ -135,23 +93,8 @@ export function useScriptApp(styles) {
       setErroCursos(null);
 
       try {
-        const { data, error } = await supabase
-          .from('curso')
-          .select('id, nome')
-          .order('nome', { ascending: true });
-
-        if (error) throw error;
-
-        const cursos = (data ?? []).map((curso) => ({
-          id: curso.id,
-          titulo: curso.nome,
-          descricao: 'Conheça este curso da Estácio.',
-          modalidade: 'Graduação',
-        }));
-
-        if (ativo) {
-          setCursosDoBanco(cursos);
-        }
+        const cursos = await buscarCursosDoBanco();
+        if (ativo) setCursosDoBanco(cursos);
       } catch (error) {
         if (ativo) {
           setErroCursos(
@@ -166,12 +109,12 @@ export function useScriptApp(styles) {
     }
 
     carregarCursos();
-
     return () => {
       ativo = false;
     };
   }, []);
 
+  // Carregar Eventos
   useEffect(() => {
     let ativo = true;
 
@@ -180,18 +123,7 @@ export function useScriptApp(styles) {
       setErroEventos(null);
 
       try {
-        const colunas = Object.values(CAMPOS_EVENTO).join(', ');
-        const { data, error } = await supabase
-          .from(TABELA_EVENTO)
-          .select(colunas)
-          .order(CAMPOS_EVENTO.data, { ascending: true });
-
-          console.log('Erro ao buscar eventos:', error);
-          console.log('Eventos retornados:', data);
-
-        if (error) throw error;
-
-        const eventos = (data ?? []).map(mapearEvento);
+        const eventos = await buscarEventosDoBanco();
         if (ativo) setTodosOsEventos(eventos);
       } catch (error) {
         if (ativo) {
@@ -199,7 +131,7 @@ export function useScriptApp(styles) {
           setErroEventos(
             error instanceof Error
               ? error.message
-              : 'Ocorreu um erro inesperado ao carregar os eventos.',
+              : 'Ocorreu um erro inesperado ao carregar os eventos.'
           );
         }
       } finally {
@@ -213,21 +145,24 @@ export function useScriptApp(styles) {
     };
   }, []);
 
+  // Cálculos de datas e listas filtradas
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
   const eventosOrdenados = [...todosOsEventos].sort(
-    (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime(),
+    (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime()
   );
+
   const listaProximos = eventosOrdenados
     .filter((evento) => evento.dataEvento >= hoje)
     .slice(0, 6);
 
   const limiteSemana = new Date(hoje);
   limiteSemana.setDate(limiteSemana.getDate() + 7);
+
   const listaSemana = eventosOrdenados
     .filter(
-      (evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana,
+      (evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana
     )
     .slice(0, 6);
 
@@ -235,31 +170,18 @@ export function useScriptApp(styles) {
   const primeiroDiaMesSeguinte = new Date(
     primeiroDiaProximoMes.getFullYear(),
     primeiroDiaProximoMes.getMonth() + 1,
-    1,
+    1
   );
+
   const eventosProximoMes = eventosOrdenados
     .filter(
       (evento) =>
         evento.dataEvento >= primeiroDiaProximoMes &&
-        evento.dataEvento < primeiroDiaMesSeguinte,
+        evento.dataEvento < primeiroDiaMesSeguinte
     )
     .slice(0, 6);
 
-  // const handleDiaClick = (mesNome, diaNumero) => {
-  //   const mesBase = mesNome.split(' ')[0];
-  //   const mesIndex = nomesMeses.indexOf(mesBase);
-  //   setDiaFocado(`${diaNumero} de ${mesBase}`);
-
-  //   const eventosEncontrados = todosOsEventos.filter(
-  //     (evento) =>
-  //       evento.dataEvento.getFullYear() === hoje.getFullYear() &&
-  //       evento.dataEvento.getMonth() === mesIndex &&
-  //       evento.dataEvento.getDate() === diaNumero,
-  //   );
-  //   setEventosDoDia(eventosEncontrados);
-  // };
-  
-  //Nova versão da função handleDiaClick que considera o ano do mês
+  // Manipulação de cliques no Calendário
   const handleDiaClick = (mesNome, diaNumero, anoMes) => {
     const mesIndex = nomesMeses.indexOf(mesNome);
 
@@ -275,11 +197,13 @@ export function useScriptApp(styles) {
     setEventosDoDia(eventosEncontrados);
   };
 
+  // Renderização de Dias do Calendário
   const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) => {
     let celulas = [];
     for (let i = 0; i < espacosVazios; i++) {
       celulas.push(<View key={`vazio-${i}`} style={styles.celulaDia}></View>);
     }
+
     for (let dia = 1; dia <= totalDias; dia++) {
       const mesIndex = nomesMeses.indexOf(mesNome.split(' ')[0]);
       const isDestaque = todosOsEventos.some(
@@ -297,13 +221,16 @@ export function useScriptApp(styles) {
           onPress={() => handleDiaClick(mesNome, dia, anoMes)}
           activeOpacity={0.7}
         >
-          <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>{dia}</Text>
+          <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>
+            {dia}
+          </Text>
         </TouchableOpacity>
       );
     }
     return celulas;
   };
 
+  // Renderização do Cartão do Carrossel
   const renderCartaoPequeno = (evento) => (
     <View key={evento.id} style={styles.cartaoPequeno}>
       <Text style={styles.tagCartaoPequeno}>{evento.tipo}</Text>
@@ -326,6 +253,10 @@ export function useScriptApp(styles) {
     carregandoCursos,
     erroCursos,
     eventosProximoMes,
-    renderizarDias, renderCartaoPequeno
+    notificacoesSalvas,
+    salvarNotificacao,
+    removerNotificacao,
+    renderizarDias, 
+    renderCartaoPequeno
   };
 }

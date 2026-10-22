@@ -1,16 +1,8 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
 
-export default function CalendarioAcademico({
-  semestre,
-  diasSemana,
-  renderizarDias,
-  diaFocado,
-  eventosDoDia,
-  onSelectEvento,
-  carregandoEventos,
-  erroEventos,
-}) {
+export default function CalendarioAcademico({semestre,diasSemana,renderizarDias,
+  diaFocado,eventosDoDia,onSelectEvento,carregandoEventos,erroEventos,}) {
   return (
     <View>
       {/* AVISOS DA GERÊNCIA */}

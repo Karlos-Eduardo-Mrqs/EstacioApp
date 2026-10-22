@@ -29,7 +29,11 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               <Text style={modalStyles.tituloModal}>{curso.titulo}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar}>
-              <Text style={modalStyles.textoFechar}>X</Text>
+              <CustomIcon 
+                  name={isDesktop ? "close" : "arrow-back"} 
+                  size={22} 
+                  color="#032551" 
+              />
             </TouchableOpacity>
           </View>
 

@@ -1,4 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, Modal, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import CustomIcon from "../../components/CustomIcon";
 
 export default function PainelCadastro({visible,onClose,nome,setNome,email,setEmail,senha,setSenha,perfil,setPerfil,onCriar,styles}) {
   return (
@@ -26,7 +27,11 @@ export default function PainelCadastro({visible,onClose,nome,setNome,email,setEm
               onPress={onClose}
               accessibilityLabel="Fechar cadastro"
             >
-              <Text style={styles.iconeFechar}>×</Text>
+              <CustomIcon 
+                name={isDesktop ? "close" : "arrow-back"} 
+                size={22} 
+                color="#032551" 
+              />
             </TouchableOpacity>
           </View>
 

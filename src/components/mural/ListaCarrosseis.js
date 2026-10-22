@@ -111,7 +111,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
-import Carrossel from "./Carrossel";
+import Carrossel from "./CarrosselDestaques";
 import DepthCarousel from "./CarrosselCursos";
 
 export default function ListaCarrosseis({
@@ -146,10 +146,7 @@ export default function ListaCarrosseis({
         📅 {evento.dia} de {evento.mes}
       </Text>
 
-      <Text
-        style={estilosCarrosselEvento.local}
-        numberOfLines={1}
-      >
+      <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
         📍 {evento.local || "Local a definir"}
       </Text>
 

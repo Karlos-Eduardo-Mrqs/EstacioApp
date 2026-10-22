@@ -1,12 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
-import {
-    Linking,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import CustomIcon from "../../components/CustomIcon";
+import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,} from "react-native";
 import { modalDesenvolvedoresStyles } from "../../styles/mural/modalDesenvolvedoresStyles";
 import { CoresInstitucionais } from "../../styles/theme";
 
@@ -16,29 +9,29 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
       nome: "Carlos Eduardo",
       papel: "Interface · Componentes · Gestão de Estado",
       instagram: "karlmbarreto",
-      linkedin: "in/carlos-eduardo-marques-003926389",
+      linkedin: "in/carlos-eduardom-barreto/",
       github: "Karlos-Eduardo-Mrqs",
     },
     {
       nome: "Lucas Andrade",
       papel: "Desenvolvimento Mobile · Ecrãs · Navegação",
-      instagram: "Luucas_andrade21",
+      instagram: "luucas_andrade05",
       linkedin: "in/lucas-andrade-313b09236",
       github: "Lucas-deAndrade21",
     },
     {
       nome: "Victor Leon",
       papel: "Lógica de Dados · Estruturação · Componentes",
-      instagram: "victorleon",
+      instagram: "_victorleon_",
       linkedin: "in/victorlmmartello",
       github: "VictorLMMartello",
     },
     {
       nome: "Vinícius Amador",
       papel: "Integração · Testes · Suporte Técnico",
-      instagram: "vinicius_amador",
-      linkedin: "in/vinicius-amador",
-      github: "ViniciusAmador",
+      instagram: "viniciussvelasco_",
+      linkedin: "/in/vinicius-amador-velasco-9400b6376/",
+      github: "vVelasco30",
     },
   ];
 
@@ -56,11 +49,12 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
             <Text style={modalDesenvolvedoresStyles.tituloModal}>
               ⚙️ Equipe de Desenvolvimento
             </Text>
-            <TouchableOpacity
-              onPress={onClose}
-              style={modalDesenvolvedoresStyles.btnFechar}
-            >
-              <Text style={modalDesenvolvedoresStyles.textoFechar}>✕</Text>
+            <TouchableOpacity onPress={onClose} style={modalDesenvolvedoresStyles.btnFechar}>
+              <CustomIcon 
+                  name={isDesktop ? "close" : "arrow-back"} 
+                  size={22} 
+                  color="#032551" 
+              />
             </TouchableOpacity>
           </View>
 
@@ -96,11 +90,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
                       Linking.openURL(`https://instagram.com/${dev.instagram}`)
                     }
                   >
-                    <Ionicons
-                      name="logo-instagram"
-                      size={13}
-                      color={CoresInstitucionais.azulPrincipal}
-                    />
+                    <CustomIcon name="logo-instagram" size={13} color={CoresInstitucionais.azulPrincipal}/>
                     <Text style={modalDesenvolvedoresStyles.linkText}>
                       Instagram
                     </Text>
@@ -112,11 +102,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
                       Linking.openURL(`https://linkedin.com/${dev.linkedin}`)
                     }
                   >
-                    <Ionicons
-                      name="logo-linkedin"
-                      size={13}
-                      color={CoresInstitucionais.azulPrincipal}
-                    />
+                    <CustomIcon name="logo-linkedin" size={13} color={CoresInstitucionais.azulPrincipal}/>
                     <Text style={modalDesenvolvedoresStyles.linkText}>
                       LinkedIn
                     </Text>
@@ -128,11 +114,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
                       Linking.openURL(`https://github.com/${dev.github}`)
                     }
                   >
-                    <Ionicons
-                      name="logo-github"
-                      size={13}
-                      color={CoresInstitucionais.azulPrincipal}
-                    />
+                    <CustomIcon name="logo-github" size={13} color={CoresInstitucionais.azulPrincipal}/>
                     <Text style={modalDesenvolvedoresStyles.linkText}>
                       GitHub
                     </Text>

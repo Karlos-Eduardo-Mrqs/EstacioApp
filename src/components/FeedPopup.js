@@ -1,5 +1,5 @@
 import { View, Text} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {CustomIcon} from './CustomIcon';
 import { feedPopupStyles as styles } from '../styles/feedPopupStyles';
 
 export default function FeedbackBox({ tipo, mensagem }) {
@@ -9,7 +9,7 @@ export default function FeedbackBox({ tipo, mensagem }) {
 
   return (
     <View style={[styles.feedbackBox, isErro ? styles.errorBox : styles.successBox]}>
-      <Ionicons
+      <CustomIcon
         name={isErro ? 'alert-circle-outline' : 'checkmark-circle-outline'}
         size={20}
         color={isErro ? '#d32f2f' : '#2e7d32'}

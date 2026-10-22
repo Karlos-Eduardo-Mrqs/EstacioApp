@@ -37,7 +37,11 @@ export default function EventoDetalhe({ evento, onClose }) {
           <View style={styles.cabecalhoModal}>
             <Text style={styles.tituloModal}>{evento.titulo}</Text>
             <TouchableOpacity onPress={onClose} style={styles.btnFechar}>
-              <Text style={styles.textoFechar}>X</Text>
+              <CustomIcon 
+                  name={isDesktop ? "close" : "arrow-back"} 
+                  size={22} 
+                  color="#032551" 
+              />
             </TouchableOpacity>
           </View>
 
@@ -68,18 +72,10 @@ export default function EventoDetalhe({ evento, onClose }) {
         </View>
 
         <View style={styles.rodapeBotoes}>
-          <TouchableOpacity
-            style={[styles.btnAcao, styles.btnCompartilhar]}
-            onPress={handleCompartilhar}
-          >
-            <Text style={styles.textoBtnCompartilhar}>
-              📲 Compartilhar Evento
-            </Text>
+          <TouchableOpacity style={[styles.btnAcao, styles.btnCompartilhar]} onPress={handleCompartilhar}>
+            <Text style={styles.textoBtnCompartilhar}>📲 Compartilhar Evento</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.btnAcao, styles.btnNotificar]}
-            onPress={handleNotificar}
-          >
+          <TouchableOpacity style={[styles.btnAcao, styles.btnNotificar]} onPress={handleNotificar}>
             <Text style={styles.textoBtnAcao}>🔔 Notificar</Text>
           </TouchableOpacity>
         </View>

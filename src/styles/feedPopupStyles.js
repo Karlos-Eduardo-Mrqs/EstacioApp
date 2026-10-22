@@ -1,5 +1,4 @@
 import { StyleSheet } from 'react-native';
-import { CoresInstitucionais } from './theme';
 
 export const feedPopupStyles = StyleSheet.create({
   feedbackBox: {

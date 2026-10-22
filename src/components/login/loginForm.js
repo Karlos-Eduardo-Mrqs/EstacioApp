@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { styles } from '../../styles/loginForm';
 import { USUARIOS_MOCK } from '../../constants/Dados';
-import { Ionicons } from '@expo/vector-icons';
+import CustomIcon from "../CustomIcon"; // Ajuste o caminho relativo se necessário
 import FeedbackBox from '../../components/FeedPopup';
 
 export default function LoginScreen({ onClose, onLoginSuccess }) {
@@ -105,7 +105,7 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
               onPress={() => setMostrarSenha(!mostrarSenha)}
               style={styles.eyeButton}
             >
-              <Ionicons
+              <CustomIcon
                 name={mostrarSenha ? 'eye-outline' : 'eye-off-outline'}
                 size={18}
                 color="#777"
@@ -118,7 +118,7 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
             onPress={handleLogin}
             activeOpacity={0.8}
           >
-            <Ionicons name="log-in-outline" size={18} color="#fff" />
+            <CustomIcon name="log-in-outline" size={18} color="#fff" />
             <Text style={styles.loginButtonText}>Entrar</Text>
           </TouchableOpacity>
 

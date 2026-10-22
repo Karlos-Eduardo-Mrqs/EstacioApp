@@ -114,7 +114,13 @@ export default function App() {
 
               {activeTab === "busca" && <BuscaTab />}
 
-              {activeTab === "notificacoes" && <NotificacoesTab />}
+              {activeTab === "notificacoes" && (
+                <NotificacoesTab 
+                  notificacoes={scriptApp.notificacoesSalvas}
+                  onRemover={(id) => scriptApp.removerNotificacao(id)}
+                  onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+                />
+              )}
 
               {activeTab === "configuracoes" && (
                 <ConfiguracoesTab 
@@ -181,6 +187,7 @@ export default function App() {
         <EventoDetalhe
           evento={scriptApp.eventoSelecionado}
           onClose={() => scriptApp.setEventoSelecionado(null)}
+          onNotificar={(ev) => scriptApp.salvarNotificacao(ev)} // 👈 Conecta aqui
         />
       )}
 

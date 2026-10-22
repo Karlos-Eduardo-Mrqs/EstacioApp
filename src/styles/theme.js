@@ -1,4 +1,3 @@
-// src/styles/theme.js
 export const CoresInstitucionais = {
   // Cores Primárias (Azuis)
   azulPrincipal: '#032551',   // Usado em cabeçalhos, rodapés e fundos principais

@@ -1,8 +1,11 @@
-import { View, Text} from 'react-native';
-import {CustomIcon} from './CustomIcon';
+import { View, Text, useWindowDimensions, Platform } from 'react-native';
+import CustomIcon from './CustomIcon'; // 👈 Remova as chavetas {} daqui
 import { feedPopupStyles as styles } from '../styles/feedPopupStyles';
 
 export default function FeedbackBox({ tipo, mensagem }) {
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
   if (!mensagem) return null;
 
   const isErro = tipo === 'erro';

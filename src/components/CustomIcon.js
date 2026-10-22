@@ -26,7 +26,8 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     "alert-circle-outline": "⚠️",
     "checkmark-circle-outline": "✅",
     "information-circle-outline": "ℹ️",
-
+    "trash-outline": "🗑️",
+    
     // Redes Sociais solicitadas
     "instagram": "📸",
     "logo-instagram": "📸",
@@ -38,7 +39,7 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     // No seu CustomIcon.js, adicione:
     "close": "✕",
     "close-outline": "✕",
-    "arrow-back": "⬅️",
+    "arrow-back": "<",
   
   };
 

@@ -29,9 +29,9 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
     {
       nome: "Vinícius Amador",
       papel: "Integração · Testes · Suporte Técnico",
-      instagram: "instagram.com",
+      instagram: "viniciussvelasco_",
       linkedin: "in/vinicius-amador-velasco-9400b6376",
-      github: "github.com",
+      github: "vVelasco30",
     },
   ];
 
@@ -118,11 +118,7 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
                       Linking.openURL(`https://github.com/${dev.github}`)
                     }
                   >
-                    <Ionicons
-                      name="logo-github"
-                      size={13}
-                      color={CoresInstitucionais.azulPrincipal}
-                    />
+                    <Ionicons name="logo-github" size={13} color={CoresInstitucionais.azulPrincipal}/>
                     <Text style={modalDesenvolvedoresStyles.linkText}>
                       GitHub
                     </Text>

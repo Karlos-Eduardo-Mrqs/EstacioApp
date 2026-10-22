@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRef } from "react";
 import { Dimensions, ScrollView, Text, View } from "react-native";
 
-// ⚠️ CORREÇÃO AQUI: Importa com o nome correto e renomeia como 'styles'
 import { carrosselStyles as styles } from "../../styles/mural/carrosselStyles";
 
 const { width } = Dimensions.get("window");

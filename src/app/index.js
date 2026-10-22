@@ -1,19 +1,26 @@
-import { useState } from "react";
-import { Modal, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { Modal, ScrollView, View, Platform, Dimensions } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScriptApp } from "../hooks/ScriptApp";
 
-// Importação dos novos componentes modulares
-import LoginScreen from "../components/login/loginForm"; // 👈 Ajuste o caminho correto do seu loginForm
+// Importação dos componentes modulares
+import LoginScreen from "../components/login/loginForm";
 import Cabecalho from "../components/mural/CabecalhoMural";
 import CalendarioAcademico from "../components/mural/CalendarioMural";
 import ListaCarrosseis from "../components/mural/ListaCarrosseis";
 import RodapeInstitucional from "../components/mural/RodapeMural";
+import BottomNavBar from "../components/BottomNavBar";
+import SidebarNavBar from "../components/SideNavBar";
 
-// Importação de modais e pop-ups já existentes
+// Importação das Abas Separadas
+import BuscaTab from "../components/tabs/buscaTab";
+import NotificacoesTab from "../components/tabs/notificaTab";
+import ConfiguracoesTab from "../components/tabs/configuracoesTab";
+
+// Importação de modais e pop-ups
 import ModalCurso from "../components/mural/ModalCursos";
 import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
-import GerenciarUsuarios from "../components/painel/painel"; // 👈 Adicione esta linha com o caminho correto do seu painel.js
+import GerenciarUsuarios from "../components/painel/painel";
 import ToastPopup from "../components/Popup";
 import EventoDetalhe from "./EventoDetalhe";
 
@@ -29,14 +36,25 @@ export default function App() {
   const [modalPainelVisivel, setModalPainelVisivel] = useState(false);
   const [utilizadorLogado, setUtilizadorLogado] = useState(null);
 
-  // Quando o login for bem-sucedido:
+  const [activeTab, setActiveTab] = useState("mural");
+
+  const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
+
+  useEffect(() => {
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setWindowWidth(window.width);
+    });
+    return () => subscription?.remove();
+  }, []);
+
+  const isDesktop = Platform.OS === 'web' && windowWidth >= 768;
+
   const handleLoginSucesso = (usuario) => {
-    setUtilizadorLogado(usuario);      // Guarda quem entrou
-    setModalLoginVisivel(false);       // Fecha o modal de login
-    setModalPainelVisivel(true);       // Abre o painel de gestão (painel.js)
+    setUtilizadorLogado(usuario);
+    setModalLoginVisivel(false);
+    setModalPainelVisivel(true);
   };
 
-  // Estado e lógica do Pop-up Temporizado (Sobre)
   const [popupInfo, setPopupInfo] = useState({
     visible: false,
     titulo: "",
@@ -53,49 +71,100 @@ export default function App() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f4f5f7' }} edges={['top', 'bottom']}>
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* COMPONENTE DO CABEÇALHO */}
-        <Cabecalho onAdminPress={() => setModalLoginVisivel(true)} />
+      <View style={{ 
+        flex: 1, 
+        flexDirection: isDesktop ? 'row' : 'column',
+        ...(Platform.OS === 'web' && { height: '100vh', width: '100vw', overflow: 'hidden' }) 
+      }}>
+        
+        {/* MENU LATERAL APENAS NO PC */}
+        {isDesktop && (
+          <SidebarNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+        )}
 
-        {/* COMPONENTE DE CALENDÁRIO E AVISOS */}
-        <CalendarioAcademico
-          {...scriptApp}
-          onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+        {/* ÁREA PRINCIPAL DE CONTEÚDO */}
+        <View style={{ flex: 1, height: '100%' }}>
+          <ScrollView 
+            style={styles.container} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ 
+              flexGrow: 1, 
+              justifyContent: 'space-between',
+              paddingBottom: isDesktop ? 0 : 90 
+            }}
+          >
+            <View style={{ flex: 1 }}>
+              {/* CABEÇALHO */}
+              <Cabecalho onAdminPress={() => setModalLoginVisivel(true)} />
+
+              {/* RENDERIZAÇÃO DAS ABAS MODULARIZADAS */}
+              {activeTab === "mural" && (
+                <>
+                  <CalendarioAcademico
+                    {...scriptApp}
+                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+                  />
+                  <ListaCarrosseis
+                    {...scriptApp}
+                    onSelectCurso={(curso) => setCursoSelecionado(curso)}
+                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+                  />
+                </>
+              )}
+
+              {activeTab === "busca" && <BuscaTab />}
+
+              {activeTab === "notificacoes" && <NotificacoesTab />}
+
+              {activeTab === "configuracoes" && (
+                <ConfiguracoesTab 
+                  isDesktop={isDesktop}
+                  onOpenDevs={() => setModalDevsVisivel(true)}
+                  onOpenSobre={() =>
+                    exibirPopupTemporizado(
+                      "ℹ️ Sobre o Mural Acadêmico",
+                      "Mural Acadêmico - Estácio Nova América v1.0. Plataforma desenvolvida para centralizar avisos e eventos do campus.",
+                    )
+                  }
+                />
+              )}
+            </View>
+
+            {/* RODAPÉ INSTITUCIONAL FIXO NO FUNDO (PC) */}
+            {isDesktop && (
+              <View style={{ marginTop: 'auto', width: '100%', paddingBottom: 0, marginBottom: 0 }}>
+                <RodapeInstitucional
+                  onOpenDevs={() => setModalDevsVisivel(true)}
+                  onOpenSobre={() =>
+                    exibirPopupTemporizado(
+                      "ℹ️ Sobre o Mural Acadêmico",
+                      "Mural Acadêmico - Estácio Nova América v1.0. Plataforma desenvolvida para centralizar avisos e eventos do campus.",
+                    )
+                  }
+                />
+              </View>
+            )}
+          </ScrollView>
+
+          {/* BARRA INFERIOR APENAS NO MOBILE */}
+          {!isDesktop && (
+            <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+          )}
+        </View>
+      </View>
+
+      {/* MODAIS GLOBAIS */}
+      <Modal visible={modalLoginVisivel} transparent animationType="slide" onRequestClose={() => setModalLoginVisivel(false)}>
+        <LoginScreen 
+          onClose={() => setModalLoginVisivel(false)} 
+          onLoginSuccess={handleLoginSucesso} 
         />
+      </Modal>
 
-        {/* MODAL DE LOGIN */}
-        <Modal visible={modalLoginVisivel} transparent animationType="slide" onRequestClose={() => setModalLoginVisivel(false)}>
-          <LoginScreen 
-            onClose={() => setModalLoginVisivel(false)} 
-            onLoginSuccess={handleLoginSucesso} 
-          />
-        </Modal>
+      <Modal visible={modalPainelVisivel} transparent animationType="slide" onRequestClose={() => setModalPainelVisivel(false)}>
+        <GerenciarUsuarios usuarioAtual={utilizadorLogado} onClose={() => setModalPainelVisivel(false)} />
+      </Modal>
 
-        {/* MODAL DO PAINEL ADMINISTRATIVO */}
-        <Modal visible={modalPainelVisivel} transparent animationType="slide" onRequestClose={() => setModalPainelVisivel(false)}>
-          <GerenciarUsuarios usuarioAtual={utilizadorLogado} onClose={() => setModalPainelVisivel(false)} />
-        </Modal>
-
-        {/* COMPONENTE DE CARROSSÉIS (CURSOS E EVENTOS) */}
-        <ListaCarrosseis
-          {...scriptApp}
-          onSelectCurso={(curso) => setCursoSelecionado(curso)}
-          onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-        />
-
-        {/* COMPONENTE DO RODAPÉ */}
-        <RodapeInstitucional
-          onOpenDevs={() => setModalDevsVisivel(true)}
-          onOpenSobre={() =>
-            exibirPopupTemporizado(
-              "ℹ️ Sobre o Mural Acadêmico",
-              "Mural Acadêmico - Estácio Nova América v1.0. Plataforma desenvolvida para centralizar avisos e eventos do campus.",
-            )
-          }
-        />
-      </ScrollView>
-
-      {/* Modais Globais */}
       <ModalDesenvolvedores
         visible={modalDevsVisivel}
         onClose={() => setModalDevsVisivel(false)}
@@ -115,7 +184,6 @@ export default function App() {
         />
       )}
 
-      {/* MODAL DE DETALHES DO CURSO */}
       <ModalCurso
         curso={cursoSelecionado}
         onClose={() => setCursoSelecionado(null)}

@@ -19,15 +19,15 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     "lock-closed-outline": "🔒",
     
     //icones de olho para visibilidade
-    "eye-outline": "🐵",
-    "eye-off-outline": "🙈",
+    "eye-outline": "👁️",
+    "eye-off-outline": "🕶️",
     
     // Ícones de alerta e feedback
     "alert-circle-outline": "⚠️",
     "checkmark-circle-outline": "✅",
     "information-circle-outline": "ℹ️",
     "trash-outline": "🗑️",
-    
+
     // Redes Sociais solicitadas
     "instagram": "📸",
     "logo-instagram": "📸",

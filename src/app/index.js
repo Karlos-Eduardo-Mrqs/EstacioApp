@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, ScrollView, View } from "react-native";
+import { Modal, ScrollView } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScriptApp } from "../hooks/ScriptApp";
 
@@ -19,7 +19,6 @@ import EventoDetalhe from "./EventoDetalhe";
 
 // Estilos
 import { appStyles as styles } from "../styles/mural/mainStyles";
-import PainelCadastro from "../components/painel/painelCadastro";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);

@@ -19,7 +19,6 @@ import EventoDetalhe from "./EventoDetalhe";
 
 // Estilos
 import { appStyles as styles } from "../styles/mural/mainStyles";
-import PixelAnimationTest from "./PixelAnimationTest";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);
@@ -94,14 +93,6 @@ export default function App() {
         >
           <PixelAnimationTest onClose={() => setModalTesteVisivel(false)} />
         </Modal>
-
-        {/* BOTÃO PARA ABRIR O MODAL DE TESTE DE ANIMAÇÃO */
-          /* Este botão só aparece se o modal de teste não estiver visível 
-            <TouchableOpacity onPress={() => setModalTesteVisivel(true)}>
-              <Text>🎮 Testar Animação</Text>
-            </TouchableOpacity>
-          */
-        }
 
         {/* COMPONENTE DO RODAPÉ */}
         <RodapeInstitucional

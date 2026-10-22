@@ -1,79 +1,300 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { listaCursos, listaCursosTecnico, bancoEventosCalendario, semestre } from '../constants/Dados';
+import { supabase } from '../../lib/supabase';
+
+const TABELA_EVENTO = 'evento';
+const CAMPOS_EVENTO = {
+  id: 'id',
+  titulo: 'titulo',
+  data: 'data',
+  curso: 'curso_id',
+  palestrante: 'palestrante',
+  descricao: 'descricao',
+  horasAcc: 'horasAAC',
+  status: 'status',
+};
+
+const nomesMeses = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril',
+  'Maio', 'Junho', 'Julho', 'Agosto',
+  'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
+
+function gerarMesesCalendario(quantidade = 4) {
+  const hoje = new Date();
+
+  return Array.from({ length: quantidade }, (_, indice) => {
+    const dataMes = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth() + indice,
+      1
+    );
+
+    const ano = dataMes.getFullYear();
+    const numeroMes = dataMes.getMonth();
+
+    return {
+      id: `${ano}-${numeroMes + 1}`,
+      nome: nomesMeses[numeroMes],
+      ano,
+      numeroMes,
+      totalDias: new Date(ano, numeroMes + 1, 0).getDate(),
+      espacosVazios: dataMes.getDay(),
+    };
+  });
+}
+
+function converterData(data) {
+  if (typeof data !== 'string') return null;
+
+  const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(data);
+  if (!partes) return null;
+
+  const [, ano, mes, dia] = partes;
+  const dataConvertida = new Date(Number(ano), Number(mes) - 1, Number(dia));
+  if (
+    dataConvertida.getFullYear() !== Number(ano) ||
+    dataConvertida.getMonth() !== Number(mes) - 1 ||
+    dataConvertida.getDate() !== Number(dia)
+  ) {
+    return null;
+  }
+
+  return dataConvertida;
+}
+
+// function mapearEvento(registro, indice) {
+//   const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
+//   const titulo = registro[CAMPOS_EVENTO.titulo];
+
+//   if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
+//     throw new Error(
+//       `O evento na posição ${indice + 1} não possui um nome ou uma data válida. Confira os campos configurados.`,
+//     );
+//   }
+
+//   return {
+//     id: registro[CAMPOS_EVENTO.id] ?? `${dataEvento.toISOString()}-${indice}`,
+//     titulo,
+//     dataEvento,
+//     dia: dataEvento.getDate(),
+//     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
+//     tipo: registro[CAMPOS_EVENTO.tipo] ?? 'Evento',
+//     local: registro[CAMPOS_EVENTO.local] ?? '',
+//     turma: registro[CAMPOS_EVENTO.turma] ?? '',
+//     autor: registro[CAMPOS_EVENTO.autor] ?? '',
+//     descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
+//     horas_acc: registro[CAMPOS_EVENTO.horasAcc] ?? 0,
+//   };
+// }
+//Nova versão da função mapearEvento com validação aprimorada
+function mapearEvento(registro, indice) {
+  const dataEvento = converterData(registro[CAMPOS_EVENTO.data]);
+  const titulo = registro[CAMPOS_EVENTO.titulo];
+
+  if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
+    throw new Error(
+      `O evento na posição ${indice + 1} não possui um nome ou uma data válida.`
+    );
+  }
+
+  return {
+    id: registro[CAMPOS_EVENTO.id] ?? `${dataEvento.toISOString()}-${indice}`,
+    titulo,
+    dataEvento,
+    dia: dataEvento.getDate(),
+    mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
+    tipo: 'Evento',
+    local: '',
+    turma: '',
+    autor: registro[CAMPOS_EVENTO.palestrante] ?? '',
+    descricao: registro[CAMPOS_EVENTO.descricao] ?? '',
+    horas_acc: 0,
+  };
+}
 
 export function useScriptApp(styles) {
-  const [eventoSelecionado, setEventoSelecionado] = useState(null);  
-  const [diaFocado, setDiaFocado] = useState(null); 
+  const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [diaFocado, setDiaFocado] = useState(null);
   const [eventosDoDia, setEventosDoDia] = useState([]);
+  const [todosOsEventos, setTodosOsEventos] = useState([]);
+  const [carregandoEventos, setCarregandoEventos] = useState(true);
+  const [erroEventos, setErroEventos] = useState(null);
+  const [cursosDoBanco, setCursosDoBanco] = useState([]);
+  const [carregandoCursos, setCarregandoCursos] = useState(true);
+  const [erroCursos, setErroCursos] = useState(null);
+  const semestre = gerarMesesCalendario(4);
 
   const diasSemana = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-  // Captura a data real do sistema
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarCursos() {
+      setCarregandoCursos(true);
+      setErroCursos(null);
+
+      try {
+        const { data, error } = await supabase
+          .from('curso')
+          .select('id, nome')
+          .order('nome', { ascending: true });
+
+        if (error) throw error;
+
+        const cursos = (data ?? []).map((curso) => ({
+          id: curso.id,
+          titulo: curso.nome,
+          descricao: 'Conheça este curso da Estácio.',
+          modalidade: 'Graduação',
+        }));
+
+        if (ativo) {
+          setCursosDoBanco(cursos);
+        }
+      } catch (error) {
+        if (ativo) {
+          setErroCursos(
+            error instanceof Error
+              ? error.message
+              : 'Não foi possível carregar os cursos.'
+          );
+        }
+      } finally {
+        if (ativo) setCarregandoCursos(false);
+      }
+    }
+
+    carregarCursos();
+
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let ativo = true;
+
+    async function carregarEventos() {
+      setCarregandoEventos(true);
+      setErroEventos(null);
+
+      try {
+        const colunas = Object.values(CAMPOS_EVENTO).join(', ');
+        const { data, error } = await supabase
+          .from(TABELA_EVENTO)
+          .select(colunas)
+          .order(CAMPOS_EVENTO.data, { ascending: true });
+
+          console.log('Erro ao buscar eventos:', error);
+          console.log('Eventos retornados:', data);
+
+        if (error) throw error;
+
+        const eventos = (data ?? []).map(mapearEvento);
+        if (ativo) setTodosOsEventos(eventos);
+      } catch (error) {
+        if (ativo) {
+          setTodosOsEventos([]);
+          setErroEventos(
+            error instanceof Error
+              ? error.message
+              : 'Ocorreu um erro inesperado ao carregar os eventos.',
+          );
+        }
+      } finally {
+        if (ativo) setCarregandoEventos(false);
+      }
+    }
+
+    carregarEventos();
+    return () => {
+      ativo = false;
+    };
+  }, []);
+
   const hoje = new Date();
-  const diaAtual = hoje.getDate(); // Pega o dia de hoje (ex: 22)
-  const mesAtualIndex = hoje.getMonth(); // 8 = Setembro (Janeiro é 0)
+  hoje.setHours(0, 0, 0, 0);
 
-  // Mapeamento dos meses para corresponder ao formato do banco de dados
-  const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-  const mesAtualNome = nomesMeses[mesAtualIndex];
-  const proximoMesNome = nomesMeses[mesAtualIndex + 1] || 'Outubro';
+  const eventosOrdenados = [...todosOsEventos].sort(
+    (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime(),
+  );
+  const listaProximos = eventosOrdenados
+    .filter((evento) => evento.dataEvento >= hoje)
+    .slice(0, 6);
 
-  // Transforma o dicionário do banco de eventos em uma única lista plana para facilitar os filtros
-  const todosOsEventos = Object.entries(bancoEventosCalendario).flatMap(([chave, lista]) => lista);
+  const limiteSemana = new Date(hoje);
+  limiteSemana.setDate(limiteSemana.getDate() + 7);
+  const listaSemana = eventosOrdenados
+    .filter(
+      (evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana,
+    )
+    .slice(0, 6);
 
-  // 1. Próximos Eventos (eventos futuros a partir do dia de hoje)
-  const listaProximos = todosOsEventos.filter(ev => {
-    if (ev.mes === mesAtualNome || ev.mes === mesAtualNome.substring(0, 3)) {
-      return ev.dia >= diaAtual;
-    }
-    // Inclui meses seguintes
-    return ev.mes !== mesAtualNome;
-  }).slice(0, 6);;
+  const primeiroDiaProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+  const primeiroDiaMesSeguinte = new Date(
+    primeiroDiaProximoMes.getFullYear(),
+    primeiroDiaProximoMes.getMonth() + 1,
+    1,
+  );
+  const eventosProximoMes = eventosOrdenados
+    .filter(
+      (evento) =>
+        evento.dataEvento >= primeiroDiaProximoMes &&
+        evento.dataEvento < primeiroDiaMesSeguinte,
+    )
+    .slice(0, 6);
 
-  // 2. Eventos da Semana (janela de 7 dias a partir de hoje)
-  const listaSemana = todosOsEventos.filter(ev => {
-    const mesmoMes = (ev.mes === mesAtualNome || ev.mes === mesAtualNome.substring(0, 3));
-    return mesmoMes && ev.dia >= diaAtual && ev.dia <= diaAtual + 7;
-  }).slice(0, 6);;
+  // const handleDiaClick = (mesNome, diaNumero) => {
+  //   const mesBase = mesNome.split(' ')[0];
+  //   const mesIndex = nomesMeses.indexOf(mesBase);
+  //   setDiaFocado(`${diaNumero} de ${mesBase}`);
 
-  // 3. Eventos para o Próximo Mês gerados dinamicamente
-  const eventosProximoMes = todosOsEventos.filter(ev => {
-    const nomeProximoCurto = proximoMesNome.substring(0, 3);
-    return ev.mes === proximoMesNome || ev.mes === nomeProximoCurto;
-  }).slice(0, 6);;
+  //   const eventosEncontrados = todosOsEventos.filter(
+  //     (evento) =>
+  //       evento.dataEvento.getFullYear() === hoje.getFullYear() &&
+  //       evento.dataEvento.getMonth() === mesIndex &&
+  //       evento.dataEvento.getDate() === diaNumero,
+  //   );
+  //   setEventosDoDia(eventosEncontrados);
+  // };
+  
+  //Nova versão da função handleDiaClick que considera o ano do mês
+  const handleDiaClick = (mesNome, diaNumero, anoMes) => {
+    const mesIndex = nomesMeses.indexOf(mesNome);
 
-  const handleDiaClick = (mesNome, diaNumero, temEvento) => {
-    const chaveExata = `${mesNome}-${diaNumero}`;
-    const mesBase = mesNome.split(' ')[0];
-    const chaveAlternativa = `${mesBase}-${diaNumero}`;
-    
-    setDiaFocado(`${diaNumero} de ${mesBase}`);
-    
-    const eventosEncontrados = bancoEventosCalendario[chaveExata] || bancoEventosCalendario[chaveAlternativa] || [];
-    
-    if (temEvento && eventosEncontrados.length > 0) {
-      setEventosDoDia(eventosEncontrados);
-    } else {
-      setEventosDoDia([]);
-    }
+    setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
+
+    const eventosEncontrados = todosOsEventos.filter(
+      (evento) =>
+        evento.dataEvento.getFullYear() === anoMes &&
+        evento.dataEvento.getMonth() === mesIndex &&
+        evento.dataEvento.getDate() === diaNumero
+    );
+
+    setEventosDoDia(eventosEncontrados);
   };
 
-  const renderizarDias = (mesNome, totalDias, espacosVazios, destaques) => {
+  const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) => {
     let celulas = [];
     for (let i = 0; i < espacosVazios; i++) {
       celulas.push(<View key={`vazio-${i}`} style={styles.celulaDia}></View>);
     }
     for (let dia = 1; dia <= totalDias; dia++) {
-      const isDestaque = destaques.includes(dia);
-      const chaveAtual = `${mesNome}-${dia}`;
+      const mesIndex = nomesMeses.indexOf(mesNome.split(' ')[0]);
+      const isDestaque = todosOsEventos.some(
+        (evento) =>
+          evento.dataEvento.getFullYear() === anoMes &&
+          evento.dataEvento.getMonth() === mesIndex &&
+          evento.dataEvento.getDate() === dia
+      );
       const isSelecionado = diaFocado === `${dia} de ${mesNome.split(' ')[0]}`;
 
       celulas.push(
         <TouchableOpacity 
           key={`dia-${dia}`} 
           style={[styles.celulaDia, isDestaque && styles.diaDestaque, isSelecionado && styles.diaSelecionado]}
-          onPress={() => handleDiaClick(mesNome, dia, isDestaque)}
+          onPress={() => handleDiaClick(mesNome, dia, anoMes)}
           activeOpacity={0.7}
         >
           <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>{dia}</Text>
@@ -96,12 +317,14 @@ export function useScriptApp(styles) {
 
   return {
     eventoSelecionado, setEventoSelecionado,
-    diaFocado, eventosDoDia,
+    diaFocado, eventosDoDia, carregandoEventos, erroEventos,
     diasSemana, semestre, 
     listaProximos, 
     listaSemana, 
-    cursos: listaCursos, 
-    cursosTecnicos: listaCursosTecnico, 
+    cursos: cursosDoBanco,
+    cursosTecnicos: [],
+    carregandoCursos,
+    erroCursos,
     eventosProximoMes,
     renderizarDias, renderCartaoPequeno
   };

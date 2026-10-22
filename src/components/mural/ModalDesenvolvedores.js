@@ -1,9 +1,13 @@
 import CustomIcon from "../../components/CustomIcon";
-import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,} from "react-native";
+import { View, Text, TouchableOpacity, Modal, ScrollView, Linking, useWindowDimensions, Platform } from "react-native";
 import { modalDesenvolvedoresStyles } from "../../styles/mural/modalDesenvolvedoresStyles";
 import { CoresInstitucionais } from "../../styles/theme";
 
 export default function ModalDesenvolvedores({ visible, onClose }) {
+  // Deteção correta do ecossistema Desktop/Mobile
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
   const desenvolvedores = [
     {
       nome: "Carlos Eduardo",
@@ -49,11 +53,12 @@ export default function ModalDesenvolvedores({ visible, onClose }) {
             <Text style={modalDesenvolvedoresStyles.tituloModal}>
               ⚙️ Equipe de Desenvolvimento
             </Text>
-            <TouchableOpacity onPress={onClose} style={modalDesenvolvedoresStyles.btnFechar}>
+            {/* Botão de Fechar Dinâmico */}
+            <TouchableOpacity onPress={onClose} style={modalDesenvolvedoresStyles.btnFechar} activeOpacity={0.7}>
               <CustomIcon 
-                  name={isDesktop ? "close" : "arrow-back"} 
-                  size={22} 
-                  color="#032551" 
+                name={isDesktop ? "close" : "arrow-back"} 
+                size={22} 
+                color={CoresInstitucionais.brancoPuro} 
               />
             </TouchableOpacity>
           </View>

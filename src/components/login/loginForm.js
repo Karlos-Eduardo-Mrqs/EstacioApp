@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { styles } from '../../styles/loginForm';
-import { USUARIOS_MOCK } from '../../constants/Dados';
-import CustomIcon from "../CustomIcon"; // Ajuste o caminho relativo se necessário
+import CustomIcon from "../CustomIcon";
 import FeedbackBox from '../../components/FeedPopup';
+import { fazerLoginNoBanco } from '../../services/apiServices'; // 👈 Importa a função do banco
 
 export default function LoginScreen({ onClose, onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
+  const [carregando, setCarregando] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setFeedback({ tipo: '', mensagem: '' });
     const emailLimpo = email.trim().toLowerCase();
 
@@ -23,12 +24,11 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
       return;
     }
 
-    // Procura o utilizador na mock data
-    const usuarioEncontrado = USUARIOS_MOCK.find(
-      (user) => user.email.toLowerCase() === emailLimpo && user.senha === senha
-    );
+    try {
+      setCarregando(true);
+      // Faz a consulta real na tabela 'usuario' do Supabase
+      const usuarioEncontrado = await fazerLoginNoBanco(emailLimpo, senha);
 
-    if (usuarioEncontrado) {
       // Verifica se tem perfil administrativo / coordenação autorizado
       if (usuarioEncontrado.perfil === 'Gerência Acadêmica' || usuarioEncontrado.perfil === 'Coordenador') {
         setFeedback({
@@ -36,10 +36,9 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
           mensagem: `Bem-vindo(a), ${usuarioEncontrado.nome}! A abrir painel...`,
         });
 
-        // Aguarda 1 segundo para o utilizador ler a mensagem de sucesso e abre o painel
         setTimeout(() => {
           if (onLoginSuccess) {
-            onLoginSuccess(usuarioEncontrado); // 👈 Dispara a abertura do painel administrativo
+            onLoginSuccess(usuarioEncontrado);
           }
         }, 1000);
       } else {
@@ -48,11 +47,13 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
           mensagem: 'Este perfil não possui acesso administrativo.',
         });
       }
-    } else {
+    } catch (error) {
       setFeedback({
         tipo: 'erro',
-        mensagem: 'E-mail ou senha incorretos.',
+        mensagem: error.message || 'E-mail ou senha incorretos.',
       });
+    } finally {
+      setCarregando(false);
     }
   };
 
@@ -114,12 +115,15 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
           </View>
 
           <TouchableOpacity
-            style={styles.loginButton}
+            style={[styles.loginButton, carregando && { opacity: 0.7 }]}
             onPress={handleLogin}
+            disabled={carregando}
             activeOpacity={0.8}
           >
             <CustomIcon name="log-in-outline" size={18} color="#fff" />
-            <Text style={styles.loginButtonText}>Entrar</Text>
+            <Text style={styles.loginButtonText}>
+              {carregando ? 'A entrar...' : 'Entrar'}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.backButton} onPress={voltar}>

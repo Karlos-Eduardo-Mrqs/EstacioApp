@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity} from "react-native";
 import CustomIcon from "../CustomIcon";
 
 export default function ConfiguracoesTab({ isDesktop, onOpenDevs, onOpenSobre }) {
+  
   return (
     <View style={styles.containerTab}>
       <CustomIcon name="settings-outline" size={36} color="#032551" />

@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text} from "react-native";
 import CustomIcon from "../CustomIcon";
+import {buscaTabstyles as styles} from "../../styles/tabs/buscaTabStyles";
 
 export default function BuscaTab() {
   return (
@@ -11,23 +12,3 @@ export default function BuscaTab() {
   );
 }
 
-const styles = StyleSheet.create({
-  containerTab: {
-    padding: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 350,
-  },
-  tituloTab: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#032551",
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  textoTab: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-});

@@ -21,6 +21,7 @@ import ConfiguracoesTab from "../components/tabs/configuracoesTab";
 import ModalCurso from "../components/mural/ModalCursos";
 import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
 import GerenciarUsuarios from "../components/painel/painel";
+import PainelCoordenador from "../components/painel/painelCoordenador";
 import ToastPopup from "../components/Popup";
 import EventoDetalhe from "./EventoDetalhe";
 
@@ -33,10 +34,10 @@ export default function App() {
   const [cursoSelecionado, setCursoSelecionado] = useState(null);
 
   const [modalLoginVisivel, setModalLoginVisivel] = useState(false);
-  const [modalPainelVisivel, setModalPainelVisivel] = useState(false);
+  const [modalGerenciaVisivel, setModalGerenciaVisivel] = useState(false);
+  const [modalCoordenadorVisivel, setModalCoordenadorVisivel] = useState(false);
   const [utilizadorLogado, setUtilizadorLogado] = useState(null);
-  const [modalTesteVisivel, setModalTesteVisivel] = useState(false);
-
+  
   const [activeTab, setActiveTab] = useState("mural");
 
   const [windowWidth, setWindowWidth] = useState(Dimensions.get('window').width);
@@ -53,21 +54,17 @@ export default function App() {
   const handleLoginSucesso = (usuario) => {
     setUtilizadorLogado(usuario);
     setModalLoginVisivel(false);
-    setModalPainelVisivel(true);
-  };
 
-  const [popupInfo, setPopupInfo] = useState({
-    visible: false,
-    titulo: "",
-    mensagem: "",
-  });
+    const perfil = usuario.perfil ? usuario.perfil.trim().toLowerCase() : '';
 
-  const exibirPopupTemporizado = (titulo, mensagem) => {
-    setPopupInfo({ visible: true, titulo, mensagem });
-    setTimeout(
-      () => setPopupInfo((prev) => ({ ...prev, visible: false })),
-      6000,
-    );
+    // Direcionamento dinâmico baseado no cargo do banco
+    if (perfil.includes('gerência') || perfil.includes('gerencia')) {
+      setModalGerenciaVisivel(true);
+    } else if (perfil.includes('coordenador')) {
+      setModalCoordenadorVisivel(true);
+    } else {
+      scriptApp.exibirPopup("Acesso Negado", "Perfil sem autorização para painel.", "erro");
+    }
   };
 
   return (
@@ -128,9 +125,10 @@ export default function App() {
                   isDesktop={isDesktop}
                   onOpenDevs={() => setModalDevsVisivel(true)}
                   onOpenSobre={() =>
-                    exibirPopupTemporizado(
+                    scriptApp.exibirPopup(
                       "ℹ️ Sobre o Mural Acadêmico",
                       "Mural Acadêmico - Estácio Nova América v1.0. Plataforma desenvolvida para centralizar avisos e eventos do campus.",
+                      "sucesso"
                     )
                   }
                 />
@@ -143,9 +141,10 @@ export default function App() {
                 <RodapeInstitucional
                   onOpenDevs={() => setModalDevsVisivel(true)}
                   onOpenSobre={() =>
-                    exibirPopupTemporizado(
+                    scriptApp.exibirPopup(
                       "ℹ️ Sobre o Mural Acadêmico",
                       "Mural Acadêmico - Estácio Nova América v1.0. Plataforma desenvolvida para centralizar avisos e eventos do campus.",
+                      "sucesso",6
                     )
                   }
                 />
@@ -167,28 +166,44 @@ export default function App() {
           onLoginSuccess={handleLoginSucesso} 
         />
       </Modal>
-
-      <Modal visible={modalPainelVisivel} transparent animationType="slide" onRequestClose={() => setModalPainelVisivel(false)}>
-        <GerenciarUsuarios usuarioAtual={utilizadorLogado} onClose={() => setModalPainelVisivel(false)} />
+      
+      {/* MODAL EXCLUSIVO DA GERÊNCIA */}
+      <Modal visible={modalGerenciaVisivel} animationType="slide" onRequestClose={() => setModalGerenciaVisivel(false)}>
+        <GerenciarUsuarios 
+          usuarioAtual={utilizadorLogado} 
+          onClose={() => setModalGerenciaVisivel(false)} 
+          onLogout={() => setModalGerenciaVisivel(false)} 
+        />
       </Modal>
 
+      {/* MODAL EXCLUSIVO DO COORDENADOR */}
+      <Modal visible={modalCoordenadorVisivel} animationType="slide" onRequestClose={() => setModalCoordenadorVisivel(false)}>
+        <PainelCoordenador 
+          usuarioAtual={utilizadorLogado} 
+          onClose={() => setModalCoordenadorVisivel(false)} 
+          onLogout={() => setModalCoordenadorVisivel(false)} 
+        />
+      </Modal>
+      
       <ModalDesenvolvedores
         visible={modalDevsVisivel}
         onClose={() => setModalDevsVisivel(false)}
       />
 
+      {/* TOAST POPUP CONECTADO AO SCRIPTAPP */}
       <ToastPopup
-        visible={popupInfo.visible}
-        titulo={popupInfo.titulo}
-        mensagem={popupInfo.mensagem}
-        onClose={() => setPopupInfo((prev) => ({ ...prev, visible: false }))}
+        visible={scriptApp.popupInfo.visible}
+        titulo={scriptApp.popupInfo.titulo}
+        mensagem={scriptApp.popupInfo.mensagem}
+        duracao={scriptApp.popupInfo.duracao} // 👈 Passa dinamicamente a duração gerada no ScriptApp
+        onClose={() => scriptApp.setPopupInfo((prev) => ({ ...prev, visible: false }))}
       />
 
       {scriptApp.eventoSelecionado && (
         <EventoDetalhe
           evento={scriptApp.eventoSelecionado}
           onClose={() => scriptApp.setEventoSelecionado(null)}
-          onNotificar={(ev) => scriptApp.salvarNotificacao(ev)} // 👈 Conecta aqui
+          onNotificar={(ev) => scriptApp.salvarNotificacao(ev)}
         />
       )}
 

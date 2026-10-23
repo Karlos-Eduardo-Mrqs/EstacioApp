@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
 import { styles } from '../../styles/loginForm';
 import CustomIcon from "../CustomIcon";
 import FeedbackBox from '../../components/FeedPopup';
-import { fazerLoginNoBanco } from '../../services/apiServices'; // 👈 Importa a função do banco
+import { fazerLoginNoBanco } from '../../services/apiServices';
 
 export default function LoginScreen({ onClose, onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -26,34 +26,43 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
 
     try {
       setCarregando(true);
-      // Faz a consulta real na tabela 'usuario' do Supabase
       const usuarioEncontrado = await fazerLoginNoBanco(emailLimpo, senha);
 
-      // Verifica se tem perfil administrativo / coordenação autorizado
-      if (usuarioEncontrado.perfil === 'Gerência Acadêmica' || usuarioEncontrado.perfil === 'Coordenador') {
+      const perfilBanco = usuarioEncontrado.perfil ? usuarioEncontrado.perfil.trim().charAt(0).toUpperCase() + usuarioEncontrado.perfil.trim().slice(1).toLowerCase() : '';
+      
+      const temPermissao = 
+        perfilBanco.includes('Coordenador') || 
+        perfilBanco.includes('Gerencia');
+      
+      if (temPermissao) {
         setFeedback({
           tipo: 'sucesso',
           mensagem: `Bem-vindo(a), ${usuarioEncontrado.nome}! A abrir painel...`,
         });
 
+        // 1. Fecha o teclado imediatamente para libertar o foco da tela
+        Keyboard.dismiss();
+
+        // 2. Abre o painel com um delay fluido de 0.5s
         setTimeout(() => {
+          setCarregando(false);
           if (onLoginSuccess) {
             onLoginSuccess(usuarioEncontrado);
           }
-        }, 1000);
+        }, 500);
       } else {
+        setCarregando(false);
         setFeedback({
           tipo: 'erro',
-          mensagem: 'Este perfil não possui acesso administrativo.',
+          mensagem: `Acesso negado. Perfil detetado: "${usuarioEncontrado.perfil || 'Nenhum'}".`,
         });
       }
     } catch (error) {
+      setCarregando(false);
       setFeedback({
         tipo: 'erro',
         mensagem: error.message || 'E-mail ou senha incorretos.',
       });
-    } finally {
-      setCarregando(false);
     }
   };
 

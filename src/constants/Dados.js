@@ -84,6 +84,7 @@
 //   }
 // ];
 
+/*
 export const listaCursosTecnico = [
   { 
     id: 't1', 
@@ -230,6 +231,8 @@ export const USUARIOS_MOCK = [
     setor: 'TI',
   },
 ];
+*/
+
 // export const listaCursosTecnico = [
 //   { 
 //     id: 't1', 

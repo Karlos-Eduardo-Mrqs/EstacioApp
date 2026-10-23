@@ -1,10 +1,34 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { buscarCursosDoBanco, buscarEventosDoBanco } from '../services/apiServices';
 import { gerarMesesCalendario, nomesMeses } from './Calendario';
 
 export function useScriptApp(styles) {
+  // Estado global para controlar o popup de mensagens (Sucesso, Erro ou Aviso)
+  const [popupInfo, setPopupInfo] = useState({
+    visible: false,
+    titulo: '',
+    mensagem: '',
+    tipo: 'sucesso',
+    duracao: 0,
+  });
+
+  const exibirPopup = (titulo, mensagem, tipo = 'sucesso', duracaoSegundos = 4) => {
+    setPopupInfo({ 
+      visible: true, 
+      titulo, 
+      mensagem, 
+      tipo, 
+      duracao: duracaoSegundos 
+    });
+
+    // O setTimeout agora usa a duração personalizada em segundos multiplicada por 1000ms
+    setTimeout(() => {
+      setPopupInfo((prev) => ({ ...prev, visible: false }));
+    }, duracaoSegundos * 1000);
+  };
+
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
   const [diaFocado, setDiaFocado] = useState(null);
   const [eventosDoDia, setEventosDoDia] = useState([]);
@@ -42,11 +66,11 @@ export function useScriptApp(styles) {
     try {
       const jaExiste = notificacoesSalvas.some((item) => item.id === evento.id);
       if (jaExiste) {
-        if (Platform.OS === 'web') {
-          alert("Este evento já está nas suas notificações!");
-        } else {
-          Alert.alert("Aviso", "Este evento já está nas suas notificações!");
-        }
+        exibirPopup(
+          "⚠️ Notificação Existente", 
+          "Este evento já está guardado nas suas notificações!", 
+          "aviso",4
+        );
         return;
       }
 
@@ -54,17 +78,17 @@ export function useScriptApp(styles) {
       setNotificacoesSalvas(novaLista);
       await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
 
-      if (Platform.OS === 'web') {
-        alert("Sucesso! Evento adicionado às suas notificações!");
-      } else {
-        Alert.alert("Sucesso!", "Evento adicionado às suas notificações!");
-      }
+      exibirPopup(
+        "🔔 Sucesso!", 
+        "Evento adicionado às suas notificações com sucesso!", 
+        "sucesso",4
+      );
     } catch (e) {
-      if (Platform.OS === 'web') {
-        alert("Erro ao salvar a notificação.");
-      } else {
-        Alert.alert("Erro", "Não foi possível salvar a notificação.");
-      }
+      exibirPopup(
+        "❌ Erro", 
+        "Não foi possível salvar a notificação no dispositivo.", 
+        "erro",4
+      );
     }
   };
 
@@ -74,13 +98,17 @@ export function useScriptApp(styles) {
       setNotificacoesSalvas(novaLista);
       await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
 
-      if (Platform.OS === 'web') {
-        alert("Notificação removida com sucesso!");
-      } else {
-        Alert.alert("Sucesso", "Notificação removida com sucesso!");
-      }
+      exibirPopup(
+        "🗑️ Removido", 
+        "Notificação removida com sucesso!", 
+        "sucesso",4
+      );
     } catch (e) {
-      console.log("Erro ao remover notificação", e);
+      exibirPopup(
+        "❌ Erro", 
+        "Ocorreu um erro ao tentar remover a notificação.", 
+        "erro",4
+      );
     }
   };
 
@@ -97,11 +125,9 @@ export function useScriptApp(styles) {
         if (ativo) setCursosDoBanco(cursos);
       } catch (error) {
         if (ativo) {
-          setErroCursos(
-            error instanceof Error
-              ? error.message
-              : 'Não foi possível carregar os cursos.'
-          );
+          const msgErro = error instanceof Error ? error.message : 'Não foi possível carregar os cursos.';
+          setErroCursos(msgErro);
+          exibirPopup("❌ Erro nos Cursos", msgErro, "erro",4);
         }
       } finally {
         if (ativo) setCarregandoCursos(false);
@@ -128,11 +154,9 @@ export function useScriptApp(styles) {
       } catch (error) {
         if (ativo) {
           setTodosOsEventos([]);
-          setErroEventos(
-            error instanceof Error
-              ? error.message
-              : 'Ocorreu um erro inesperado ao carregar os eventos.'
-          );
+          const msgErro = error instanceof Error ? error.message : 'Ocorreu um erro inesperado ao carregar os eventos.';
+          setErroEventos(msgErro);
+          exibirPopup("❌ Erro nos Eventos", msgErro, "erro",4);
         }
       } finally {
         if (ativo) setCarregandoEventos(false);
@@ -153,28 +177,19 @@ export function useScriptApp(styles) {
     (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime()
   );
 
-  const listaProximos = eventosOrdenados
-    .filter((evento) => evento.dataEvento >= hoje)
-    .slice(0, 6);
+  const listaProximos = eventosOrdenados.filter((evento) => evento.dataEvento >= hoje).slice(0, 6);
 
   const limiteSemana = new Date(hoje);
   limiteSemana.setDate(limiteSemana.getDate() + 7);
 
-  const listaSemana = eventosOrdenados
-    .filter(
+  const listaSemana = eventosOrdenados.filter(
       (evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana
-    )
-    .slice(0, 6);
+    ).slice(0, 6);
 
   const primeiroDiaProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
-  const primeiroDiaMesSeguinte = new Date(
-    primeiroDiaProximoMes.getFullYear(),
-    primeiroDiaProximoMes.getMonth() + 1,
-    1
-  );
+  const primeiroDiaMesSeguinte = new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth() + 1, 1);
 
-  const eventosProximoMes = eventosOrdenados
-    .filter(
+  const eventosProximoMes = eventosOrdenados.filter(
       (evento) =>
         evento.dataEvento >= primeiroDiaProximoMes &&
         evento.dataEvento < primeiroDiaMesSeguinte
@@ -257,6 +272,9 @@ export function useScriptApp(styles) {
     salvarNotificacao,
     removerNotificacao,
     renderizarDias, 
-    renderCartaoPequeno
+    renderCartaoPequeno,
+    popupInfo, 
+    setPopupInfo,
+    exibirPopup
   };
 }

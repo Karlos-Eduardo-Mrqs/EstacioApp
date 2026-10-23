@@ -1,71 +1,60 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, StatusBar, Platform } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
 import { painelStyles as styles } from '../../styles/painel/painelStyles';
 import PainelCadastro from '../painel/painelCadastro'; 
+import ConfirmPopup from '../ConfirmPopup'; // 👈 Importa o novo modal de confirmação
+import FeedbackBox from '../FeedPopup'; // 👈 Importa o feedback visual
+import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioDoBanco } from '../../services/apiServices';
 
 export default function GerenciarUsuarios({ onClose, onLogout }) {
-  // ============================================================
-  // ESTADOS PRINCIPAIS
-  // ============================================================
-  const [usuarios, setUsuarios] = useState([
-    {
-      id: '1',
-      nome: 'Engenharia de Software',
-      email: 'ana.coordenacao@estacio.br',
-      perfil: 'Coordenador',
-      ativo: false,
-    },
-    {
-      id: '2',
-      nome: 'Administração',
-      email: 'junior.coordenacao@estacio.br',
-      perfil: 'Coordenador',
-      ativo: false,
-    },
-    {
-      id: '3',
-      nome: 'Ciencia da Computação',
-      email: 'mariana.coordenador@estacio.br',
-      perfil: 'Coordenador',
-      ativo: true,
-    },
-    {
-      id: '4',
-      nome: 'Psicologia',
-      email: 'samantha.coordenador@estacio.br',
-      perfil: 'Coordenador',
-      ativo: true,
-    },
-  ]);
-
+  const [usuarios, setUsuarios] = useState([]);
   const [pesquisa, setPesquisa] = useState('');
+  const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
 
-  // ============================================================
-  // FORMULÁRIO DE CADASTRO (ESTADOS)
-  // ============================================================
+  // Estados dos Modais
   const [modalCadastro, setModalCadastro] = useState(false);
+  const [confirmPopup, setConfirmPopup] = useState({
+    visible: false,
+    titulo: '',
+    mensagem: '',
+    onConfirm: null,
+    tipo: 'danger',
+  });
+
+  // Campos do Formulário de Cadastro
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [perfil, setPerfil] = useState('Coordenador');
 
-  // ============================================================
-  // FILTRAGEM DE UTILIZADORES
-  // ============================================================
+  useEffect(() => {
+    carregarUsuarios();
+  }, []);
+
+  const carregarUsuarios = async () => {
+    try {
+      const dados = await buscarUsuariosDoBanco();
+      const formatados = dados.map(u => ({
+        ...u,
+        ativo: u.ativo !== undefined ? u.ativo : true,
+      }));
+      setUsuarios(formatados);
+    } catch (error) {
+      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível carregar os utilizadores do banco.' });
+    }
+  };
+
   const usuariosFiltrados = useMemo(() => {
     const termo = pesquisa.trim().toLowerCase();
     if (!termo) return usuarios;
 
     return usuarios.filter(
       usuario =>
-        usuario.nome.toLowerCase().includes(termo) ||
-        usuario.email.toLowerCase().includes(termo)
+        (usuario.nome && usuario.nome.toLowerCase().includes(termo)) ||
+        (usuario.email && usuario.email.toLowerCase().includes(termo))
     );
   }, [usuarios, pesquisa]);
 
-  // ============================================================
-  // FUNÇÕES DE GERENCIAMENTO
-  // ============================================================
   const limparFormulario = () => {
     setNome('');
     setEmail('');
@@ -78,41 +67,38 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
     limparFormulario();
   };
 
-  const criarUsuario = () => {
+  const criarUsuario = async () => {
+    setFeedback({ tipo: '', mensagem: '' });
     const nomeLimpo = nome.trim();
     const emailLimpo = email.trim().toLowerCase();
 
     if (!nomeLimpo || !emailLimpo || !senha.trim()) {
-      Alert.alert('Atenção', 'Preencha o nome, o e-mail e a senha temporária.');
+      setFeedback({ tipo: 'erro', mensagem: 'Preencha o nome, o e-mail e a senha temporária.' });
       return;
     }
 
     const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo);
     if (!emailValido) {
-      Alert.alert('Atenção', 'Informe um e-mail válido.');
+      setFeedback({ tipo: 'erro', mensagem: 'Informe um e-mail válido.' });
       return;
     }
 
-    const emailExiste = usuarios.some(
-      usuario => usuario.email.toLowerCase() === emailLimpo
-    );
-    if (emailExiste) {
-      Alert.alert('E-mail já cadastrado', 'Já existe um utilizador cadastrado com este e-mail.');
-      return;
+    try {
+      const novoRegistro = {
+        nome: nomeLimpo,
+        email: emailLimpo,
+        senha: senha.trim(),
+        perfil,
+        matricula: `MAT_${Math.floor(Math.random() * 90000 + 10000)}`,
+      };
+
+      const criado = await criarUsuarioNoBanco(novoRegistro);
+      setUsuarios(prev => [{ ...criado, ativo: true }, ...prev]);
+      fecharCadastro();
+      setFeedback({ tipo: 'sucesso', mensagem: 'Utilizador criado e gravado no banco com sucesso!' });
+    } catch (error) {
+      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível criar o utilizador no Supabase.' });
     }
-
-    const novoUsuario = {
-      id: `${Date.now()}-${Math.random()}`,
-      nome: nomeLimpo,
-      email: emailLimpo,
-      perfil,
-      ativo: true,
-    };
-
-    setUsuarios(prev => [novoUsuario, ...prev]);
-    fecharCadastro();
-
-    Alert.alert('Utilizador criado', 'O utilizador foi cadastrado e ativado com sucesso.');
   };
 
   const alternarStatus = id => {
@@ -123,58 +109,42 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
     );
   };
 
-  const removerUsuario = id => {
+  const solicitarRemocao = id => {
     const usuario = usuarios.find(item => item.id === id);
     if (!usuario) return;
 
-    const excluir = () => {
-      setUsuarios(prev => prev.filter(item => item.id !== id));
-    };
-
-    if (Platform.OS === 'web') {
-      const confirmou = window.confirm(`Deseja realmente remover ${usuario.nome}?`);
-      if (confirmou) excluir();
-      return;
-    }
-
-    Alert.alert(
-      'Remover utilizador',
-      `Deseja realmente remover ${usuario.nome}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Remover', style: 'destructive', onPress: excluir },
-      ]
-    );
-  };
-
-  const handleLogout = () => {
-    const realizarLogout = () => {
-      if (onLogout) {
-        onLogout();
-      } else if (onClose) {
-        onClose();
+    setConfirmPopup({
+      visible: true,
+      titulo: 'Remover utilizador',
+      mensagem: `Deseja realmente remover o utilizador ${usuario.nome}? Esta ação não pode ser desfeita.`,
+      tipo: 'danger',
+      onConfirm: async () => {
+        setConfirmPopup(prev => ({ ...prev, visible: false }));
+        try {
+          await removerUsuarioDoBanco(id);
+          setUsuarios(prev => prev.filter(item => item.id !== id));
+          setFeedback({ tipo: 'sucesso', mensagem: `Utilizador ${usuario.nome} removido com sucesso.` });
+        } catch (error) {
+          setFeedback({ tipo: 'erro', mensagem: 'Não foi possível remover o utilizador.' });
+        }
       }
-    };
-
-    if (Platform.OS === 'web') {
-      const confirmou = window.confirm('Deseja realmente sair do sistema?');
-      if (confirmou) realizarLogout();
-      return;
-    }
-
-    Alert.alert(
-      'Sair da conta',
-      'Deseja realmente encerrar a sua sessão?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Sair', style: 'destructive', onPress: realizarLogout },
-      ]
-    );
+    });
   };
 
-  // ============================================================
-  // RENDERIZAÇÃO DO ITEM DA LISTA
-  // ============================================================
+  const solicitarLogout = () => {
+    setConfirmPopup({
+      visible: true,
+      titulo: 'Sair do sistema',
+      mensagem: 'Deseja realmente encerrar a sua sessão atual?',
+      tipo: 'danger',
+      onConfirm: () => {
+        setConfirmPopup(prev => ({ ...prev, visible: false }));
+        if (onLogout) onLogout();
+        else if (onClose) onClose();
+      }
+    });
+  };
+
   const renderUsuario = ({ item }) => (
     <View style={styles.usuarioCard}>
       <View style={styles.usuarioInfo}>
@@ -199,8 +169,6 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
         <TouchableOpacity
           style={[styles.botaoCadeado, item.ativo ? styles.cadeadoAberto : styles.cadeadoFechado]}
           onPress={() => alternarStatus(item.id)}
-          accessibilityRole="button"
-          accessibilityLabel={item.ativo ? `Desativar ${item.nome}` : `Ativar ${item.nome}`}
           activeOpacity={0.7}
         >
           <Text style={styles.iconeCadeado}>{item.ativo ? '🔓' : '🔒'}</Text>
@@ -208,9 +176,7 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
 
         <TouchableOpacity
           style={styles.botaoRemover}
-          onPress={() => removerUsuario(item.id)}
-          accessibilityRole="button"
-          accessibilityLabel={`Remover ${item.nome}`}
+          onPress={() => solicitarRemocao(item.id)}
           activeOpacity={0.7}
         >
           <Text style={styles.iconeLixeira}>🗑</Text>
@@ -220,10 +186,10 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f4f5f7' }}>
+    <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: '#f4f5f7' }}>
       <FlatList
         data={usuariosFiltrados}
-        keyExtractor={item => item.id}
+        keyExtractor={item => String(item.id)}
         renderItem={renderUsuario}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
@@ -231,31 +197,19 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
         ListHeaderComponent={
           <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-
               <TouchableOpacity 
-                onPress={handleLogout}
-                style={{
-                  backgroundColor: '#fee2e2',
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 8,
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Sair do sistema"
+                onPress={solicitarLogout}
+                style={{ backgroundColor: '#fee2e2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
               >
-                <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 14 }}>
-                  🚪 Sair
-                </Text>
+                <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 14 }}>🚪 Sair</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={styles.tituloPagina}>Gerenciamento de utilizadores</Text>
+            <Text style={styles.subtituloPagina}>Cadastre, ative, desative ou remova utilizadores do sistema.</Text>
 
-            <Text style={styles.subtituloPagina}>
-              Cadastre, ative, desative ou remova utilizadores do sistema.
-            </Text>
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
 
-            {/* PESQUISA E BOTÃO DE CADASTRO */}
             <View style={styles.barraPesquisa}>
               <View style={styles.pesquisaContainer}>
                 <Text style={styles.iconePesquisa}>⌕</Text>
@@ -267,33 +221,22 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
                   onChangeText={setPesquisa}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  returnKeyType="search"
-                  accessibilityLabel="Pesquisar utilizadores"
                 />
                 {pesquisa.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => setPesquisa('')}
-                    style={styles.limparPesquisa}
-                    accessibilityLabel="Limpar pesquisa"
-                  >
+                  <TouchableOpacity onPress={() => setPesquisa('')} style={styles.limparPesquisa}>
                     <Text style={styles.iconeLimpar}>×</Text>
                   </TouchableOpacity>
                 )}
               </View>
 
-              <TouchableOpacity style={styles.botaoAdicionar} onPress={() => setModalCadastro(true)} activeOpacity={0.8}
-                accessibilityRole="button" accessibilityLabel="Adicionar utilizador"
-              >
+              <TouchableOpacity style={styles.botaoAdicionar} onPress={() => setModalCadastro(true)} activeOpacity={0.8}>
                 <Text style={styles.iconeAdicionar}>+</Text>
               </TouchableOpacity>
             </View>
 
-            {/* CABEÇALHO DA LISTA */}
             <View style={styles.cabecalhoLista}>
               <Text style={styles.tituloLista}>Utilizadores cadastrados</Text>
-              <Text style={styles.contador}>
-                {usuariosFiltrados.length} de {usuarios.length}
-              </Text>
+              <Text style={styles.contador}>{usuariosFiltrados.length} de {usuarios.length}</Text>
             </View>
           </View>
         }
@@ -303,18 +246,34 @@ export default function GerenciarUsuarios({ onClose, onLogout }) {
               {pesquisa ? 'Nenhum resultado encontrado' : 'Nenhum utilizador cadastrado'}
             </Text>
             <Text style={styles.listaVaziaTexto}>
-              {pesquisa
-                ? 'Tente pesquisar por outro nome ou e-mail.'
-                : 'Toque no botão + para cadastrar o primeiro utilizador.'}
+              {pesquisa ? 'Tente pesquisar por outro nome ou e-mail.' : 'Toque no botão + para cadastrar o primeiro utilizador.'}
             </Text>
           </View>
         }
       />
 
-      {/* COMPONENTE DO MODAL DE CADASTRO */}
-      <PainelCadastro visible={modalCadastro} onClose={fecharCadastro} nome={nome} setNome={setNome} 
-      email={email} setEmail={setEmail} senha={senha} setSenha={setSenha} 
-      perfil={perfil} setPerfil={setPerfil} onCriar={criarUsuario} styles={styles}
+      <PainelCadastro 
+        visible={modalCadastro} 
+        onClose={fecharCadastro} 
+        nome={nome} 
+        setNome={setNome} 
+        email={email} 
+        setEmail={setEmail} 
+        senha={senha} 
+        setSenha={setSenha} 
+        perfil={perfil} 
+        setPerfil={setPerfil} 
+        onCriar={criarUsuario} 
+        styles={styles}
+      />
+
+      <ConfirmPopup
+        visible={confirmPopup.visible}
+        titulo={confirmPopup.titulo}
+        mensagem={confirmPopup.mensagem}
+        tipo={confirmPopup.tipo}
+        onConfirm={confirmPopup.onConfirm}
+        onCancel={() => setConfirmPopup(prev => ({ ...prev, visible: false }))}
       />
     </View>
   );

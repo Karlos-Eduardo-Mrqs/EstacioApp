@@ -1,17 +1,20 @@
 import * as Sharing from "expo-sharing";
-import { useRef } from "react";
-import { Alert, Modal, Text, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
+import { useRef, useState } from "react";
+import { Modal, Text, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
 import { captureRef } from "react-native-view-shot";
 import { detalheStyles as styles } from "../styles/mural/detalhesStyles";
 import CustomIcon from "../components/CustomIcon";
 import { CoresInstitucionais } from "../styles/theme";
+import FeedbackBox from "../components/FeedPopup"; 
 
-export default function EventoDetalhe({ evento, onClose, onNotificar }) { // 👈 Adicione o onNotificar aqui
+export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   const viewRef = useRef();
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
+  const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
 
   const handleCompartilhar = async () => {
+    setFeedback({ tipo: '', mensagem: '' });
     try {
       const uri = await captureRef(viewRef, {
         format: "png",
@@ -25,14 +28,14 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) { // �
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        Alert.alert("Sucesso!", "A imagem do evento foi descarregada para o seu computador.");
+        setFeedback({ tipo: 'sucesso', mensagem: 'A imagem do evento foi descarregada com sucesso!' });
       } else {
         await Sharing.shareAsync(uri, {
           dialogTitle: "Compartilhar Evento",
         });
       }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível processar ou partilhar o evento.");
+      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível processar ou partilhar o evento.' });
     }
   };
 
@@ -40,9 +43,11 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) { // �
     if (onNotificar) {
       onNotificar(evento);
     }
-    onClose();
+    setFeedback({ tipo: 'sucesso', mensagem: 'Evento guardado nas notificações!' });
+    setTimeout(() => {
+      onClose();
+    }, 800);
   };
-  
 
   return (
     <Modal
@@ -65,6 +70,8 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) { // �
           </View>
 
           <View style={styles.corpoModal}>
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+
             <Text style={styles.textoDetalhe}>
               📅 Data:{" "}
               <Text style={styles.textoBold}>

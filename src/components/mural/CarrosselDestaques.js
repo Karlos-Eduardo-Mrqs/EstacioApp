@@ -1,11 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useRef } from "react";
-import { Dimensions, ScrollView, Text, View } from "react-native";
-
-import { carrosselStyles as styles } from "../../styles/mural/carrosselStyles";
-
-const { width } = Dimensions.get("window");
-const ITEM_WIDTH = 280;
+import { ScrollView, Text, View } from "react-native";
+import CustomIcon from "../CustomIcon";
+import { carrosselStyles as styles } from "../../styles/mural/carrosselDestaquesStyles";
 
 export default function Carrossel() {
   const scrollRef = useRef(null);
@@ -32,8 +28,7 @@ export default function Carrossel() {
     {
       id: 4,
       title: "Dezembro (Até dia 15)",
-      description:
-        "Encerramento de semestre, provas finais e feira de projetos.",
+      description: "Encerramento de semestre, provas finais e feira de projetos.",
       icon: "time-outline",
     },
   ];
@@ -45,18 +40,23 @@ export default function Carrossel() {
         ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
-        snapToInterval={ITEM_WIDTH + 16}
         decelerationRate="fast"
         contentContainerStyle={styles.track}
       >
         {itens.map((item) => (
           <View key={item.id} style={styles.itemCard}>
             <View style={styles.iconContainer}>
-              <Ionicons name={item.icon} size={20} color="#032551" />
+              <CustomIcon name={item.icon} size={20} color="#032551" />
             </View>
-            <View>
-              <Text style={styles.itemTitle}>{item.title}</Text>
-              <Text style={styles.itemDescription}>{item.description}</Text>
+            
+            {/* Bloco de texto padronizado com width 100% */}
+            <View style={styles.textContainer}>
+              <Text style={styles.itemTitle} numberOfLines={1}>
+                {item.title}
+              </Text>
+              <Text style={styles.itemDescription} numberOfLines={2}>
+                {item.description}
+              </Text>
             </View>
           </View>
         ))}

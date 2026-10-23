@@ -1,29 +1,48 @@
 import * as Sharing from "expo-sharing";
 import { useRef } from "react";
-import { Alert, Modal, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Text, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
 import { captureRef } from "react-native-view-shot";
 import { detalheStyles as styles } from "../styles/mural/detalhesStyles";
+import CustomIcon from "../components/CustomIcon";
+import { CoresInstitucionais } from "../styles/theme";
 
-export default function EventoDetalhe({ evento, onClose }) {
+export default function EventoDetalhe({ evento, onClose, onNotificar }) { // 👈 Adicione o onNotificar aqui
   const viewRef = useRef();
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
 
   const handleCompartilhar = async () => {
     try {
       const uri = await captureRef(viewRef, {
         format: "png",
-        quality: 0.9,
+        quality: 1.0,
       });
-      await Sharing.shareAsync(uri, {
-        dialogTitle: "Compartilhar Evento",
-      });
+
+      if (Platform.OS === 'web') {
+        const link = document.createElement('a');
+        link.href = uri;
+        link.download = `${evento.titulo ? evento.titulo.replace(/\s+/g, '_') : 'evento'}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        Alert.alert("Sucesso!", "A imagem do evento foi descarregada para o seu computador.");
+      } else {
+        await Sharing.shareAsync(uri, {
+          dialogTitle: "Compartilhar Evento",
+        });
+      }
     } catch (error) {
-      Alert.alert("Erro", "Não foi possível compartilhar o evento.");
+      Alert.alert("Erro", "Não foi possível processar ou partilhar o evento.");
     }
   };
 
   const handleNotificar = () => {
-    Alert.alert("Salvo!", `Evento salvo localmente no seu celular.`);
+    if (onNotificar) {
+      onNotificar(evento);
+    }
+    onClose();
   };
+  
 
   return (
     <Modal
@@ -37,7 +56,11 @@ export default function EventoDetalhe({ evento, onClose }) {
           <View style={styles.cabecalhoModal}>
             <Text style={styles.tituloModal}>{evento.titulo}</Text>
             <TouchableOpacity onPress={onClose} style={styles.btnFechar}>
-              <Text style={styles.textoFechar}>X</Text>
+              <CustomIcon 
+                  name={isDesktop ? "close" : "arrow-back"} 
+                  size={22} 
+                  color={CoresInstitucionais.azulPrincipal} 
+              />
             </TouchableOpacity>
           </View>
 
@@ -68,18 +91,10 @@ export default function EventoDetalhe({ evento, onClose }) {
         </View>
 
         <View style={styles.rodapeBotoes}>
-          <TouchableOpacity
-            style={[styles.btnAcao, styles.btnCompartilhar]}
-            onPress={handleCompartilhar}
-          >
-            <Text style={styles.textoBtnCompartilhar}>
-              📲 Compartilhar Evento
-            </Text>
+          <TouchableOpacity style={[styles.btnAcao, styles.btnCompartilhar]} onPress={handleCompartilhar}>
+            <Text style={styles.textoBtnCompartilhar}>📲 Compartilhar Evento</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.btnAcao, styles.btnNotificar]}
-            onPress={handleNotificar}
-          >
+          <TouchableOpacity style={[styles.btnAcao, styles.btnNotificar]} onPress={handleNotificar}>
             <Text style={styles.textoBtnAcao}>🔔 Notificar</Text>
           </TouchableOpacity>
         </View>

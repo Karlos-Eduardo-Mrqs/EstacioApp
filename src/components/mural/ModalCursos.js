@@ -1,23 +1,17 @@
-import {
-    Linking,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,useWindowDimensions,Platform} from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
+import CustomIcon from "../CustomIcon"; 
+import { CoresInstitucionais } from "../../styles/theme";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
+  // Deteção correta do ecrã para alternar o ícone de fechar
+  const { width } = useWindowDimensions();
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
   if (!curso) return null;
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={true}
-      onRequestClose={onClose}
-    >
+    <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
       <View style={modalStyles.overlay}>
         <View style={modalStyles.modalConteudo}>
           {/* CABEÇALHO DO MODAL */}
@@ -29,7 +23,11 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               <Text style={modalStyles.tituloModal}>{curso.titulo}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar}>
-              <Text style={modalStyles.textoFechar}>X</Text>
+              <CustomIcon 
+                  name={isDesktop ? "close" : "arrow-back"} 
+                  size={22} 
+                  color={CoresInstitucionais.brancoPuro} 
+              />
             </TouchableOpacity>
           </View>
 
@@ -37,6 +35,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
             showsVerticalScrollIndicator={false}
             style={modalStyles.corpoModalScroll}
           >
+            
             {/* BLOCO 1: APRESENTAÇÃO */}
             <View style={modalStyles.blocoSecao}>
               <Text style={modalStyles.tituloBlocoSecao}>APRESENTAÇÃO</Text>
@@ -49,15 +48,21 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 {curso.modalidade}
               </Text>
 
-              {/* Botão de + Informações (Link Oficial) */}
-              <TouchableOpacity
-                style={modalStyles.btnSiteOficial}
-                onPress={() => Linking.openURL(curso.link)}
-              >
-                <Text style={modalStyles.textoBtnSite}>
-                  + Informações (Site Oficial)
+              {/* Só exibe o botão se o curso possuir um link válido */}
+              {curso.link ? (
+                <TouchableOpacity
+                  style={modalStyles.btnSiteOficial}
+                  onPress={() => Linking.openURL(curso.link)}
+                >
+                  <Text style={modalStyles.textoBtnSite}>
+                    + Informações (Site Oficial)
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={{ fontSize: 12, color: "#888", fontStyle: "italic", marginTop: 10 }}>
+                  ℹ️ Site oficial indisponível no momento.
                 </Text>
-              </TouchableOpacity>
+              )}
             </View>
 
             {/* BLOCO 2: EVENTOS E AVISOS DO CURSO */}

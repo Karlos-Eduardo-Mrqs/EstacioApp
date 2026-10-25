@@ -1,122 +1,14 @@
-// import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-// import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
-// import { appStyles as styles } from "../../styles/mural/mainStyles";
-// import Carrossel from "./Carrossel";
-// import DepthCarousel from "./CarrosselCursos";
-
-// export default function ListaCarrosseis({
-//   cursos,
-//   cursosTecnicos,
-//   listaProximos,
-//   listaSemana,
-//   eventosProximoMes,
-//   onSelectCurso,
-//   onSelectEvento,
-// }) {
-//   // Função auxiliar para renderizar cartões em formato de carrossel horizontal
-//   const renderCartaoCarrossel = (evento) => (
-//     <View key={evento.id} style={estilosCarrosselEvento.cartao}>
-//       <Text style={estilosCarrosselEvento.tag}>{evento.tipo}</Text>
-//       <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
-//         {evento.titulo}
-//       </Text>
-//       <Text style={estilosCarrosselEvento.data}>
-//         📅 {evento.dia} de {evento.mes}
-//       </Text>
-//       <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
-//         📍 {evento.local}
-//       </Text>
-
-//       <TouchableOpacity
-//         style={estilosCarrosselEvento.botaoDetalhes}
-//         onPress={() => onSelectEvento(evento)}
-//       >
-//         <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-
-//   return (
-//     <View>
-//       {/* CARROSSEL DE CURSOS */}
-//       {cursos && (
-//         <DepthCarousel
-//           cursos={cursos}
-//           cursosTecnicos={cursosTecnicos || []}
-//           onSelectCurso={onSelectCurso}
-//         />
-//       )}
-
-//       {/* CARROSSEL: PRÓXIMOS EVENTOS */}
-//       <View style={styles.blocoSection}>
-//         <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
-//         <ScrollView
-//           horizontal
-//           showsHorizontalScrollIndicator={false}
-//           contentContainerStyle={estilosCarrosselEvento.containerScroll}
-//         >
-//           {listaProximos && listaProximos.length > 0 ? (
-//             listaProximos.map(renderCartaoCarrossel)
-//           ) : (
-//             <Text style={styles.textoMutavel}>
-//               Nenhum próximo evento encontrado.
-//             </Text>
-//           )}
-//         </ScrollView>
-//       </View>
-
-//       {/* CARROSSEL: EVENTOS DA SEMANA */}
-//       <View style={styles.blocoSection}>
-//         <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
-//         <ScrollView
-//           horizontal
-//           showsHorizontalScrollIndicator={false}
-//           contentContainerStyle={estilosCarrosselEvento.containerScroll}
-//         >
-//           {listaSemana && listaSemana.length > 0 ? (
-//             listaSemana.map(renderCartaoCarrossel)
-//           ) : (
-//             <Text style={styles.textoMutavel}>
-//               Nenhum evento agendado para esta semana.
-//             </Text>
-//           )}
-//         </ScrollView>
-//       </View>
-
-//       {/* CARROSSEL: EVENTOS PARA O PRÓXIMO MÊS */}
-//       <View style={styles.blocoSection}>
-//         <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS</Text>
-//         <ScrollView
-//           horizontal
-//           showsHorizontalScrollIndicator={false}
-//           contentContainerStyle={estilosCarrosselEvento.containerScroll}
-//         >
-//           {eventosProximoMes && eventosProximoMes.length > 0 ? (
-//             eventosProximoMes.map(renderCartaoCarrossel)
-//           ) : (
-//             <Text style={styles.textoMutavel}>
-//               Nenhum evento para o próximo mês.
-//             </Text>
-//           )}
-//         </ScrollView>
-//       </View>
-
-//       {/* CARROSSEL GERAL NO FINAL DA PÁGINA */}
-//       <Carrossel />
-//     </View>
-//   );
-// }
-
-
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
-import Carrossel from "./CarrosselDestaques";
-import DepthCarousel from "./CarrosselCursos";
+import CursosCarrossel from "./CarrosselCursos";
+import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
+import CarrosselDestaques from "./CarrosselDestaques";
 
 export default function ListaCarrosseis({
   cursos,
   cursosTecnicos,
+  cursosFavoritosIds = [], // Recebe os IDs dos cursos salvos
   listaProximos,
   listaSemana,
   eventosProximoMes,
@@ -124,28 +16,18 @@ export default function ListaCarrosseis({
   onSelectEvento,
   carregandoCursos,
   erroCursos,
+  todosOsEventos = [],
 }) {
-  // Renderiza os cartões dos eventos.
+  
   const renderCartaoCarrossel = (evento) => (
-    <View
-      key={evento.id}
-      style={estilosCarrosselEvento.cartao}
-    >
-      <Text style={estilosCarrosselEvento.tag}>
-        {evento.tipo}
-      </Text>
-
-      <Text
-        style={estilosCarrosselEvento.titulo}
-        numberOfLines={2}
-      >
+    <View key={evento.id} style={estilosCarrosselEvento.cartao}>
+      <Text style={estilosCarrosselEvento.tag}>{evento.tipo}</Text>
+      <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
         {evento.titulo}
       </Text>
-
       <Text style={estilosCarrosselEvento.data}>
         📅 {evento.dia} de {evento.mes}
       </Text>
-
       <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
         📍 {evento.local || "Local a definir"}
       </Text>
@@ -154,95 +36,53 @@ export default function ListaCarrosseis({
         style={estilosCarrosselEvento.botaoDetalhes}
         onPress={() => onSelectEvento?.(evento)}
       >
-        <Text style={estilosCarrosselEvento.textoBotao}>
-          + Detalhes
-        </Text>
+        <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View>
-      {/* CARROSSEL DE CURSOS */}
-      <DepthCarousel
-        cursos={cursos || []}
+
+      {/* ── DEPTH CAROUSEL ORIGINAL (TODOS OS CURSOS) ── */}
+      <CursosCarrossel cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
         onSelectCurso={onSelectCurso}
         carregandoCursos={carregandoCursos}
         erroCursos={erroCursos}
       />
 
-      {/* CARROSSEL: PRÓXIMOS EVENTOS */}
-      <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>
-          PRÓXIMOS EVENTOS
-        </Text>
+      {/* ── CARROSSEL DE EVENTOS DOS CURSOS FAVORITOS ── */}
+      <CarrosselEventosCursosFavoritos
+        todosOsEventos={todosOsEventos}
+        cursosSelecionados={cursosFavoritosIds}
+        cursosDisponiveis={cursos} // 👈 Passa os cursos disponíveis para traduzir o ID no nome
+        onSelectEvento={onSelectEvento}
+      />
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            estilosCarrosselEvento.containerScroll
-          }
-        >
-          {listaProximos?.length > 0 ? (
-            listaProximos.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum próximo evento encontrado.
-            </Text>
-          )}
+      {/* Demais carrosséis de eventos padrão... */}
+      <View style={styles.blocoSection}>
+        <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+          {listaProximos?.length > 0 ? listaProximos.map(renderCartaoCarrossel) : <Text style={styles.textoMutavel}>Nenhum próximo evento encontrado.</Text>}
         </ScrollView>
       </View>
 
-      {/* CARROSSEL: EVENTOS DA SEMANA */}
       <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>
-          EVENTOS DA SEMANA
-        </Text>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            estilosCarrosselEvento.containerScroll
-          }
-        >
-          {listaSemana?.length > 0 ? (
-            listaSemana.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum evento agendado para esta semana.
-            </Text>
-          )}
+        <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+          {listaSemana?.length > 0 ? listaSemana.map(renderCartaoCarrossel) : <Text style={styles.textoMutavel}>Nenhum evento agendado para esta semana.</Text>}
         </ScrollView>
       </View>
 
-      {/* CARROSSEL: EVENTOS DO PRÓXIMO MÊS */}
       <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>
-          EVENTOS PARA O PRÓXIMO MÊS
-        </Text>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            estilosCarrosselEvento.containerScroll
-          }
-        >
-          {eventosProximoMes?.length > 0 ? (
-            eventosProximoMes.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum evento para o próximo mês.
-            </Text>
-          )}
+        <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
+          {eventosProximoMes?.length > 0 ? eventosProximoMes.map(renderCartaoCarrossel) : <Text style={styles.textoMutavel}>Nenhum evento para o próximo mês.</Text>}
         </ScrollView>
       </View>
 
-      {/* CARROSSEL GERAL */}
-      <Carrossel />
+      {/* <CarrosselDestaques /> */}
     </View>
   );
 }

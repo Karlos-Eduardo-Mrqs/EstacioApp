@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native";
 import { CoresInstitucionais } from "../theme";
 
 export const carrosselEventosStyles = StyleSheet.create({
-  containerScroll: { paddingHorizontal: 15, gap: 12 },
+  containerScroll: {paddingHorizontal: 15, gap: 12 },
   cartao: {
     width: 230,
     backgroundColor: CoresInstitucionais.brancoPuro,
@@ -31,7 +31,7 @@ export const carrosselEventosStyles = StyleSheet.create({
     marginBottom: 6,
   },
   titulo: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     marginBottom: 6,

@@ -47,10 +47,7 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
 
               <View style={styles.botoesAcao}>
                 {onSelectEvento && (
-                  <TouchableOpacity 
-                    style={styles.btnDetalhes} 
-                    onPress={() => onSelectEvento(evento)}
-                  >
+                  <TouchableOpacity style={styles.btnDetalhes} onPress={() => onSelectEvento(evento)}>
                     <Text style={styles.textoBtnDetalhes}>Ver</Text>
                   </TouchableOpacity>
                 )}
@@ -68,6 +65,7 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
           ))}
         </View>
       ) : (
+        // Caso não tenha 
         <Text style={styles.textoTab}>
           Nenhum evento salvo nas suas notificações ainda. Clique em "Notificar" nos detalhes de um evento para guardá-lo aqui.
         </Text>

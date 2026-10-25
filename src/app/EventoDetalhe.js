@@ -2,15 +2,13 @@ import * as Sharing from "expo-sharing";
 import { useRef, useState } from "react";
 import { Modal, Text, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
 import { captureRef } from "react-native-view-shot";
-import { detalheStyles as styles } from "../styles/mural/detalhesStyles";
 import CustomIcon from "../components/CustomIcon";
-import { CoresInstitucionais } from "../styles/theme";
 import FeedbackBox from "../components/FeedPopup"; 
+import { buscaTabstyles as styles } from "../styles/tabs/buscaTabStyles";
 
 export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   const viewRef = useRef();
   const { width } = useWindowDimensions();
-  const isDesktop = Platform.OS === 'web' && width >= 768;
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
 
   const handleCompartilhar = async () => {
@@ -56,54 +54,57 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
       visible={true}
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View ref={viewRef} style={styles.modalConteudo}>
-          <View style={styles.cabecalhoModal}>
-            <Text style={styles.tituloModal}>{evento.titulo}</Text>
-            <TouchableOpacity onPress={onClose} style={styles.btnFechar}>
-              <CustomIcon 
-                  name={isDesktop ? "close" : "arrow-back"} 
-                  size={22} 
-                  color={CoresInstitucionais.azulPrincipal} 
-              />
-            </TouchableOpacity>
-          </View>
+      <View style={styles.modalOverlay}>
+        <View ref={viewRef} style={styles.modalContentClean} collapsable={false}>
+          
+          <TouchableOpacity style={styles.closeButtonClean} onPress={onClose}>
+            <CustomIcon name="close" size={18} color="#262626" />
+          </TouchableOpacity>
 
-          <View style={styles.corpoModal}>
+          <View style={styles.modalScrollClean}>
             <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
 
-            <Text style={styles.textoDetalhe}>
-              📅 Data:{" "}
-              <Text style={styles.textoBold}>
-                {evento.dia} de {evento.mes}
+            <Text style={styles.modalTituloClean}>{evento.titulo}</Text>
+            
+            <Text style={styles.modalSubInfoClean}>
+              📅 {evento.dia} de {evento.mes} • 📍 {evento.local || evento.turma || "Campus"}
+            </Text>
+
+            {evento.autor && (
+              <Text style={styles.modalSubInfoClean}>
+                🎤 Palestrante: {evento.autor}
               </Text>
-            </Text>
-            <Text style={styles.textoDetalhe}>
-              🎓 Turma: <Text style={styles.textoBold}>{evento.turma}</Text>
-            </Text>
-            <Text style={styles.textoDetalhe}>
-              🎤 Palestrante:{" "}
-              <Text style={styles.textoBold}>{evento.autor}</Text>
-            </Text>
-            <Text style={styles.textoDetalhe}>
-              🕛 Horas Acc:{" "}
-              <Text style={styles.textoBold}>{evento.horas_acc}</Text>
+            )}
+
+            {evento.horas_acc && (
+              <Text style={styles.modalSubInfoClean}>
+                🕛 Horas Acc: {evento.horas_acc}
+              </Text>
+            )}
+
+            <Text style={styles.modalSecaoLabelClean}>Sobre o evento:</Text>
+            <Text style={styles.modalDescricaoClean}>
+              {evento.descricao || "Nenhuma descrição detalhada informada para este evento."}
             </Text>
 
-            <View style={styles.caixaDescricao}>
-              <Text style={styles.textoBold}>Sobre o evento:</Text>
-              <Text style={styles.textoDescricao}>{evento.descricao}</Text>
+            <View style={styles.actionButtonsRowClean}>
+              <TouchableOpacity 
+                style={styles.btnNotificarClean}
+                onPress={handleNotificar}
+              >
+                <CustomIcon name="notifications-outline" size={18} color="#ffffff" style={{ marginRight: 6 }} />
+                <Text style={styles.btnNotificarTextoClean}>Notificar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.btnCompartilharClean}
+                onPress={handleCompartilhar}
+              >
+                <Text style={styles.btnCompartilharTextoClean}>Compartilhar ↗</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-        </View>
 
-        <View style={styles.rodapeBotoes}>
-          <TouchableOpacity style={[styles.btnAcao, styles.btnCompartilhar]} onPress={handleCompartilhar}>
-            <Text style={styles.textoBtnCompartilhar}>📲 Compartilhar Evento</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btnAcao, styles.btnNotificar]} onPress={handleNotificar}>
-            <Text style={styles.textoBtnAcao}>🔔 Notificar</Text>
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>

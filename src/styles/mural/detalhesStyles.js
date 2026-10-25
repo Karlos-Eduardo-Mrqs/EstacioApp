@@ -84,7 +84,7 @@ export const detalheStyles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 6,
     borderLeftWidth: 3,
-    borderLeftColor: CoresInstitucionais.amareloEstacio,
+    borderLeftColor: CoresInstitucionais.amarelo,
     elevation: 2,
     flexDirection: "row",
     alignItems: "center",

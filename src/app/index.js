@@ -186,6 +186,7 @@ export default function App() {
                     cursosFavoritos={cursosSelecionados}
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
                   />
+                  
                   <ListaCarrosseis
                     {...scriptApp}
                     onSelectCurso={(curso) => setCursoSelecionado(curso)}
@@ -199,6 +200,7 @@ export default function App() {
                   <BuscaTab 
                     todosOsEventos={scriptApp.todosOsEventos} 
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
+                    onNotificar={(ev) => scriptApp.salvarNotificacao(ev)} 
                   />
               )}
 

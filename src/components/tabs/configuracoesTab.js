@@ -1,10 +1,15 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import CustomIcon from "../CustomIcon";
+import CustomIcon, { obterIconeCurso } from "../CustomIcon"; // 👈 Importa o CustomIcon e a função de ícones por curso
 import { configuracoesTabstyles as styles } from "../../styles/tabs/configuracoesTabStyles";
 
-export default function ConfiguracoesTab({ isDesktop, onOpenDevs, onOpenSobre, onRedefinirCursos,
-  cursosSelecionados = [],cursosDisponiveis = [] }) {
-  // Mapeia os IDs salvos para os títulos reais dos cursos
+export default function ConfiguracoesTab({ 
+  isDesktop, 
+  onOpenDevs, 
+  onOpenSobre, 
+  onRedefinirCursos,
+  cursosSelecionados = [],
+  cursosDisponiveis = [] 
+}) {
   const cursosEscolhidosNomes = cursosDisponiveis.filter(
     (curso) => cursosSelecionados.includes(curso.id || curso.titulo)
   );
@@ -15,38 +20,39 @@ export default function ConfiguracoesTab({ isDesktop, onOpenDevs, onOpenSobre, o
       <Text style={styles.tituloTab}>Configurações</Text>
       <Text style={styles.textoTab}>Preferências do sistema e painel do utilizador.</Text>
 
-      {/* SECÇÃO DE CURSOS DE INTERESSE SELECIONADOS */}
-      <View style={{ width: '100%', maxWidth: 420, marginTop: 18, marginBottom: 14 }}>
-        <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#032551', marginBottom: 8 }}>
-          📚 Seus Cursos de Interesse ({cursosSelecionados.length}/5):
+      {/* SECÇÃO DE CURSOS DE INTERESSE EM CARDS LADO A LADO COM ÍCONES DINÂMICOS */}
+      <View style={{ width: '100%', maxWidth: 520, marginTop: 18, marginBottom: 14 }}>
+        <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#032551', marginBottom: 12 }}>
+          Seus Cursos de Interesse ({cursosSelecionados.length}/5):
         </Text>
         
-        <View style={{
-          backgroundColor: '#f8fafc',
-          borderRadius: 12,
-          padding: 14,
-          borderWidth: 1,
-          borderColor: '#e2e8f0',
-        }}>
+        <View style={styles.cardsRow}>
           {cursosEscolhidosNomes.length > 0 ? (
-            cursosEscolhidosNomes.map((curso, idx) => (
-              <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
-                <Text style={{ color: '#032551', fontWeight: 'bold', marginRight: 8, fontSize: 16 }}>•</Text>
-                <Text style={{ fontSize: 14, color: '#1e293b', fontWeight: '600' }}>
-                  {curso.titulo || curso.nome}
-                </Text>
-              </View>
-            ))
+            cursosEscolhidosNomes.map((curso, idx) => {
+              const nomeCurso = curso.titulo || curso.nome;
+              
+              return (
+                <View key={idx} style={styles.cursoCard}>
+                  {/* Ícone dinâmico baseado na matéria */}
+                  <CustomIcon name={obterIconeCurso(nomeCurso)} size={22} color="#032551" style={{ marginBottom: 6 }} />
+                  <Text style={styles.cursoCardTexto} numberOfLines={2}>
+                    {nomeCurso}
+                  </Text>
+                </View>
+              );
+            })
           ) : (
-            <Text style={{ fontSize: 13.5, color: '#94a3b8', fontStyle: 'italic' }}>
-              Nenhum curso configurado ainda.
-            </Text>
+            <View style={styles.emptyCardContainer}>
+              <Text style={styles.emptyCardTexto}>
+                Nenhum curso configurado ainda.
+              </Text>
+            </View>
           )}
         </View>
       </View>
 
       {/* BOTÃO DE REDEFINIR CURSOS */}
-      <View style={{ width: '100%', maxWidth: 420, marginBottom: 16 }}>
+      <View style={{ width: '100%', maxWidth: 520, marginBottom: 16 }}>
         <TouchableOpacity 
           style={{
             backgroundColor: '#032551',

@@ -178,8 +178,6 @@ export default function App() {
                 </View>
               )}
 
-              
-
               {/* RENDERIZAÇÃO DAS ABAS */}
               {activeTab === "mural" && (
                 <>
@@ -190,14 +188,19 @@ export default function App() {
                   />
                   <ListaCarrosseis
                     {...scriptApp}
-                    eventosFavoritos={eventosCursosFavoritos}
                     onSelectCurso={(curso) => setCursoSelecionado(curso)}
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+                    cursosFavoritosIds={cursosSelecionados} // 👈 NOME CORRETO DA PROPRIEDADE
                   />
                 </>
               )}
 
-              {activeTab === "busca" && <BuscaTab />}
+              {activeTab === "busca" && (
+                  <BuscaTab 
+                    todosOsEventos={scriptApp.todosOsEventos} 
+                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
+                  />
+              )}
 
               {activeTab === "notificacoes" && (
                 <NotificacoesTab
@@ -207,20 +210,23 @@ export default function App() {
                 />
               )}
 
+              {/* Configuracoes do TAB*/}
               {activeTab === "configuracoes" && (
-                <ConfiguracoesTab 
-                  isDesktop={isDesktop}
-                  onOpenDevs={() => setModalDevsVisivel(true)}
-                  onRedefinirCursos={handleRedefinirCursos} // 👈 Conecta o fluxo para abrir o Stepper no Passo 2
-                  onOpenSobre={() =>
-                    scriptApp.exibirPopup(
-                      "ℹ️ Sobre o Mural Acadêmico",
-                      "Mural Acadêmico - Estácio Nova América v1.0.",
-                      "sucesso",6
-                    )
-                  }
-                />
-              )}
+                  <ConfiguracoesTab 
+                    isDesktop={isDesktop}
+                    onOpenDevs={() => setModalDevsVisivel(true)}
+                    onRedefinirCursos={handleRedefinirCursos}
+                    cursosSelecionados={cursosSelecionados}
+                    cursosDisponiveis={scriptApp.cursos}
+                    onOpenSobre={() =>
+                      scriptApp.exibirPopup(
+                        "ℹ️ Sobre o Mural Acadêmico",
+                        "Mural Acadêmico - Estácio Nova América v1.0.",
+                        "sucesso"
+                      )
+                    }
+                  />
+                )}
             </View>
 
             {isDesktop && (

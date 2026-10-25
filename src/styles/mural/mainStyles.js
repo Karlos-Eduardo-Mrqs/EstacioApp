@@ -54,7 +54,7 @@ export const appStyles = StyleSheet.create({
     elevation: 1,
   },
   tituloSecaoBloco: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "bold",
     color: CoresInstitucionais.azulPrincipal,
     borderBottomWidth: 2,
@@ -209,7 +209,7 @@ export const appStyles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderTopWidth: 3,
-    borderTopColor: CoresInstitucionais.amareloEstacio,
+    borderTopColor: CoresInstitucionais.amarelo,
     marginTop: 15,
     alignItems: "center", // Centraliza o conteúdo
   },

@@ -23,10 +23,11 @@ export const carrosselCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.azulSecundario,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: CoresInstitucionais.amareloEstacio,
+    borderColor: CoresInstitucionais.azulSecundario,
   },
   botaoTabAtivo: {
     backgroundColor: CoresInstitucionais.amareloEstacio,
+    borderColor: CoresInstitucionais.amarelo,
   },
   textoTab: {
     fontSize: 12,
@@ -52,7 +53,7 @@ export const carrosselCursosStyles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     borderTopWidth: 4,
-    borderTopColor: CoresInstitucionais.amareloEstacio,
+    borderTopColor: CoresInstitucionais.amarelo,
   },
   badgeContainer: {
     backgroundColor: CoresInstitucionais.azulClaroFundo,
@@ -95,6 +96,6 @@ export const carrosselCursosStyles = StyleSheet.create({
   verMais: {
     fontSize: 11,
     fontWeight: "bold",
-    color: CoresInstitucionais.azulPrincipal,
+    color: CoresInstitucionais.azulSecundario,
   },
 });

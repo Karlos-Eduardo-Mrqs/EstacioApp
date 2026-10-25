@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from "react-native";
 import CustomIcon from "../CustomIcon";
 import { carrosselStyles as styles } from "../../styles/mural/carrosselDestaquesStyles";
 
-export default function Carrossel() {
+export default function CarrosselDestaques() {
   const scrollRef = useRef(null);
 
   const itens = [

@@ -1,9 +1,9 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
-import Carrossel from "./CarrosselDestaques";
-import DepthCarousel from "./CarrosselCursos";
+import CursosCarrossel from "./CarrosselCursos";
 import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
+import CarrosselDestaques from "./CarrosselDestaques";
 
 export default function ListaCarrosseis({
   cursos,
@@ -44,9 +44,8 @@ export default function ListaCarrosseis({
   return (
     <View>
 
-      {/* ── DEPTH CAROUSEL ORIGINAL (TODOS OS CURSOS E TÉCNicos) ── */}
-      <DepthCarousel
-        cursos={cursos || []}
+      {/* ── DEPTH CAROUSEL ORIGINAL (TODOS OS CURSOS) ── */}
+      <CursosCarrossel cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
         onSelectCurso={onSelectCurso}
         carregandoCursos={carregandoCursos}
@@ -83,7 +82,7 @@ export default function ListaCarrosseis({
         </ScrollView>
       </View>
 
-      <Carrossel />
+      {/* <CarrosselDestaques /> */}
     </View>
   );
 }

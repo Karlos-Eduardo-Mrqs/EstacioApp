@@ -1,26 +1,24 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
+import { CoresInstitucionais } from "../../styles/theme";
 
 export default function CarrosselEventosCursosFavoritos({
   todosOsEventos = [],
   cursosSelecionados = [],
-  cursosDisponiveis = [], // 👈 Recebe a lista de cursos do banco
+  cursosDisponiveis = [],
   onSelectEvento,
 }) {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  // Mapeia os IDs numéricos salvos (ex: 5, 8) para os nomes reais dos cursos (ex: "Administração")
   const nomesCursosSelecionados = cursosDisponiveis
     .filter((curso) => cursosSelecionados.includes(curso.id) || cursosSelecionados.includes(curso.titulo))
     .map((curso) => (curso.titulo || curso.nome).toLowerCase());
 
-  // Se por acaso o array acima estiver vazio, usamos os próprios valores selecionados caso já sejam strings
   const termosBusca = nomesCursosSelecionados.length > 0 
     ? nomesCursosSelecionados 
     : cursosSelecionados.map((item) => String(item).toLowerCase());
 
-  // Filtra os eventos cuja turma corresponde a um dos cursos selecionados
   const eventosFavoritos = todosOsEventos.filter((evento) => {
     if (!evento.turma) return false;
     const turmaStr = String(evento.turma).toLowerCase();
@@ -33,24 +31,32 @@ export default function CarrosselEventosCursosFavoritos({
     return match && dataValida;
   });
 
-  // Se não houver eventos correspondentes, ocultamos o carrossel limpidamente
   if (eventosFavoritos.length === 0) return null;
 
   return (
-    <View style={{ marginBottom: 20 }}>
+    <View style={{ marginBottom: 24, marginTop: 16 }}>
+      {/* ── TÍTULO COM O MESMO PADDING LATERAL DOS DEMAIS ── */}
       <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
-        <Text style={{ fontSize: 17, fontWeight: "bold", color: '#032551' }}>
-          ⭐ Eventos dos Seus Cursos Favoritos
-        </Text>
-        <Text style={{ fontSize: 12, color: "#64748b" }}>
-          Avisos e eventos em destaque para as suas áreas de interesse
+        <Text style={{ fontSize: 14, fontWeight: "bold", color: CoresInstitucionais.azulPrincipal, textTransform: 'uppercase' }}>
+          ⭐ EVENTOS DOS SEUS CURSOS FAVORITOS
         </Text>
       </View>
 
+      {/* ── LINHA DIVISÓRIA COM A MESMA MARGEM LATERAL ── */}
+      <View 
+        style={{ 
+          borderTopWidth: 1, 
+          borderTopColor: '#032551', 
+          marginBottom: 12, 
+          marginHorizontal: 16 
+        }} 
+      />
+
+      {/* ── SCROLL HORIZONTAL COM PADDING INICIAL IDÊNTICO ── */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={estilosCarrosselEvento.containerScroll}
+        contentContainerStyle={{ paddingHorizontal: 40, gap: 12 }}
       >
         {eventosFavoritos.map((evento, index) => (
           <View key={evento.id || index} style={estilosCarrosselEvento.cartao}>

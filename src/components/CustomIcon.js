@@ -1,32 +1,5 @@
-// src/components/CustomIcon.js
-import { Text } from "react-native";
+import { Text, Platform } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-
-// 🎨 Função centralizada para definir o ícone personalizado de acordo com o nome do curso
-export const obterIconeCurso = (nomeCurso) => {
-  const nome = nomeCurso?.toLowerCase() || "";
-  
-  const mapaIcones = {
-    "computação": "hardware-chip-outline",
-    "ti": "hardware-chip-outline",
-    "sistema": "hardware-chip-outline",
-    "informática": "hardware-chip-outline",
-    "direito": "scale-outline",
-    "psicologia": "pulse-outline",
-    "administração": "stats-chart-outline",
-    "gestão": "stats-chart-outline",
-    "enfermagem": "medkit-outline",
-    "saúde": "medkit-outline",
-  };
-
-  for (const [chave, icone] of Object.entries(mapaIcones)) {
-    if (nome.includes(chave)) {
-      return icone;
-    }
-  }
-  
-  return "book-outline"; // Ícone padrão genérico
-};
 
 export default function CustomIcon({ name, size = 20, color = "#032551" }) {
   
@@ -80,6 +53,7 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     'pulse-outline': 'pulse-outline',
     'stats-chart-outline': 'stats-chart-outline',
     'medkit-outline': 'medkit-outline',
+    'code-slash-outline': 'code-slash-outline',
   };
 
   const globalIcons = {
@@ -109,17 +83,35 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     "close": "✕",
     "close-outline": "✕",
     "arrow-back": "‹",
+    "book-outline": "📚",
+    "library-outline": "🏛️",
     "hardware-chip-outline": "💻",
     "scale-outline": "⚖️",
     "pulse-outline": "🧠",
     "stats-chart-outline": "📊",
     "medkit-outline": "🩺",
+    "code-slash-outline": "💻",
   };
 
-  const iconName = iconMap[name];
+  // 🌐 NO WEB (Nuvem / Browser): Renderiza diretamente os símbolos/emojis
+  // Evita o erro 404 e falhas de carregamento de fontes .ttf nas hospedagens estáticas (Firebase, Vercel, etc.)
+  if (Platform.OS === 'web') {
+    const symbolIcon = globalIcons[name] || "🔹";
+    return (
+      <Text style={{ fontSize: size, color, lineHeight: size, textAlign: 'center' }}>
+        {symbolIcon}
+      </Text>
+    );
+  }
 
+  // 📱 NO MOBILE (App Nativo / Expo Go): Utiliza os vetores do Ionicons com segurança
+  const iconName = iconMap[name];
   if (iconName) {
-    return <Ionicons name={iconName} size={size} color={color} />;
+    try {
+      return <Ionicons name={iconName} size={size} color={color} />;
+    } catch (e) {
+      // Ignora e cai no fallback caso ocorra algum imprevisto
+    }
   }
 
   const emojiIcon = globalIcons[name] || "🔹";

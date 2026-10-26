@@ -67,7 +67,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
             <Text style={styles.modalTituloClean}>{evento.titulo}</Text>
             
             <Text style={styles.modalSubInfoClean}>
-              📅 {evento.dia} de {evento.mes} • 📍 {evento.local || evento.turma || "Campus"}
+              📅 {evento.dia} de {evento.mes} • 📍 {"A definir"}
             </Text>
 
             {evento.autor && (

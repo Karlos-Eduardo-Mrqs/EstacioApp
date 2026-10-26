@@ -139,10 +139,10 @@ export const appStyles = StyleSheet.create({
     borderRadius: 6,
     marginBottom: 8,
     borderLeftWidth: 4,
-    borderLeftColor: CoresInstitucionais.azulEscuro,
+    borderLeftColor: CoresInstitucionais.azulPrincipal,
   },
   btnTextoMiniAzul: {
-    color: CoresInstitucionais.textoCinzaEscuro,
+    color: CoresInstitucionais.azulSecundario,
     fontSize: 11,
     fontWeight: "bold",
   },
@@ -166,7 +166,7 @@ export const appStyles = StyleSheet.create({
     padding: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: CoresInstitucionais.bordaSuave,
+    borderColor: CoresInstitucionais.azulClaroFundo,
     marginBottom: 10,
   },
   tagCartaoPequeno: {
@@ -249,6 +249,7 @@ export const appStyles = StyleSheet.create({
     fontSize: 9,
     color: CoresInstitucionais.textoCinza,
   },
+  
 });
 
 export const localStyles = StyleSheet.create({

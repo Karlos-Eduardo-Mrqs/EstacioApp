@@ -21,7 +21,7 @@ export default function ListaCarrosseis({
   
   const renderCartaoCarrossel = (evento) => (
     <View key={evento.id} style={estilosCarrosselEvento.cartao}>
-      <Text style={estilosCarrosselEvento.tag}>{evento.tipo}</Text>
+      <Text style={estilosCarrosselEvento.tag}>{evento.turma}</Text>
       <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
         {evento.titulo}
       </Text>
@@ -29,7 +29,7 @@ export default function ListaCarrosseis({
         📅 {evento.dia} de {evento.mes}
       </Text>
       <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
-        📍 {evento.local || "Local a definir"}
+        📍 {evento.local || "A definir"}
       </Text>
 
       <TouchableOpacity

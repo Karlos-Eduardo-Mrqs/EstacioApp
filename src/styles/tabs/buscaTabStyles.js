@@ -36,11 +36,12 @@ export const buscaTabstyles = StyleSheet.create({
   gridRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    gap: 16,
+    justifyContent: 'space-between',
+    rowGap: 12, // Espaço vertical menor entre as linhas de cards
   },
   gridCard: {
-    height: 180,
+    width: '32.6%', // Cards levemente mais largos para reduzir a distância horizontal entre eles
+    height: 190,
     backgroundColor: '#032551',
     borderRadius: 10,
     marginBottom: 4,
@@ -126,7 +127,7 @@ export const buscaTabstyles = StyleSheet.create({
     paddingBottom: 24,
   },
   imageContainerModal: {
-    width: '100%', // 👈 Corrigido o erro de digitação ('1005' para '100%')
+    width: '100%',
     aspectRatio: 16 / 9,
     backgroundColor: '#032551',
   },

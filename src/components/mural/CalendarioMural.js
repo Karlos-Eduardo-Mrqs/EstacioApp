@@ -74,7 +74,7 @@ export default function CalendarioAcademico({semestre,diasSemana,renderizarDias,
                     {evento.titulo}
                   </Text>
                   <Text style={{ fontSize: 10, color: "#666" }}>
-                    📍 {evento.local} | 🕛 {evento.horas_acc || 0}h Acc
+                    📍 {evento.local || "A definir"} | 🕛 {evento.horas_acc || 0}h Acc
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => onSelectEvento(evento)}>

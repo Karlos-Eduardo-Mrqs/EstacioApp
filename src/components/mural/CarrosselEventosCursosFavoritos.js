@@ -60,7 +60,7 @@ export default function CarrosselEventosCursosFavoritos({
       >
         {eventosFavoritos.map((evento, index) => (
           <View key={evento.id || index} style={estilosCarrosselEvento.cartao}>
-            <Text style={estilosCarrosselEvento.tag}>{evento.tipo || "Evento"}</Text>
+            <Text style={estilosCarrosselEvento.tag}>{evento.turma}</Text>
             
             <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
               {evento.titulo}
@@ -71,7 +71,7 @@ export default function CarrosselEventosCursosFavoritos({
             </Text>
             
             <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
-              📍 {evento.local || evento.turma}
+              📍 {evento.local || "A definir"}
             </Text>
 
             <TouchableOpacity

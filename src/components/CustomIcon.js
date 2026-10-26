@@ -94,7 +94,6 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
   };
 
   // 🌐 NO WEB (Nuvem / Browser): Renderiza diretamente os símbolos/emojis
-  // Evita o erro 404 e falhas de carregamento de fontes .ttf nas hospedagens estáticas (Firebase, Vercel, etc.)
   if (Platform.OS === 'web') {
     const symbolIcon = globalIcons[name] || "🔹";
     return (

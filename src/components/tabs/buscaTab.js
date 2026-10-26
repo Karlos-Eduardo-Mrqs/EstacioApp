@@ -62,7 +62,7 @@ export default function BuscaTab({ todosOsEventos = [], onNotificar }) {
                 >
                   <Image source={imagemFonte} style={styles.cardImageBackground} resizeMode="cover" />
                   <View style={styles.cardOverlay}>
-                    <Text style={styles.cardTag} numberOfLines={1}>{evento.tipo || evento.turma || "Evento"}</Text>
+                    <Text style={styles.cardTag} numberOfLines={1}>{evento.turma}</Text>
                     <Text style={styles.cardTitle} numberOfLines={2}>{evento.titulo}</Text>
                   </View>
                 </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dimensions, Modal, Platform, ScrollView, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Dimensions, Modal, Platform, ScrollView, View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useScriptApp } from "../hooks/ScriptApp";
@@ -14,6 +14,7 @@ import RodapeInstitucional from "../components/mural/RodapeMural";
 import SidebarNavBar from "../components/SideNavBar";
 import OnboardingCursos from "../components/OnboardingCursos";
 
+// Importações dos Tabs e Modals
 import BuscaTab from "../components/tabs/buscaTab";
 import ConfiguracoesTab from "../components/tabs/configuracoesTab";
 import NotificacoesTab from "../components/tabs/notificaTab";
@@ -22,10 +23,12 @@ import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
 import GerenciarUsuarios from "../components/painel/painel";
 import PainelCoordenador from "../components/painel/painelCoordenador";
 import ToastPopup from "../components/Popup";
-import EventoDetalhe from "./EventoDetalhe";
+import EventoDetalhe from "../components/EventoDetalhe";
+import PainelNavigator from "../components/painel/painelNavegacao";
 
+// Importações dos Estilos
 import { appStyles as styles } from "../styles/mural/mainStyles";
-import { localStyles } from "../styles/mural/mainStyles";
+import { localStyles } from "../styles/mural/localStyles";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);
@@ -98,10 +101,8 @@ export default function App() {
     setModalLoginVisivel(false);
     const perfil = usuario.perfil ? usuario.perfil.trim().toLowerCase() : "";
 
-    if (perfil.includes("gerência") || perfil.includes("gerencia")) {
-      setModalGerenciaVisivel(true);
-    } else if (perfil.includes("coordenador")) {
-      setModalCoordenadorVisivel(true);
+    if (perfil.includes("gerência") || perfil.includes("gerencia") || perfil.includes("coordenador")) {
+      setModalGerenciaVisivel(true); // Reaproveita o estado para abrir o navigator unificado
     } else {
       scriptApp.exibirPopup("Acesso Negado", "Perfil sem autorização para painel.", "erro");
     }
@@ -110,11 +111,7 @@ export default function App() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  const eventosCursosFavoritos =
-    scriptApp.todosOsEventos?.filter((evento) => {
-      return cursosSelecionados.includes(evento.turma) && evento.dataEvento >= hoje;
-    }) || [];
-
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f4f5f7" }} edges={["top", "bottom"]}>
       
@@ -191,14 +188,14 @@ export default function App() {
                     {...scriptApp}
                     onSelectCurso={(curso) => setCursoSelecionado(curso)}
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                    cursosFavoritosIds={cursosSelecionados} // 👈 NOME CORRETO DA PROPRIEDADE
+                    cursosFavoritosIds={cursosSelecionados}
                   />
                 </>
               )}
 
               {activeTab === "busca" && (
                   <BuscaTab 
-                    todosOsEventos={scriptApp.todosOsEventos} 
+                    eventosLista={scriptApp.todosOsEventos} 
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
                     onNotificar={(ev) => scriptApp.salvarNotificacao(ev)} 
                   />
@@ -252,12 +249,13 @@ export default function App() {
         <LoginScreen onClose={() => setModalLoginVisivel(false)} onLoginSuccess={handleLoginSucesso} />
       </Modal>
 
-      <Modal visible={modalGerenciaVisivel} animationType="slide" onRequestClose={() => setModalGerenciaVisivel(false)}>
-        <GerenciarUsuarios usuarioAtual={utilizadorLogado} onClose={() => setModalGerenciaVisivel(false)} onLogout={() => setModalGerenciaVisivel(false)} />
-      </Modal>
-
-      <Modal visible={modalCoordenadorVisivel} animationType="slide" onRequestClose={() => setModalCoordenadorVisivel(false)}>
-        <PainelCoordenador usuarioAtual={utilizadorLogado} onClose={() => setModalCoordenadorVisivel(false)} onLogout={() => setModalCoordenadorVisivel(false)} />
+      {/* 🛡️ Painel de Navegação Seguro Unificado (Gerência e Coordenador) */}
+      <Modal visible={modalGerenciaVisivel || modalCoordenadorVisivel} animationType="slide" onRequestClose={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); }}>
+        <PainelNavigator 
+          usuarioAtual={utilizadorLogado} 
+          onClose={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); }} 
+          onLogout={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); setUtilizadorLogado(null); }} 
+        />
       </Modal>
 
       <ModalDesenvolvedores visible={modalDevsVisivel} onClose={() => setModalDevsVisivel(false)} />
@@ -270,6 +268,12 @@ export default function App() {
         onClose={() => scriptApp.setPopupInfo((prev) => ({ ...prev, visible: false }))}
       />
 
+      <ModalCurso
+        curso={cursoSelecionado}
+        onClose={() => setCursoSelecionado(null)}
+        onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+      />
+
       {scriptApp.eventoSelecionado && (
         <EventoDetalhe
           evento={scriptApp.eventoSelecionado}
@@ -278,11 +282,6 @@ export default function App() {
         />
       )}
 
-      <ModalCurso
-        curso={cursoSelecionado}
-        onClose={() => setCursoSelecionado(null)}
-        onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-      />
     </SafeAreaView>
   );
 }

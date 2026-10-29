@@ -58,13 +58,48 @@ export async function buscarEventosDoBanco() {
   return (data ?? []).map(mapearEvento);
 }
 
+// Criar novo evento no banco
+export async function criarEventoNoBanco(novoEvento) {
+  const { data, error } = await supabase
+    .from('evento')
+    .insert([novoEvento])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Atualizar evento no banco
+export async function atualizarEventoNoBanco(id, eventoAtualizado) {
+  const { data, error } = await supabase
+    .from('evento')
+    .update(eventoAtualizado)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Remover evento do banco
+export async function removerEventoDoBanco(id) {
+  const { error } = await supabase
+    .from('evento')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+}
+
 // Buscar usuarios do banco
 export async function buscarUsuariosDoBanco() {
   const { data, error } = await supabase
     .from('usuario')
     .select('*')
     .order('nome', { ascending: true })
-    .filter('perfil', 'in', '("coordenador")'); // Filtra apenas os perfis desejados
+    .filter('perfil', 'in', '("Coordenador")'); // Filtra apenas os perfis desejados
 
   if (error) throw error;
   return data ?? [];
@@ -90,4 +125,16 @@ export async function removerUsuarioDoBanco(id) {
     .eq('id', id);
 
   if (error) throw error;
+}
+
+export async function alterarStatusEventoNoBanco(id, novoStatus) {
+  const { data, error } = await supabase
+    .from('evento')
+    .update({ ativo: novoStatus })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }

@@ -1,18 +1,52 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
 
-export default function CalendarioAcademico({semestre,diasSemana,renderizarDias,
-  diaFocado,eventosDoDia,onSelectEvento,carregandoEventos,erroEventos,}) {
+export default function CalendarioAcademico({
+  semestre, diasSemana, renderizarDias,
+  diaFocado, eventosDoDia, onSelectEvento, carregandoEventos, erroEventos,
+  avisosAtivos = [], onReexibirAviso
+}) {
   return (
     <View>
       {/* AVISOS DA GERÊNCIA */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>AVISOS DA GERÊNCIA</Text>
-        <View style={styles.caixaAviso}>
-          <Text style={styles.textoMutavel}>
-            Sem avisos globais no momento.
-          </Text>
-        </View>
+        
+        {avisosAtivos && avisosAtivos.length > 0 ? (
+          avisosAtivos.map((aviso) => (
+            <TouchableOpacity
+              key={aviso.id}
+              style={{
+                backgroundColor: '#FEF9C3',
+                borderLeftWidth: 4,
+                borderLeftColor: '#FACC15',
+                padding: 12,
+                borderRadius: 8,
+                marginBottom: 8,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+              onPress={() => onReexibirAviso && onReexibirAviso(aviso)}
+            >
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#713F12' }} numberOfLines={1}>
+                  {aviso.titulo}
+                </Text>
+                <Text style={{ fontSize: 11, color: '#854D0E', marginTop: 2 }} numberOfLines={2}>
+                  {aviso.mensagem}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#CA8A04' }}>Ver 👆</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View style={styles.caixaAviso}>
+            <Text style={styles.textoMutavel}>
+              Sem avisos globais no momento.
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* CALENDÁRIO COMPLETO DO SEMESTRE */}

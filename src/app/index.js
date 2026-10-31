@@ -1,22 +1,18 @@
 import { Modal, Platform, ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useScriptApp } from "../hooks/ScriptApp";
-import { useAppController } from "../hooks/useAppController"; // 👈 Importa o novo Hook de Controle
+import { useAppController } from "../hooks/useAppController";
 
 // Importações dos componentes do mural
 import BottomNavBar from "../components/BottomNavBar";
 import LoginScreen from "../components/login/loginForm";
 import Cabecalho from "../components/mural/CabecalhoMural";
-import CalendarioAcademico from "../components/mural/CalendarioMural";
-import ListaCarrosseis from "../components/mural/ListaCarrosseis";
 import RodapeInstitucional from "../components/mural/RodapeMural";
 import SidebarNavBar from "../components/SideNavBar";
 import OnboardingCursos from "../components/OnboardingCursos";
+import ConteudoAbas from "../components/mural/conteudosAbas"; // 👈 Novo componente desmembrado
 
-// Importações dos Tabs e Modals
-import BuscaTab from "../components/tabs/buscaTab";
-import ConfiguracoesTab from "../components/tabs/configuracoesTab";
-import NotificacoesTab from "../components/tabs/notificaTab";
+// Importações dos Modals
 import ModalCurso from "../components/mural/ModalCursos";
 import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
 import ToastPopup from "../components/Popup";
@@ -29,9 +25,8 @@ import { localStyles } from "../styles/mural/localStyles";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);
-  const appCtrl = useAppController(scriptApp); // 👈 Instancia o controlador centralizado
+  const appCtrl = useAppController(scriptApp);
 
-  // Exibe o loader enquanto valida a sessão inicial
   if (appCtrl.carregandoSessao) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f4f5f7' }}>
@@ -43,7 +38,6 @@ export default function App() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f4f5f7" }} edges={["top", "bottom"]}>
       
-      {/* ── MODAL DO STEPPER ── */}
       <Modal visible={appCtrl.mostrarOnboarding} transparent animationType="fade">
         <View style={localStyles.overlayEmbacado}>
           <View style={localStyles.containerStepper}>
@@ -85,7 +79,6 @@ export default function App() {
             <View style={{ flex: 1 }}>
               <Cabecalho onAdminPress={() => appCtrl.setModalLoginVisivel(true)} />
 
-              {/* ── LEMBRETE/BANNEER DE CONFIGURAÇÃO SE NÃO HOUVER CURSOS ── */}
               {appCtrl.cursosSelecionados.length < 3 && (
                 <View style={localStyles.bannerLembrete}>
                   <View style={{ flex: 1 }}>
@@ -103,56 +96,14 @@ export default function App() {
                 </View>
               )}
 
-              {/* RENDERIZAÇÃO DAS ABAS */}
-              {appCtrl.activeTab === "mural" && (
-                <>
-                  <CalendarioAcademico
-                    {...scriptApp}
-                    cursosFavoritos={appCtrl.cursosSelecionados}
-                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                  />
-                  
-                  <ListaCarrosseis
-                    {...scriptApp}
-                    onSelectCurso={(curso) => appCtrl.setCursoSelecionado(curso)}
-                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                    cursosFavoritosIds={appCtrl.cursosSelecionados}
-                  />
-                </>
-              )}
-
-              {appCtrl.activeTab === "busca" && (
-                  <BuscaTab 
-                    eventosLista={scriptApp.todosOsEventos} 
-                    onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
-                    onNotificar={(ev) => scriptApp.salvarNotificacao(ev)} 
-                  />
-              )}
-
-              {appCtrl.activeTab === "notificacoes" && (
-                <NotificacoesTab
-                  notificacoes={scriptApp.notificacoesSalvas}
-                  onRemover={(id) => scriptApp.removerNotificacao(id)}
-                  onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                />
-              )}
-
-              {appCtrl.activeTab === "configuracoes" && (
-                  <ConfiguracoesTab 
-                    isDesktop={appCtrl.isDesktop}
-                    onOpenDevs={() => appCtrl.setModalDevsVisivel(true)}
-                    onRedefinirCursos={appCtrl.handleRedefinirCursos}
-                    cursosSelecionados={appCtrl.cursosSelecionados}
-                    cursosDisponiveis={scriptApp.cursos}
-                    onOpenSobre={() =>
-                      scriptApp.exibirPopup(
-                        "ℹ️ Sobre o Mural Acadêmico",
-                        "Mural Acadêmico - Estácio Nova América v1.0.",
-                        "sucesso"
-                      )
-                    }
-                  />
-                )}
+              {/* ABAS RENDERIZADAS NO NOVO COMPONENTE */}
+              <ConteudoAbas 
+                  activeTab={appCtrl.activeTab}
+                  scriptApp={scriptApp}
+                  appCtrl={appCtrl}
+                  avisosAtivos={appCtrl.avisosAtivos}
+                  onReexibirAviso={appCtrl.reexibirAvisoPopup}
+              />
             </View>
 
             {appCtrl.isDesktop && (
@@ -171,7 +122,6 @@ export default function App() {
         </View>
       </View>
 
-      {/* MODAIS GLOBAIS */}
       <Modal visible={appCtrl.modalLoginVisivel} transparent animationType="slide" onRequestClose={() => appCtrl.setModalLoginVisivel(false)}>
         <LoginScreen onClose={() => appCtrl.setModalLoginVisivel(false)} onLoginSuccess={appCtrl.handleLoginSucesso} />
       </Modal>

@@ -1,12 +1,19 @@
 import { useRef, useState } from "react";
-import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { compartilharCard } from "../services/compartilharService";
+import {
+    Image,
+    Modal,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
-import { formatarDataApenas } from "../utils/dataUtils"; 
 import { detalheStyles as styles } from "../styles/detalhesStyles";
+import { formatarDataApenas } from "../utils/dataUtils";
+import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
-import ConfirmPopup from "./ConfirmPopup";
 
 const imagemExemploPadrao = require("../../assets/image.png");
 
@@ -23,12 +30,13 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   });
 
   if (!evento) return null;
-  
+
   // 🔗 Ação de Compartilhar
   const handleCompartilharClick = () => {
     setConfirmConfig({
       titulo: "📥 Permitir Download",
-      mensagem: "Deseja permitir o download da imagem deste evento no seu dispositivo?",
+      mensagem:
+        "Deseja permitir o download da imagem deste evento no seu dispositivo?",
       tipo: "info",
       onConfirm: async () => {
         setConfirmVisible(false);
@@ -36,7 +44,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
         const resultado = await compartilharCard(viewRef, evento);
         setFeedback({
           tipo: resultado.tipo,
-          mensagem: resultado.mensagem
+          mensagem: resultado.mensagem,
         });
       },
     });
@@ -47,7 +55,8 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   const handleNotificarClick = () => {
     setConfirmConfig({
       titulo: "🔔 Salvar Notificação",
-      mensagem: "Deseja guardar este evento nas suas notificações e agendar o lembrete?",
+      mensagem:
+        "Deseja guardar este evento nas suas notificações e agendar o lembrete?",
       tipo: "info",
       onConfirm: async () => {
         setConfirmVisible(false);
@@ -55,9 +64,9 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
 
         const resultado = await solicitarPermissaoEAgendarLembrete(evento);
 
-        setFeedback({ 
-          tipo: resultado.tipo, 
-          mensagem: resultado.mensagem 
+        setFeedback({
+          tipo: resultado.tipo,
+          mensagem: resultado.mensagem,
         });
 
         if (resultado.sucesso) {
@@ -73,44 +82,70 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
     setConfirmVisible(true);
   };
 
-  const urlImagemCapa = typeof evento?.imagem === 'object' ? evento.imagem?.caminho_img : evento?.imagem;
+  const urlImagemCapa =
+    typeof evento?.imagem === "object"
+      ? evento.imagem?.caminho_img
+      : evento?.imagem;
 
-  const imagemFonte = urlImagemCapa ? { uri: urlImagemCapa } : imagemExemploPadrao;
+  const imagemFonte = urlImagemCapa
+    ? { uri: urlImagemCapa }
+    : imagemExemploPadrao;
   // 🛡️ Tratamento seguro para extrair a string do curso/turma caso venha como objeto do Supabase
   let nomeTurma = "Sem turma/curso definidos";
   if (evento?.turma) {
-    nomeTurma = typeof evento.turma === 'object' ? (evento.turma.nome || "Curso") : evento.turma;
+    nomeTurma =
+      typeof evento.turma === "object"
+        ? evento.turma.nome || "Curso"
+        : evento.turma;
   } else if (evento?.curso) {
-    nomeTurma = typeof evento.curso === 'object' ? (evento.curso.nome || "Curso") : evento.curso;
+    nomeTurma =
+      typeof evento.curso === "object"
+        ? evento.curso.nome || "Curso"
+        : evento.curso;
   }
 
   // 🛡️ Tratamento seguro para extrair o local/turma/curso do evento
   let localExibido = "Estácio Nova América";
-  
+
   if (evento?.local) {
-    localExibido = typeof evento.local === 'object' ? (evento.local.nome || "Estácio Nova América") : evento.local;
+    localExibido =
+      typeof evento.local === "object"
+        ? evento.local.nome || "Estácio Nova América"
+        : evento.local;
   } else if (evento?.turma) {
-    localExibido = typeof evento.turma === 'object' ? (evento.turma.nome || "Estácio Nova América") : evento.turma;
+    localExibido =
+      typeof evento.turma === "object"
+        ? evento.turma.nome || "Estácio Nova América"
+        : evento.turma;
   } else if (evento?.curso) {
-    localExibido = typeof evento.curso === 'object' ? (evento.curso.nome || "Estácio Nova América") : evento.curso;
+    localExibido =
+      typeof evento.curso === "object"
+        ? evento.curso.nome || "Estácio Nova América"
+        : evento.curso;
   }
 
   // 📅 Converte o timestamp do banco para o formato dia/mês/ano limpo
-  const dataFormatada = formatarDataApenas(evento.inicio || evento.dia || evento.dataEvento);
+  const dataFormatada = formatarDataApenas(
+    evento.inicio || evento.dia || evento.dataEvento,
+  );
 
-  {/* Exemplo de renderização correta da imagem de capa no modal de detalhes */}
-  {(evento.imagem?.caminho_img || evento.imagem) && (
-    <Image 
-      source={{ uri: evento.imagem?.caminho_img || evento.imagem }} 
-      style={{ 
-        width: '1005', 
-        height: 180, // Altura proporcional ao formato 16:9
-        borderTopLeftRadius: 12, 
-        borderTopRightRadius: 12,
-        resizeMode: 'cover' 
-      }} 
-    />
-  )}
+  {
+    /* Exemplo de renderização correta da imagem de capa no modal de detalhes */
+  }
+  {
+    (evento.imagem?.caminho_img || evento.imagem) && (
+      <Image
+        source={{ uri: evento.imagem?.caminho_img || evento.imagem }}
+        style={{
+          width: "1005",
+          height: 180, // Altura proporcional ao formato 16:9
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          resizeMode: "cover",
+        }}
+      />
+    );
+  }
 
   return (
     <>
@@ -143,7 +178,10 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
               </View>
 
               <View style={styles.detailsInnerContainer}>
-                <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+                <FeedbackBox
+                  tipo={feedback.tipo}
+                  mensagem={feedback.mensagem}
+                />
 
                 <Text style={styles.modalTituloClean}>{evento.titulo}</Text>
 
@@ -206,7 +244,10 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
         onConfirm={confirmConfig.onConfirm}
         onCancel={() => {
           setConfirmVisible(false);
-          setFeedback({ tipo: "erro", mensagem: "Ação cancelada pelo utilizador." });
+          setFeedback({
+            tipo: "erro",
+            mensagem: "Ação cancelada pelo utilizador.",
+          });
         }}
       />
     </>

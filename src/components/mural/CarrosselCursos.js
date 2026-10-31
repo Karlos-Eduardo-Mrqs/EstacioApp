@@ -13,8 +13,7 @@ export default function CursosCarrossel({
 }) {
   const [tipoAtivo, setTipoAtivo] = useState("destaque");
 
-  const listaAtual =
-    tipoAtivo === "destaque" ? cursos : cursosTecnicos;
+  const listaAtual = tipoAtivo === "destaque" ? cursos : cursosTecnicos;
 
   return (
     <View style={styles.container}>
@@ -55,9 +54,7 @@ export default function CursosCarrossel({
       </View>
 
       {carregandoCursos ? (
-        <Text style={styles.cardDescription}>
-          Carregando cursos...
-        </Text>
+        <Text style={styles.cardDescription}>Carregando cursos...</Text>
       ) : erroCursos ? (
         <Text style={styles.cardDescription}>
           Não foi possível carregar os cursos: {erroCursos}
@@ -74,9 +71,10 @@ export default function CursosCarrossel({
         >
           {listaAtual.map((curso, index) => {
             // 🛡️ Verifica se o curso atual está na lista de favoritos do usuário (por ID ou nome/título)
-            const isFavorito = cursosFavoritosIds.includes(curso.id) || 
-                               cursosFavoritosIds.includes(curso.titulo) || 
-                               cursosFavoritosIds.includes(curso.nome);
+            const isFavorito =
+              cursosFavoritosIds.includes(curso.id) ||
+              cursosFavoritosIds.includes(curso.titulo) ||
+              cursosFavoritosIds.includes(curso.nome);
 
             return (
               <TouchableOpacity
@@ -85,20 +83,25 @@ export default function CursosCarrossel({
                 activeOpacity={0.9}
                 onPress={() => onSelectCurso?.(curso)}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 8,
+                  }}
+                >
                   <View style={styles.badgeContainer}>
-                    <Text style={styles.badgeText}>
-                      #{index + 1}
-                    </Text>
+                    <Text style={styles.badgeText}>#{index + 1}</Text>
                   </View>
 
                   {/* ⭐ Exibe a estrela se o curso estiver entre os favoritos do usuário */}
                   {isFavorito && (
-                    <CustomIcon 
-                      name="star-outline" 
-                      size={18} 
-                      color="#F59E0B" 
-                      style={{ marginRight: 4 }} 
+                    <CustomIcon
+                      name="star-outline"
+                      size={18}
+                      color="#F59E0B"
+                      style={{ marginRight: 4 }}
                     />
                   )}
                 </View>
@@ -107,24 +110,16 @@ export default function CursosCarrossel({
                   {curso.titulo}
                 </Text>
 
-                <Text
-                  style={styles.cardDescription}
-                  numberOfLines={3}
-                >
+                <Text style={styles.cardDescription} numberOfLines={3}>
                   {curso.descricao}
                 </Text>
 
                 <View style={styles.footerCard}>
-                  <Text
-                    style={styles.cardModalidade}
-                    numberOfLines={1}
-                  >
+                  <Text style={styles.cardModalidade} numberOfLines={1}>
                     📌 {curso.modalidade}
                   </Text>
 
-                  <Text style={styles.verMais}>
-                    + Detalhes
-                  </Text>
+                  <Text style={styles.verMais}>+ Detalhes</Text>
                 </View>
               </TouchableOpacity>
             );

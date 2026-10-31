@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { ScrollView, Text, View } from "react-native";
-import CustomIcon from "../CustomIcon";
 import { carrosselStyles as styles } from "../../styles/mural/carrosselDestaquesStyles";
+import CustomIcon from "../CustomIcon";
 
 export default function CarrosselDestaques() {
   const scrollRef = useRef(null);
@@ -28,7 +28,8 @@ export default function CarrosselDestaques() {
     {
       id: 4,
       title: "Dezembro (Até dia 15)",
-      description: "Encerramento de semestre, provas finais e feira de projetos.",
+      description:
+        "Encerramento de semestre, provas finais e feira de projetos.",
       icon: "time-outline",
     },
   ];
@@ -48,7 +49,7 @@ export default function CarrosselDestaques() {
             <View style={styles.iconContainer}>
               <CustomIcon name={item.icon} size={20} color="#032551" />
             </View>
-            
+
             {/* Bloco de texto padronizado com width 100% */}
             <View style={styles.textContainer}>
               <Text style={styles.itemTitle} numberOfLines={1}>

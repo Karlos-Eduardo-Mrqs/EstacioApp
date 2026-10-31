@@ -13,7 +13,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   const ehCoordenador = perfilStr.includes('coordenador');
 
   // Se for coordenador, inicia na aba de eventos/coordenação; se for gerência, em utilizadores
-  const [abaAtiva, setAbaAtiva] = useState(ehCoordenador ? 'coordenacao' : 'utilizadores');
+  const [abaAtiva, setAbaAtiva] = useState(ehCoordenador ? 'coordenacao' : 'coordenadores');
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
 
@@ -65,7 +65,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
                 activeOpacity={0.8}
               >
                 <Text style={styles.iconeNav}>👥</Text>
-                {isDesktop && <Text style={[styles.textoBotaoNav, abaAtiva === 'utilizadores' && styles.textoBotaoNavAtivo]}>Utilizadores</Text>}
+                {isDesktop && <Text style={[styles.textoBotaoNav, abaAtiva === 'utilizadores' && styles.textoBotaoNavAtivo]}>Coordenadores</Text>}
               </TouchableOpacity>
             )}
 

@@ -19,7 +19,7 @@ export default function BuscaTab({ eventosLista }) {
     <View style={styles.container}>
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
-          <CustomIcon name="search" size={16} color="#8e8e8e" />
+          <CustomIcon name="search-outline" size={16} color="#8e8e8e" />
           <TextInput
             style={styles.input}
             placeholder="Pesquisar eventos, cursos..."
@@ -42,10 +42,19 @@ export default function BuscaTab({ eventosLista }) {
         columnWrapperStyle={styles.gridRow}
         numColumns={3}
         renderItem={({ item }) => {
-          const imagemFonte = item?.imagem
-            ? { uri: item.imagem }
-            : imagemExemploPadrao;
-          const nomeTurma = item?.turma || item?.curso || "Estácio";
+          // 🛡️ Tratamento seguro para extrair a URL pública do objeto de imagem ou string
+          const urlCapaCard = 
+            typeof item?.imagem === 'object' ? item.imagem?.caminho_img : item?.imagem;
+
+          const imagemFonte = urlCapaCard ? { uri: urlCapaCard } : imagemExemploPadrao;
+            
+          // 🛡️ Tratamento seguro para extrair o nome caso venha como objeto do Supabase
+          let nomeTurma = "Estácio";
+          if (item?.turma) {
+            nomeTurma = typeof item.turma === 'object' ? (item.turma.nome || "Estácio") : item.turma;
+          } else if (item?.curso) {
+            nomeTurma = typeof item.curso === 'object' ? (item.curso.nome || "Estácio") : item.curso;
+          }
 
           return (
             <TouchableOpacity

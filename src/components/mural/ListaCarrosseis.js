@@ -4,11 +4,12 @@ import { appStyles as styles } from "../../styles/mural/mainStyles";
 import CursosCarrossel from "./CarrosselCursos";
 import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
 import CarrosselDestaques from "./CarrosselDestaques";
+import { formatarDataApenas } from "../../utils/dataUtils"; // 👈 Importa o formatador centralizado
 
 export default function ListaCarrosseis({
   cursos,
   cursosTecnicos,
-  cursosFavoritosIds = [], // Recebe os IDs dos cursos salvos
+  cursosFavoritosIds = [],
   listaProximos,
   listaSemana,
   eventosProximoMes,
@@ -19,34 +20,51 @@ export default function ListaCarrosseis({
   todosOsEventos = [],
 }) {
   
-  const renderCartaoCarrossel = (evento) => (
-    <View key={evento.id} style={estilosCarrosselEvento.cartao}>
-      <Text style={estilosCarrosselEvento.tag}>{evento.turma}</Text>
-      <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
-        {evento.titulo}
-      </Text>
-      <Text style={estilosCarrosselEvento.data}>
-        📅 {evento.dia} de {evento.mes}
-      </Text>
-      <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
-        📍 {evento.local || "A definir"}
-      </Text>
+  const renderCartaoCarrossel = (evento) => {
+    // 🛡️ Tratamento seguro para extrair o nome do curso/turma (evita objetos)
+    let nomeTurma = "Geral";
+    if (evento?.turma) {
+      nomeTurma = typeof evento.turma === 'object' ? (evento.turma.nome || "Geral") : evento.turma;
+    } else if (evento?.curso) {
+      nomeTurma = typeof evento.curso === 'object' ? (evento.curso.nome || "Geral") : evento.curso;
+    }
 
-      <TouchableOpacity
-        style={estilosCarrosselEvento.botaoDetalhes}
-        onPress={() => onSelectEvento?.(evento)}
-      >
-        <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    // 📅 Formata a data de forma limpa usando a função utilitária centralizada
+    const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento);
+
+    return (
+      <View key={evento.id} style={estilosCarrosselEvento.cartao}>
+        <Text style={estilosCarrosselEvento.tag} numberOfLines={1}>{nomeTurma}</Text>
+        
+        <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
+          {evento.titulo}
+        </Text>
+        
+        <Text style={estilosCarrosselEvento.data}>
+          📅 {dataFormatada || "Data a definir"}
+        </Text>
+        
+        <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
+          📍 {evento.local || "Local a definir"}
+        </Text>
+
+        <TouchableOpacity
+          style={estilosCarrosselEvento.botaoDetalhes}
+          onPress={() => onSelectEvento?.(evento)}
+        >
+          <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <View>
-
-      {/* ── DEPTH CAROUSEL ORIGINAL (TODOS OS CURSOS) ── */}
-      <CursosCarrossel cursos={cursos || []}
+      {/* ── CARROSSEL DOS CURSOS  (TODOS OS CURSOS) ── */}
+      <CursosCarrossel 
+        cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
+        cursosFavoritosIds={cursosFavoritosIds} // 👈 Garante o repasse da lista de favoritos
         onSelectCurso={onSelectCurso}
         carregandoCursos={carregandoCursos}
         erroCursos={erroCursos}
@@ -56,11 +74,11 @@ export default function ListaCarrosseis({
       <CarrosselEventosCursosFavoritos
         todosOsEventos={todosOsEventos}
         cursosSelecionados={cursosFavoritosIds}
-        cursosDisponiveis={cursos} // 👈 Passa os cursos disponíveis para traduzir o ID no nome
+        cursosDisponiveis={cursos}
         onSelectEvento={onSelectEvento}
       />
 
-      {/* Demais carrosséis de eventos padrão... */}
+      {/* Próximos Eventos */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
@@ -68,6 +86,7 @@ export default function ListaCarrosseis({
         </ScrollView>
       </View>
 
+      {/* Eventos da Semana */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
@@ -75,14 +94,13 @@ export default function ListaCarrosseis({
         </ScrollView>
       </View>
 
+      {/* Eventos para o Próximo Mês */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilosCarrosselEvento.containerScroll}>
           {eventosProximoMes?.length > 0 ? eventosProximoMes.map(renderCartaoCarrossel) : <Text style={styles.textoMutavel}>Nenhum evento para o próximo mês.</Text>}
         </ScrollView>
       </View>
-
-      {/* <CarrosselDestaques /> */}
     </View>
   );
 }

@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import CustomIcon from "../CustomIcon";
 import ConfirmModal from "../ConfirmPopup";
 import { NotificaTabStyles as styles } from "../../styles/tabs/notificaTabStyles";
+import { formatarDataApenas } from "../../utils/dataUtils"; // 👈 Importa a função utilitária de data
 
 export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvento }) {
   const [confirmModal, setConfirmModal] = useState({
@@ -33,39 +34,52 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
 
       {notificacoes && notificacoes.length > 0 ? (
         <View style={styles.listaContainer}>
-          {notificacoes.map((evento) => (
-            <View key={evento.id} style={styles.cartaoNotificacao}>
-              <View style={{ flex: 1, marginRight: 10 }}>
-                <Text style={styles.tagEvento}>{evento.tipo || "Evento"}</Text>
-                <Text style={styles.tituloEvento} numberOfLines={2}>
-                  {evento.titulo}
-                </Text>
-                <Text style={styles.dataEvento}>
-                  📅 {evento.dia} de {evento.mes} | 🎓 {evento.turma}
-                </Text>
-              </View>
+          {notificacoes.map((evento) => {
+            // 🛡️ Tratamento seguro para extrair o nome do curso/turma (evita erros com objetos do JOIN)
+            let nomeTurma = "Geral";
+            if (evento?.turma) {
+              nomeTurma = typeof evento.turma === 'object' ? (evento.turma.nome || "Geral") : evento.turma;
+            } else if (evento?.curso) {
+              nomeTurma = typeof evento.curso === 'object' ? (evento.curso.nome || "Geral") : evento.curso;
+            }
 
-              <View style={styles.botoesAcao}>
-                {onSelectEvento && (
-                  <TouchableOpacity style={styles.btnDetalhes} onPress={() => onSelectEvento(evento)}>
-                    <Text style={styles.textoBtnDetalhes}>Ver</Text>
+            // 📅 Formata a data com o utilitário centralizado
+            const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento) || `${evento.dia || ''} de ${evento.mes || ''}`;
+
+            return (
+              <View key={evento.id} style={styles.cartaoNotificacao}>
+                <View style={{ flex: 1, marginRight: 10 }}>
+                  <Text style={styles.tagEvento}>{evento.tipo || "Evento"}</Text>
+                  <Text style={styles.tituloEvento} numberOfLines={2}>
+                    {evento.titulo}
+                  </Text>
+                  <Text style={styles.dataEvento}>
+                    📅 {dataFormatada} | 🎓 {nomeTurma}
+                  </Text>
+                </View>
+
+                <View style={styles.botoesAcao}>
+                  {onSelectEvento && (
+                    <TouchableOpacity style={styles.btnDetalhes} onPress={() => onSelectEvento(evento)}>
+                      <Text style={styles.textoBtnDetalhes}>Ver</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Botão para solicitar a remoção com o modal padrão */}
+                  <TouchableOpacity 
+                    style={styles.btnRemover} 
+                    onPress={() => abrirConfirmacao(evento)}
+                    activeOpacity={0.7}
+                  >
+                    <CustomIcon name="trash-outline" size={16} color="#b00020" />
                   </TouchableOpacity>
-                )}
-
-                {/* Botão para solicitar a remoção com o modal padrão */}
-                <TouchableOpacity 
-                  style={styles.btnRemover} 
-                  onPress={() => abrirConfirmacao(evento)}
-                  activeOpacity={0.7}
-                >
-                  <CustomIcon name="trash-outline" size={16} color="#b00020" />
-                </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </View>
       ) : (
-        // Caso não tenha 
+        // Caso não tenha notificações salvas
         <Text style={styles.textoTab}>
           Nenhum evento salvo nas suas notificações ainda. Clique em "Notificar" nos detalhes de um evento para guardá-lo aqui.
         </Text>

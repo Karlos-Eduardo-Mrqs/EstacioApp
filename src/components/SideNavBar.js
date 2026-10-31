@@ -8,13 +8,15 @@ export default function SidebarNavBar({ activeTab, onTabPress }) {
     { id: "mural", name: "calendar-outline", label: "Mural Acadêmico" },
     { id: "busca", name: "search-outline", label: "Pesquisar Eventos" },
     { id: "notificacoes", name: "notifications-outline", label: "Notificações" },
+    { id: "parcerias", name: "partner-shops", label: "Parcerias" },
     { id: "configuracoes", name: "settings-outline", label: "Configurações" },
+
   ];
 
   return (
     <View style={styles.sidebar}>
       <View style={styles.brandContainer}>
-        <Text style={styles.brandTitle}>Mural Acadêmico</Text>
+        <Text style={styles.brandTitle}>Painel dos Alunos</Text>
         <Text style={styles.brandSubtitle}>Estácio Nova América</Text>
       </View>
 

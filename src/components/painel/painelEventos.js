@@ -1,38 +1,72 @@
-import React from 'react';
-import { View, Text, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import {
+    ActivityIndicator,
+    ScrollView,
+    StatusBar,
+    Text,
+    View,
+} from "react-native";
+import { useGerenciarEventos } from "../../hooks/useGerenciarEventos";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import { useGerenciarEventos } from '../../hooks/useGerenciarEventos';
-import ModalGerenciarEvento from './modalGerenciarEvento';
-import GerenciarListaEventos from './gerenciarListaEventos'; // 👈 Importa o componente de listagem isolado e correto
-import ToastPopup from '../Popup';         
-import ConfirmPopup from '../ConfirmPopup';
+import ConfirmPopup from "../ConfirmPopup";
+import ToastPopup from "../Popup";
+import GerenciarListaEventos from "./gerenciarListaEventos"; // 👈 Importa o componente de listagem isolado e correto
+import ModalGerenciarEvento from "./modalGerenciarEvento";
 
 export default function PainelEventosTela() {
   const {
-    eventos, eventosFiltrados, quantidadeAtivos, cursos, busca, setBusca,
-    modalEvento, setModalEvento, eventoEditando, 
-    titulo, setTitulo,
-    descricao, setDescricao,
-    dataTexto, setDataTexto,
-    palestrante, setPalestrante,
-    cursoId, setCursoId,
-    horasAAC, setHorasAAC,
-    local, setLocal,
-    imagem, setImagem,
-    descricaoImagem, setDescricaoImagem,
-    feedback, toast, setToast, confirmacao, setConfirmacao,
-    abrirNovoEvento, abrirEdicao, selecionarImagem, salvarEvento,
-    excluirEvento, carregando
+    eventos,
+    eventosFiltrados,
+    quantidadeAtivos,
+    cursos,
+    busca,
+    setBusca,
+    modalEvento,
+    setModalEvento,
+    eventoEditando,
+    titulo,
+    setTitulo,
+    descricao,
+    setDescricao,
+    dataTexto,
+    setDataTexto,
+    palestrante,
+    setPalestrante,
+    cursoId,
+    setCursoId,
+    horasAAC,
+    setHorasAAC,
+    local,
+    setLocal,
+    imagem,
+    setImagem,
+    descricaoImagem,
+    setDescricaoImagem,
+    feedback,
+    toast,
+    setToast,
+    confirmacao,
+    setConfirmacao,
+    abrirNovoEvento,
+    abrirEdicao,
+    selecionarImagem,
+    salvarEvento,
+    excluirEvento,
+    carregando,
   } = useGerenciarEventos();
 
   return (
     <View style={styles.safeArea}>
       <StatusBar backgroundColor="#F4F5F7" barStyle="dark-content" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.tituloPagina}>Painel de Eventos</Text>
-        <Text style={styles.subtitulo}>Gerencie os eventos e o calendário acadêmico.</Text>
+        <Text style={styles.subtitulo}>
+          Gerencie os eventos e o calendário acadêmico.
+        </Text>
 
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
@@ -49,11 +83,15 @@ export default function PainelEventosTela() {
         </View>
 
         {carregando ? (
-          <ActivityIndicator size="large" color="#173EA5" style={{ marginVertical: 20 }} />
+          <ActivityIndicator
+            size="large"
+            color="#173EA5"
+            style={{ marginVertical: 20 }}
+          />
         ) : (
           /* ── COMPONENTE ISOLADO DE GERENCIAMENTO E LISTAGEM ── */
-          <GerenciarListaEventos 
-            eventos={eventosFiltrados} 
+          <GerenciarListaEventos
+            eventos={eventosFiltrados}
             onEditar={(evento) => abrirEdicao(evento)}
             onExcluir={(id) => excluirEvento({ id })}
             onNovoEvento={abrirNovoEvento}
@@ -66,15 +104,25 @@ export default function PainelEventosTela() {
         visible={modalEvento}
         onClose={() => setModalEvento(false)}
         eventoEditando={eventoEditando}
-        titulo={titulo} setTitulo={setTitulo}
-        dataTexto={dataTexto} setDataTexto={setDataTexto}
-        palestrante={palestrante} setPalestrante={setPalestrante}
-        horasAAC={horasAAC} setHorasAAC={setHorasAAC}
-        cursos={cursos} cursoId={cursoId} setCursoId={setCursoId}
-        descricao={descricao} setDescricao={setDescricao}
-        local={local} setLocal={setLocal}
-        imagem={imagem} setImagem={setImagem}
-        descricaoImagem={descricaoImagem} setDescricaoImagem={setDescricaoImagem}
+        titulo={titulo}
+        setTitulo={setTitulo}
+        dataTexto={dataTexto}
+        setDataTexto={setDataTexto}
+        palestrante={palestrante}
+        setPalestrante={setPalestrante}
+        horasAAC={horasAAC}
+        setHorasAAC={setHorasAAC}
+        cursos={cursos}
+        cursoId={cursoId}
+        setCursoId={setCursoId}
+        descricao={descricao}
+        setDescricao={setDescricao}
+        local={local}
+        setLocal={setLocal}
+        imagem={imagem}
+        setImagem={setImagem}
+        descricaoImagem={descricaoImagem}
+        setDescricaoImagem={setDescricaoImagem}
         feedback={feedback}
         selecionarImagem={selecionarImagem}
         salvarEvento={salvarEvento}
@@ -85,7 +133,7 @@ export default function PainelEventosTela() {
         visible={toast.visible}
         titulo={toast.titulo}
         mensagem={toast.mensagem}
-        onClose={() => setToast(prev => ({ ...prev, visible: false }))}
+        onClose={() => setToast((prev) => ({ ...prev, visible: false }))}
       />
 
       <ConfirmPopup
@@ -94,7 +142,7 @@ export default function PainelEventosTela() {
         mensagem={confirmacao.mensagem}
         tipo={confirmacao.tipo}
         onConfirm={confirmacao.onConfirm}
-        onCancel={() => setConfirmacao(prev => ({ ...prev, visible: false }))}
+        onCancel={() => setConfirmacao((prev) => ({ ...prev, visible: false }))}
       />
     </View>
   );

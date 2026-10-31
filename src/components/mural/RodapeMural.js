@@ -1,6 +1,5 @@
 import { Text, TouchableOpacity, View } from "react-native";
-import { detalheStyles } from "../../styles/mural/detalhesStyles";
-import { appStyles as styles } from "../../styles/mural/mainStyles";
+import { rodapeStyles as styles } from "../../styles/mural/rodapeStyles";
 
 export default function RodapeInstitucional({ onOpenDevs, onOpenSobre }) {
   return (
@@ -9,19 +8,19 @@ export default function RodapeInstitucional({ onOpenDevs, onOpenSobre }) {
         Universidade Estácio de Sá · Campus Nova América | Mural Acadêmico
       </Text>
 
-      <View style={detalheStyles.rodapeBotoesContainer}>
+      <View style={styles.rodapeBotoesContainer}>
         <TouchableOpacity
-          style={detalheStyles.botaoRodapeCompacto}
+          style={styles.botaoRodapeCompacto}
           onPress={onOpenDevs}
         >
-          <Text style={detalheStyles.textoBotaoRodape}>⚙️ Desenvolvedores</Text>
+          <Text style={styles.textoBotaoRodape}>⚙️ Desenvolvedores</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={detalheStyles.botaoRodapeCompacto}
+          style={styles.botaoRodapeCompacto}
           onPress={onOpenSobre}
         >
-          <Text style={detalheStyles.textoBotaoRodape}>ℹ️ Sobre</Text>
+          <Text style={styles.textoBotaoRodape}>ℹ️ Sobre</Text>
         </TouchableOpacity>
       </View>
     </View>

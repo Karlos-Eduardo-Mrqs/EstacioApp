@@ -32,11 +32,23 @@ export function useScriptApp(styles) {
   const semestre = gerarMesesCalendario(4);
   const diasSemana = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-  // Filtros de datas
+  // Filtros de datas e blindagem absoluta para garantir que todo evento tenha um objeto Date válido
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  const eventosOrdenados = [...todosOsEventos].sort((a, b) => a.dataEvento.getTime() - b.dataEvento.getTime());
+  const eventosValidos = (todosOsEventos || []).map(evento => ({
+    ...evento,
+    dataEvento: evento.dataEvento instanceof Date && !isNaN(evento.dataEvento) 
+      ? evento.dataEvento 
+      : (evento.data ? new Date(evento.data) : new Date())
+  }));
+
+  const eventosOrdenados = [...eventosValidos].sort((a, b) => {
+    const tempoA = a.dataEvento.getTime();
+    const tempoB = b.dataEvento.getTime();
+    return tempoA - tempoB;
+  });
+
   const listaProximos = eventosOrdenados.filter((evento) => evento.dataEvento >= hoje).slice(0, 6);
 
   const limiteSemana = new Date(hoje);
@@ -47,11 +59,11 @@ export function useScriptApp(styles) {
   const primeiroDiaMesSeguinte = new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth() + 1, 1);
   const eventosProximoMes = eventosOrdenados.filter((evento) => evento.dataEvento >= primeiroDiaProximoMes && evento.dataEvento < primeiroDiaMesSeguinte).slice(0, 6);
 
-  // Manipulação de cliques no Calendário
+  // Manipulação de cliques no Calendário com segurança
   const handleDiaClick = (mesNome, diaNumero, anoMes) => {
     const mesIndex = nomesMeses.indexOf(mesNome);
     setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
-    const eventosEncontrados = todosOsEventos.filter(
+    const eventosEncontrados = eventosValidos.filter(
       (evento) =>
         evento.dataEvento.getFullYear() === anoMes &&
         evento.dataEvento.getMonth() === mesIndex &&
@@ -60,7 +72,7 @@ export function useScriptApp(styles) {
     setEventosDoDia(eventosEncontrados);
   };
 
-  // Renderização de Dias do Calendário
+  // Renderização de Dias do Calendário blindada contra datas indefinidas
   const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) => {
     let celulas = [];
     for (let i = 0; i < espacosVazios; i++) {
@@ -69,8 +81,14 @@ export function useScriptApp(styles) {
 
     for (let dia = 1; dia <= totalDias; dia++) {
       const mesIndex = nomesMeses.indexOf(mesNome.split(" ")[0]);
-      const isDestaque = todosOsEventos.some(
-        (evento) => evento.dataEvento.getFullYear() === anoMes && evento.dataEvento.getMonth() === mesIndex && evento.dataEvento.getDate() === dia
+      
+      // Utiliza eventosValidos em vez de todosOsEventos para evitar falhas de método em undefined
+      const isDestaque = eventosValidos.some(
+        (evento) => 
+          evento.dataEvento && 
+          evento.dataEvento.getFullYear() === anoMes && 
+          evento.dataEvento.getMonth() === mesIndex && 
+          evento.dataEvento.getDate() === dia
       );
       
       const isSelecionado = diaFocado === `${dia} de ${mesNome.split(" ")[0]}`;
@@ -118,6 +136,6 @@ export function useScriptApp(styles) {
     renderCartaoPequeno,
     popupInfo, setPopupInfo,
     exibirPopup,
-    todosOsEventos, // 👈 Exposto corretamente para a tela principal
+    todosOsEventos: eventosValidos, // 👈 Retorna a lista tratada e segura para toda a aplicação
   };
 }

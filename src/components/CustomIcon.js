@@ -91,6 +91,7 @@ export default function CustomIcon({ name, size = 20, color = "#032551" }) {
     "stats-chart-outline": "📊",
     "medkit-outline": "🩺",
     "code-slash-outline": "💻",
+    "partner-shops":"🤝"
   };
 
   // 🌐 NO WEB (Nuvem / Browser): Renderiza diretamente os símbolos/emojis

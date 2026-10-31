@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import CustomIcon, { obterIconeCurso } from "../CustomIcon"; // 👈 Importa o CustomIcon e a função de ícones por curso
+import CustomIcon from "../CustomIcon"; // 👈 Importa apenas o CustomIcon
 import { configuracoesTabstyles as styles } from "../../styles/tabs/configuracoesTabStyles";
 
 export default function ConfiguracoesTab({ 
@@ -20,7 +20,7 @@ export default function ConfiguracoesTab({
       <Text style={styles.tituloTab}>Configurações</Text>
       <Text style={styles.textoTab}>Preferências do sistema e painel do utilizador.</Text>
 
-      {/* SECÇÃO DE CURSOS DE INTERESSE EM CARDS LADO A LADO COM ÍCONES DINÂMICOS */}
+      {/* SECÇÃO DE CURSOS DE INTERESSE EM CARDS LADO A LADO COM ÍCONES */}
       <View style={{ width: '100%', maxWidth: 520, marginTop: 18, marginBottom: 14 }}>
         <Text style={{ fontSize: 14.5, fontWeight: 'bold', color: '#032551', marginBottom: 12 }}>
           Seus Cursos de Interesse ({cursosSelecionados.length}/5):
@@ -33,8 +33,8 @@ export default function ConfiguracoesTab({
               
               return (
                 <View key={idx} style={styles.cursoCard}>
-                  {/* Ícone dinâmico baseado na matéria */}
-                  <CustomIcon name={obterIconeCurso(nomeCurso)} size={22} color="#032551" style={{ marginBottom: 6 }} />
+                  {/* Ícone global padrão para os cursos */}
+                  <CustomIcon name="book-outline" size={22} color="#032551" style={{ marginBottom: 6 }} />
                   <Text style={styles.cursoCardTexto} numberOfLines={2}>
                     {nomeCurso}
                   </Text>

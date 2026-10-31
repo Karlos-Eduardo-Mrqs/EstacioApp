@@ -1,0 +1,205 @@
+import { StyleSheet } from "react-native";
+import { CoresInstitucionais } from "./theme";
+
+export const detalheStyles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.75)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  modalContentClean: {
+    width: "92%",
+    maxWidth: 540, // 👈 Modal mais largo e imponente
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    borderRadius: 20,
+    overflow: "hidden",
+    position: "relative",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  closeButtonClean: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 30,
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
+  },
+  modalScrollClean: {
+    paddingBottom: 0,
+  },
+  imageContainerModal: {
+    width: "100%",
+    aspectRatio: 16 / 9, // 👈 Proporção 16:9 exata e responsiva
+    backgroundColor: "#032551",
+  },
+  imagemPost: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  detailsInnerContainer: {
+    padding: 24,
+  },
+  modalTituloClean: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#0f172a",
+    marginBottom: 8,
+  },
+  modalSubInfoClean: {
+    fontSize: 13,
+    color: "#64748b",
+    marginBottom: 6,
+    fontWeight: "500",
+  },
+  modalSecaoLabelClean: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: "#032551",
+    marginTop: 14,
+    marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  modalDescricaoClean: {
+    fontSize: 14,
+    color: "#334155",
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  actionButtonsRowClean: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  btnNotificarClean: {
+    flex: 1.2,
+    backgroundColor: "#032551",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderRadius: 10,
+  },
+  btnNotificarTextoClean: {
+    color: "#ffffff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  btnCompartilharClean: {
+    flex: 1,
+    backgroundColor: "#f1f5f9",
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderRadius: 10,
+  },
+  btnCompartilharTextoClean: {
+    color: "#334155",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+});
+
+export const buscaTabstyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#efefef',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: '#262626',
+    paddingVertical: 0,
+  },
+  clearButton: {
+    fontSize: 14,
+    color: '#8e8e8e',
+    fontWeight: 'bold',
+  },
+  gridContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  gridRow: {
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  gridCard: {
+    width: '32.6%',
+    height: 190,
+    backgroundColor: '#032551',
+    borderRadius: 10,
+    overflow: 'hidden',
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: '#dbdbdb',
+  },
+  cardImageBackground: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  cardOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(3, 37, 81, 0.55)',
+    padding: 12,
+    justifyContent: 'space-between',
+  },
+  cardTag: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+    overflow: 'hidden',
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    lineHeight: 18,
+  },
+  vazioContainer: {
+    paddingVertical: 60,
+    alignItems: 'center',
+    width: '100%',
+  },
+  vazioTexto: {
+    fontSize: 14,
+    color: '#8e8e8e',
+    textAlign: 'center',
+  },
+});

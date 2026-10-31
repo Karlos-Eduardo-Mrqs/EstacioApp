@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { solicitarPermissaoEAgendarLembrete } from '../services/notificacaoService';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 
 export function useNotificacoes(exibirPopup) {
   const [notificacoesSalvas, setNotificacoesSalvas] = useState([]);
@@ -9,7 +9,7 @@ export function useNotificacoes(exibirPopup) {
   useEffect(() => {
     async function carregarNotificacoes() {
       try {
-        const salvas = await AsyncStorage.getItem('@eventos_notificados');
+        const salvas = await AsyncStorage.getItem("@eventos_notificados");
         if (salvas) {
           setNotificacoesSalvas(JSON.parse(salvas));
         }
@@ -24,24 +24,47 @@ export function useNotificacoes(exibirPopup) {
     try {
       const jaExiste = notificacoesSalvas.some((item) => item.id === evento.id);
       if (jaExiste) {
-        exibirPopup("⚠️ Notificação Existente", "Este evento já está guardado nas suas notificações!", "aviso", 4);
+        exibirPopup(
+          "⚠️ Notificação Existente",
+          "Este evento já está guardado nas suas notificações!",
+          "aviso",
+          4,
+        );
         return;
       }
 
       const resultado = await solicitarPermissaoEAgendarLembrete(evento);
 
       if (!resultado.sucesso) {
-        exibirPopup("🔒 Permissão Necessária", resultado.mensagem || "Ative as notificações para receber lembretes.", "aviso", 5);
+        exibirPopup(
+          "🔒 Permissão Necessária",
+          resultado.mensagem || "Ative as notificações para receber lembretes.",
+          "aviso",
+          5,
+        );
         return;
       }
 
       const novaLista = [evento, ...notificacoesSalvas];
       setNotificacoesSalvas(novaLista);
-      await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
+      await AsyncStorage.setItem(
+        "@eventos_notificados",
+        JSON.stringify(novaLista),
+      );
 
-      exibirPopup("🔔 Lembrete Ativado!", "Evento adicionado aos lembretes do dispositivo.", "sucesso", 4);
+      exibirPopup(
+        "🔔 Lembrete Ativado!",
+        "Evento adicionado aos lembretes do dispositivo.",
+        "sucesso",
+        4,
+      );
     } catch (e) {
-      exibirPopup("❌ Erro", "Não foi possível configurar o lembrete no dispositivo.", "erro", 4);
+      exibirPopup(
+        "❌ Erro",
+        "Não foi possível configurar o lembrete no dispositivo.",
+        "erro",
+        4,
+      );
     }
   };
 
@@ -49,11 +72,24 @@ export function useNotificacoes(exibirPopup) {
     try {
       const novaLista = notificacoesSalvas.filter((item) => item.id !== id);
       setNotificacoesSalvas(novaLista);
-      await AsyncStorage.setItem('@eventos_notificados', JSON.stringify(novaLista));
+      await AsyncStorage.setItem(
+        "@eventos_notificados",
+        JSON.stringify(novaLista),
+      );
 
-      exibirPopup("🗑️ Removido", "Notificação removida com sucesso!", "sucesso", 4);
+      exibirPopup(
+        "🗑️ Removido",
+        "Notificação removida com sucesso!",
+        "sucesso",
+        4,
+      );
     } catch (e) {
-      exibirPopup("❌ Erro", "Ocorreu um erro ao tentar remover a notificação.", "erro", 4);
+      exibirPopup(
+        "❌ Erro",
+        "Ocorreu um erro ao tentar remover a notificação.",
+        "erro",
+        4,
+      );
     }
   };
 

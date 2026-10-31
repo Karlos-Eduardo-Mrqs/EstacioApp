@@ -1,6 +1,6 @@
 import { Modal, View, Text, TouchableOpacity, Platform } from 'react-native';
 
-export default function ConfirmPopup({ visible, titulo, mensagem, onConfirm, onCancel, tipo = 'danger' }) {
+export default function ConfirmPopup({ visible, titulo, mensagem, onConfirm, onCancel, tipo = 'info' }) {
   const ehPerigo = tipo === 'danger';
 
   return (
@@ -23,7 +23,7 @@ export default function ConfirmPopup({ visible, titulo, mensagem, onConfirm, onC
           padding: 24,
           width: '100%',
           maxWidth: 400,
-          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)', // 👈 Substitui propriedades antigas shadow*
           elevation: 5
         }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#032551', marginBottom: 10 }}>

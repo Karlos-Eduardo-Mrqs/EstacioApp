@@ -4,7 +4,7 @@ import { painelStyles as styles } from '../../styles/painel/painelStyles';
 import ConfirmPopup from '../ConfirmPopup';
 import FeedbackBox from '../FeedPopup';
 
-export default function PainelCoordenador({ usuarioAtual, onClose, onLogout }) {
+export default function PainelCoordenador({ usuarioAtual}) {
   const [confirmPopup, setConfirmPopup] = useState({
     visible: false,
     titulo: '',
@@ -13,34 +13,11 @@ export default function PainelCoordenador({ usuarioAtual, onClose, onLogout }) {
     tipo: 'danger',
   });
 
-  const solicitarLogout = () => {
-    setConfirmPopup({
-      visible: true,
-      titulo: 'Sair do sistema',
-      mensagem: 'Deseja realmente encerrar a sua sessão atual?',
-      tipo: 'danger',
-      onConfirm: () => {
-        setConfirmPopup(prev => ({ ...prev, visible: false }));
-        if (onLogout) onLogout();
-        else if (onClose) onClose();
-      }
-    });
-  };
-
   return (
     <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: '#f4f5f7' }}>
       <ScrollView contentContainerStyle={styles.container}>
         
         {/* CABEÇALHO DO PAINEL DO COORDENADOR */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <TouchableOpacity 
-            onPress={solicitarLogout}
-            style={{ backgroundColor: '#fee2e2', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 }}
-          >
-            <Text style={{ color: '#ef4444', fontWeight: 'bold', fontSize: 14 }}>🚪 Sair</Text>
-          </TouchableOpacity>
-        </View>
-
         <Text style={styles.tituloPagina}>Painel do Coordenador</Text>
         <Text style={styles.subtituloPagina}>
           Bem-vindo(a), {usuarioAtual?.nome}. Aqui podes gerir as informações e eventos do teu curso.

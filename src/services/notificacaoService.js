@@ -1,3 +1,4 @@
+import { supabase } from '../../lib/supabase'; // 👈 Adicione esta linha no topo do arquivo
 import * as Notifications from 'expo-notifications';
 import { Platform, Vibration } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +11,8 @@ Notifications.setNotificationHandler({
   }),
 });
 
+
+// Solicita uma persmissão de agendar/notificar evento
 export async function solicitarPermissaoEAgendarLembrete(evento) {
   try {
     if (Platform.OS === 'web') {
@@ -105,6 +108,7 @@ export async function solicitarPermissaoEAgendarLembrete(evento) {
   }
 }
 
+// Armazena a notificação localmente
 async function guardarNotificacaoLocal(evento) {
   try {
     const chaveStorage = '@notificacoes_salvas';
@@ -115,8 +119,53 @@ async function guardarNotificacaoLocal(evento) {
     if (!jaExiste) {
       lembretesSalvos.push(evento);
       await AsyncStorage.setItem(chaveStorage, JSON.stringify(lembretesSalvos));
-    }
+     }
   } catch (e) {
     console.log("Erro ao guardar notificação no armazenamento local:", e);
   }
+}
+
+// Envia/Cria um novo aviso global ou direcionado a um curso específico
+export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, duracaoHoras = 24 }) {
+  const dataExpiracao = new Date();
+  dataExpiracao.setHours(dataExpiracao.getHours() + Number(duracaoHoras));
+
+  const { data, error } = await supabase
+    .from('aviso')
+    .insert([{
+      titulo: titulo.trim(),
+      mensagem: mensagem.trim(),
+      curso_id: curso_id ? Number(curso_id) : null, // null significa global (para todo mundo)
+      expira_em: dataExpiracao.toISOString(),
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// Busca os avisos válidos (não expirados) para o mural do aluno, filtrando pela lista de cursos favoritos ou globais
+export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = []) {
+  const agoraIso = new Date().toISOString();
+
+  // Busca todos os avisos que ainda não expiraram
+  const { data, error } = await supabase
+    .from('aviso')
+    .select('*, curso(nome)')
+    .gt('expira_em', agoraIso)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  const avisos = data || [];
+
+  // Filtra os avisos: mantém se o curso_id for nulo (global) ou se o curso_id do aviso estiver incluído na lista de favoritos do aluno
+  return avisos.filter(a => {
+    if (a.curso_id === null) return true;
+    if (!cursosFavoritosIds || cursosFavoritosIds.length === 0) return false;
+    
+    // Converte para número para garantir compatibilidade na comparação
+    return cursosFavoritosIds.some(idFav => Number(idFav) === Number(a.curso_id));
+  });
 }

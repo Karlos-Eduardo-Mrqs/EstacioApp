@@ -1,4 +1,6 @@
-export * from './cursoServices';
-export * from './usuarioServices';
-export * from './imagemServices';
-export * from './eventoServices';
+export * from "./cursoServices";
+export * from "./eventoServices";
+export * from "./imagemServices";
+export * from "./parceriaServices";
+export * from "./usuarioServices";
+

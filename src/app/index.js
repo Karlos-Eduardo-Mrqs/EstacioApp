@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
-import { Dimensions, Modal, Platform, ScrollView, View, Text, TouchableOpacity } from "react-native";
+import { Modal, Platform, ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useScriptApp } from "../hooks/ScriptApp";
+import { useAppController } from "../hooks/useAppController"; // 👈 Importa o novo Hook de Controle
 
-// Importações dos componentes...
+// Importações dos componentes do mural
 import BottomNavBar from "../components/BottomNavBar";
 import LoginScreen from "../components/login/loginForm";
 import Cabecalho from "../components/mural/CabecalhoMural";
@@ -20,8 +19,6 @@ import ConfiguracoesTab from "../components/tabs/configuracoesTab";
 import NotificacoesTab from "../components/tabs/notificaTab";
 import ModalCurso from "../components/mural/ModalCursos";
 import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
-import GerenciarUsuarios from "../components/painel/painel";
-import PainelCoordenador from "../components/painel/painelCoordenador";
 import ToastPopup from "../components/Popup";
 import EventoDetalhe from "../components/EventoDetalhe";
 import PainelNavigator from "../components/painel/painelNavegacao";
@@ -32,98 +29,29 @@ import { localStyles } from "../styles/mural/localStyles";
 
 export default function App() {
   const scriptApp = useScriptApp(styles);
-  
-  const [mostrarOnboarding, setMostrarOnboarding] = useState(false);
-  const [cursosSelecionados, setCursosSelecionados] = useState([]);
-  const [stepInicialOnboarding, setStepInicialOnboarding] = useState(1);
+  const appCtrl = useAppController(scriptApp); // 👈 Instancia o controlador centralizado
 
-  // Verifica se o usuário já configurou os cursos
-  useEffect(() => {
-    async function verificarOnboarding() {
-      try {
-        const salvos = await AsyncStorage.getItem('@cursos_selecionados');
-        if (salvos && JSON.parse(salvos).length >= 3) {
-          setCursosSelecionados(JSON.parse(salvos));
-          setMostrarOnboarding(false);
-        } else {
-          setMostrarOnboarding(true);
-        }
-      } catch (e) {
-        setMostrarOnboarding(true);
-      }
-    }
-    verificarOnboarding();
-  }, []);
-
-  const handleConcluirSetup = async (cursosEscolhidos) => {
-    try {
-      await AsyncStorage.setItem('@cursos_selecionados', JSON.stringify(cursosEscolhidos));
-      setCursosSelecionados(cursosEscolhidos);
-      setMostrarOnboarding(false);
-      scriptApp.exibirPopup("✨ Cursos Atualizados!", "Seu feed de eventos foi personalizado.", "sucesso", 4);
-    } catch (error) {
-      console.log("Erro ao salvar cursos", error);
-    }
-  };
-
-  const handlePularOnboarding = () => {
-    setMostrarOnboarding(false);
-    scriptApp.exibirPopup("ℹ️ Lembrete", "Você pode personalizar seus cursos a qualquer momento no topo do mural.", "aviso", 5);
-  };
-
-  // Função para redefinir cursos abrindo direto no Passo 2
-  const handleRedefinirCursos = () => {
-    setStepInicialOnboarding(2);
-    setMostrarOnboarding(true);
-  };
-
-  const [modalDevsVisivel, setModalDevsVisivel] = useState(false);
-  const [cursoSelecionado, setCursoSelecionado] = useState(null);
-  const [modalLoginVisivel, setModalLoginVisivel] = useState(false);
-  const [modalGerenciaVisivel, setModalGerenciaVisivel] = useState(false);
-  const [modalCoordenadorVisivel, setModalCoordenadorVisivel] = useState(false);
-  const [utilizadorLogado, setUtilizadorLogado] = useState(null);
-
-  const [activeTab, setActiveTab] = useState("mural");
-  const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
-
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener("change", ({ window }) => {
-      setWindowWidth(window.width);
-    });
-    return () => subscription?.remove();
-  }, []);
-
-  const isDesktop = Platform.OS === "web" && windowWidth >= 768;
-
-  const handleLoginSucesso = (usuario) => {
-    setUtilizadorLogado(usuario);
-    setModalLoginVisivel(false);
-    const perfil = usuario.perfil ? usuario.perfil.trim().toLowerCase() : "";
-
-    if (perfil.includes("gerência") || perfil.includes("gerencia") || perfil.includes("coordenador")) {
-      setModalGerenciaVisivel(true); // Reaproveita o estado para abrir o navigator unificado
-    } else {
-      scriptApp.exibirPopup("Acesso Negado", "Perfil sem autorização para painel.", "erro");
-    }
-  };
-
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-
+  // Exibe o loader enquanto valida a sessão inicial
+  if (appCtrl.carregandoSessao) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f4f5f7' }}>
+        <ActivityIndicator size="large" color="#173EA5" />
+      </View>
+    );
+  }
   
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f4f5f7" }} edges={["top", "bottom"]}>
       
       {/* ── MODAL DO STEPPER ── */}
-      <Modal visible={mostrarOnboarding} transparent animationType="fade">
+      <Modal visible={appCtrl.mostrarOnboarding} transparent animationType="fade">
         <View style={localStyles.overlayEmbacado}>
           <View style={localStyles.containerStepper}>
             <OnboardingCursos 
               cursosDisponiveis={scriptApp.cursos} 
-              onConcluirSetup={handleConcluirSetup} 
-              onPular={handlePularOnboarding}
-              stepInicial={stepInicialOnboarding}
+              onConcluirSetup={appCtrl.handleConcluirSetup} 
+              onPular={appCtrl.handlePularOnboarding}
+              stepInicial={appCtrl.stepInicialOnboarding}
             />
           </View>
         </View>
@@ -132,7 +60,7 @@ export default function App() {
       <View
         style={{
           flex: 1,
-          flexDirection: isDesktop ? "row" : "column",
+          flexDirection: appCtrl.isDesktop ? "row" : "column",
           ...(Platform.OS === "web" && {
             height: "100vh",
             width: "100vw",
@@ -140,8 +68,8 @@ export default function App() {
           }),
         }}
       >
-        {isDesktop && (
-          <SidebarNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+        {appCtrl.isDesktop && (
+          <SidebarNavBar activeTab={appCtrl.activeTab} onTabPress={appCtrl.setActiveTab} />
         )}
 
         <View style={{ flex: 1, height: "100%" }}>
@@ -151,14 +79,14 @@ export default function App() {
             contentContainerStyle={{
               flexGrow: 1,
               justifyContent: "space-between",
-              paddingBottom: isDesktop ? 0 : 90,
+              paddingBottom: appCtrl.isDesktop ? 0 : 90,
             }}
           >
             <View style={{ flex: 1 }}>
-              <Cabecalho onAdminPress={() => setModalLoginVisivel(true)} />
+              <Cabecalho onAdminPress={() => appCtrl.setModalLoginVisivel(true)} />
 
-              {/* ── LEMBRETE/BANNEER DE CONFIGURAÇÃO SE NÃO HOUVER CURSOS SELECIONADOS ── */}
-              {cursosSelecionados.length < 3 && (
+              {/* ── LEMBRETE/BANNEER DE CONFIGURAÇÃO SE NÃO HOUVER CURSOS ── */}
+              {appCtrl.cursosSelecionados.length < 3 && (
                 <View style={localStyles.bannerLembrete}>
                   <View style={{ flex: 1 }}>
                     <Text style={localStyles.tituloLembrete}>📌 Personalize seu Feed</Text>
@@ -168,7 +96,7 @@ export default function App() {
                   </View>
                   <TouchableOpacity 
                     style={localStyles.btnLembrete}
-                    onPress={handleRedefinirCursos}
+                    onPress={appCtrl.handleRedefinirCursos}
                   >
                     <Text style={localStyles.btnLembreteTexto}>Filtrar Cursos</Text>
                   </TouchableOpacity>
@@ -176,24 +104,24 @@ export default function App() {
               )}
 
               {/* RENDERIZAÇÃO DAS ABAS */}
-              {activeTab === "mural" && (
+              {appCtrl.activeTab === "mural" && (
                 <>
                   <CalendarioAcademico
                     {...scriptApp}
-                    cursosFavoritos={cursosSelecionados}
+                    cursosFavoritos={appCtrl.cursosSelecionados}
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
                   />
                   
                   <ListaCarrosseis
                     {...scriptApp}
-                    onSelectCurso={(curso) => setCursoSelecionado(curso)}
+                    onSelectCurso={(curso) => appCtrl.setCursoSelecionado(curso)}
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                    cursosFavoritosIds={cursosSelecionados}
+                    cursosFavoritosIds={appCtrl.cursosSelecionados}
                   />
                 </>
               )}
 
-              {activeTab === "busca" && (
+              {appCtrl.activeTab === "busca" && (
                   <BuscaTab 
                     eventosLista={scriptApp.todosOsEventos} 
                     onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
@@ -201,7 +129,7 @@ export default function App() {
                   />
               )}
 
-              {activeTab === "notificacoes" && (
+              {appCtrl.activeTab === "notificacoes" && (
                 <NotificacoesTab
                   notificacoes={scriptApp.notificacoesSalvas}
                   onRemover={(id) => scriptApp.removerNotificacao(id)}
@@ -209,13 +137,12 @@ export default function App() {
                 />
               )}
 
-              {/* Configuracoes do TAB*/}
-              {activeTab === "configuracoes" && (
+              {appCtrl.activeTab === "configuracoes" && (
                   <ConfiguracoesTab 
-                    isDesktop={isDesktop}
-                    onOpenDevs={() => setModalDevsVisivel(true)}
-                    onRedefinirCursos={handleRedefinirCursos}
-                    cursosSelecionados={cursosSelecionados}
+                    isDesktop={appCtrl.isDesktop}
+                    onOpenDevs={() => appCtrl.setModalDevsVisivel(true)}
+                    onRedefinirCursos={appCtrl.handleRedefinirCursos}
+                    cursosSelecionados={appCtrl.cursosSelecionados}
                     cursosDisponiveis={scriptApp.cursos}
                     onOpenSobre={() =>
                       scriptApp.exibirPopup(
@@ -228,37 +155,36 @@ export default function App() {
                 )}
             </View>
 
-            {isDesktop && (
+            {appCtrl.isDesktop && (
               <View style={{ marginTop: "auto", width: "100%", paddingBottom: 0, marginBottom: 0 }}>
                 <RodapeInstitucional
-                  onOpenDevs={() => setModalDevsVisivel(true)}
+                  onOpenDevs={() => appCtrl.setModalDevsVisivel(true)}
                   onOpenSobre={() => scriptApp.exibirPopup("ℹ️ Sobre", "Mural Acadêmico v1.0", "sucesso", 6)}
                 />
               </View>
             )}
           </ScrollView>
 
-          {!isDesktop && (
-            <BottomNavBar activeTab={activeTab} onTabPress={setActiveTab} />
+          {!appCtrl.isDesktop && (
+            <BottomNavBar activeTab={appCtrl.activeTab} onTabPress={appCtrl.setActiveTab} />
           )}
         </View>
       </View>
 
       {/* MODAIS GLOBAIS */}
-      <Modal visible={modalLoginVisivel} transparent animationType="slide" onRequestClose={() => setModalLoginVisivel(false)}>
-        <LoginScreen onClose={() => setModalLoginVisivel(false)} onLoginSuccess={handleLoginSucesso} />
+      <Modal visible={appCtrl.modalLoginVisivel} transparent animationType="slide" onRequestClose={() => appCtrl.setModalLoginVisivel(false)}>
+        <LoginScreen onClose={() => appCtrl.setModalLoginVisivel(false)} onLoginSuccess={appCtrl.handleLoginSucesso} />
       </Modal>
 
-      {/* 🛡️ Painel de Navegação Seguro Unificado (Gerência e Coordenador) */}
-      <Modal visible={modalGerenciaVisivel || modalCoordenadorVisivel} animationType="slide" onRequestClose={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); }}>
+      <Modal visible={appCtrl.modalGerenciaVisivel || appCtrl.modalCoordenadorVisivel} animationType="slide" onRequestClose={() => { appCtrl.setModalGerenciaVisivel(false); appCtrl.setModalCoordenadorVisivel(false); }}>
         <PainelNavigator 
-          usuarioAtual={utilizadorLogado} 
-          onClose={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); }} 
-          onLogout={() => { setModalGerenciaVisivel(false); setModalCoordenadorVisivel(false); setUtilizadorLogado(null); }} 
+          usuarioAtual={appCtrl.utilizadorLogado} 
+          onClose={() => { appCtrl.setModalGerenciaVisivel(false); appCtrl.setModalCoordenadorVisivel(false); }} 
+          onLogout={appCtrl.handleLogout} 
         />
       </Modal>
 
-      <ModalDesenvolvedores visible={modalDevsVisivel} onClose={() => setModalDevsVisivel(false)} />
+      <ModalDesenvolvedores visible={appCtrl.modalDevsVisivel} onClose={() => appCtrl.setModalDevsVisivel(false)} />
 
       <ToastPopup
         visible={scriptApp.popupInfo.visible}
@@ -269,8 +195,8 @@ export default function App() {
       />
 
       <ModalCurso
-        curso={cursoSelecionado}
-        onClose={() => setCursoSelecionado(null)}
+        curso={appCtrl.cursoSelecionado}
+        onClose={() => appCtrl.setCursoSelecionado(null)}
         onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
       />
 

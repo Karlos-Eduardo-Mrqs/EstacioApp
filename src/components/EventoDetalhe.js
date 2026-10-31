@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { compartilharCard } from "../services/compartilharService";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
-import { formatarDataApenas } from "../utils/dataUtils"; // 👈 Importa a função de formatação limpa
+import { formatarDataApenas } from "../utils/dataUtils"; 
 import { detalheStyles as styles } from "../styles/detalhesStyles";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
@@ -23,7 +23,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   });
 
   if (!evento) return null;
-
+  
   // 🔗 Ação de Compartilhar
   const handleCompartilharClick = () => {
     setConfirmConfig({
@@ -73,11 +73,44 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
     setConfirmVisible(true);
   };
 
-  const imagemFonte = evento?.imagem ? { uri: evento.imagem } : imagemExemploPadrao;
-  const nomeTurma = evento?.turma || evento?.curso || "Sem turma/curso definidos";
+  const urlImagemCapa = typeof evento?.imagem === 'object' ? evento.imagem?.caminho_img : evento?.imagem;
+
+  const imagemFonte = urlImagemCapa ? { uri: urlImagemCapa } : imagemExemploPadrao;
+  // 🛡️ Tratamento seguro para extrair a string do curso/turma caso venha como objeto do Supabase
+  let nomeTurma = "Sem turma/curso definidos";
+  if (evento?.turma) {
+    nomeTurma = typeof evento.turma === 'object' ? (evento.turma.nome || "Curso") : evento.turma;
+  } else if (evento?.curso) {
+    nomeTurma = typeof evento.curso === 'object' ? (evento.curso.nome || "Curso") : evento.curso;
+  }
+
+  // 🛡️ Tratamento seguro para extrair o local/turma/curso do evento
+  let localExibido = "Estácio Nova América";
+  
+  if (evento?.local) {
+    localExibido = typeof evento.local === 'object' ? (evento.local.nome || "Estácio Nova América") : evento.local;
+  } else if (evento?.turma) {
+    localExibido = typeof evento.turma === 'object' ? (evento.turma.nome || "Estácio Nova América") : evento.turma;
+  } else if (evento?.curso) {
+    localExibido = typeof evento.curso === 'object' ? (evento.curso.nome || "Estácio Nova América") : evento.curso;
+  }
 
   // 📅 Converte o timestamp do banco para o formato dia/mês/ano limpo
-  const dataFormatada = formatarDataApenas(evento.inicio || evento.dia);
+  const dataFormatada = formatarDataApenas(evento.inicio || evento.dia || evento.dataEvento);
+
+  {/* Exemplo de renderização correta da imagem de capa no modal de detalhes */}
+  {(evento.imagem?.caminho_img || evento.imagem) && (
+    <Image 
+      source={{ uri: evento.imagem?.caminho_img || evento.imagem }} 
+      style={{ 
+        width: '1005', 
+        height: 180, // Altura proporcional ao formato 16:9
+        borderTopLeftRadius: 12, 
+        borderTopRightRadius: 12,
+        resizeMode: 'cover' 
+      }} 
+    />
+  )}
 
   return (
     <>
@@ -115,12 +148,12 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
                 <Text style={styles.modalTituloClean}>{evento.titulo}</Text>
 
                 <Text style={styles.modalSubInfoClean}>
-                  📅 {dataFormatada} • 📍 {nomeTurma}
+                  📅 {dataFormatada} • 📍 {localExibido}
                 </Text>
 
                 {evento.autor && (
                   <Text style={styles.modalSubInfoClean}>
-                    🎤 Palestrante: {evento.autor}
+                    🎤 Palestrante: {evento.palestrante}
                   </Text>
                 )}
 

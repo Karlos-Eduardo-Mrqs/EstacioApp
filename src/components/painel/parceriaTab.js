@@ -1,11 +1,11 @@
 import { View, Text, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
 import { useGerenciarParcerias } from "../../hooks/useGerenciarParcerias"; // 👈 Sobe duas pastas (painel -> components -> hooks)
 import GerenciarListaParcerias from './gerenciarListaParcerias';
 import ModalGerenciarParceria from './modalGerenciarParcerias';
 import ToastPopup from '../Popup'; // 👈 Sobe uma pasta (painel -> components)
 import ConfirmPopup from '../ConfirmPopup'; // 👈 Sobe uma pasta (painel -> components)
+import CustomIcon from '../CustomIcon';
 
 export default function ParceriaTab() {
   const {
@@ -53,13 +53,13 @@ export default function ParceriaTab() {
         {/* CARTÕES DE RESUMO */}
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
-            <Ionicons name="hand-left-outline" size={23} color="#173EA5" />
+            <CustomIcon name="hand-left-outline" size={23} color="#173EA5" />
             <Text style={styles.resumoNumero}>{quantidadeAtivas}</Text>
             <Text style={styles.resumoTexto}>Parcerias ativas</Text>
           </View>
 
           <View style={styles.resumoCard}>
-            <Ionicons name="albums-outline" size={23} color="#173EA5" />
+            <CustomIcon name="library-outline" size={23} color="#173EA5" />
             <Text style={styles.resumoNumero}>{parcerias.length}</Text>
             <Text style={styles.resumoTexto}>Total de registros</Text>
           </View>

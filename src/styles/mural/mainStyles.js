@@ -79,11 +79,11 @@ export const appStyles = StyleSheet.create({
   },
   mesHeaderAzul: {
     backgroundColor: CoresInstitucionais.azulEscuro,
-    padding: 6,
+    padding: 8,
     alignItems: "center",
   },
   mesTituloBranco: {
-    color: CoresInstitucionais.azulPrincipal,
+    color: CoresInstitucionais.brancoPuro, // 👈 Ajustado para branco para destacar bem no fundo escuro
     fontWeight: "bold",
     fontSize: 12,
   },
@@ -114,8 +114,8 @@ export const appStyles = StyleSheet.create({
 
   areaEventosDoDia: {
     marginTop: 15,
-    marginHorizontal: 15,
-    padding: 15,
+    marginHorizontal: 10,
+    padding: 16,
     backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 8,
     borderWidth: 1,
@@ -126,20 +126,25 @@ export const appStyles = StyleSheet.create({
   tituloDiaFocado: {
     fontSize: 14,
     fontWeight: "bold",
-    color: CoresInstitucionais.azulSecundario,
-    marginBottom: 12,
+    color: CoresInstitucionais.azulPrincipal,
+    marginBottom: 14,
     textAlign: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+    paddingBottom: 8,
   },
   cartaoDiaFocado: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: CoresInstitucionais.fundoGeral,
+    backgroundColor: '#f8fafc',
     padding: 14,
-    borderRadius: 6,
-    marginBottom: 8,
+    borderRadius: 8,
+    marginBottom: 10,
     borderLeftWidth: 4,
-    borderLeftColor: CoresInstitucionais.azulPrincipal,
+    borderLeftColor: CoresInstitucionais.amarelo,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   btnTextoMiniAzul: {
     color: CoresInstitucionais.azulSecundario,

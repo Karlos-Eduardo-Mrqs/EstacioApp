@@ -156,7 +156,7 @@ export const buscaTabstyles = StyleSheet.create({
   },
   gridCard: {
     width: '32.6%',
-    height: 190,
+    height: 220, // 👈 Altura ajustada para dar proporção perfeita aos cards verticais
     backgroundColor: '#032551',
     borderRadius: 10,
     overflow: 'hidden',

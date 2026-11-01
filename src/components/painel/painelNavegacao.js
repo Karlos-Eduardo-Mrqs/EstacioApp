@@ -8,6 +8,7 @@ import PainelCoordenador from "./painelCoordenador";
 import GerenciarEventos from "./painelEventos";
 import GerenciarUsuarios from "./painelGerencia";
 import ParceriaTab from "./parceriaTab"; // 👈 1. Import da nova aba de Parcerias
+import CustomIcon from "../CustomIcon"; // 👈 Importa o componente CustomIcon para exibir ícones
 
 export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   const perfilStr = usuarioAtual?.perfil
@@ -61,7 +62,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           onPress={() => selecionarAba("utilizadores")}
           activeOpacity={0.8}
         >
-          <Text style={styles.iconeNav}>👥</Text>
+          <Text style={styles.iconeNav}> <CustomIcon name="person-circle-outline" size={18} color="#fff"/> </Text>
           {(isDesktop || drawerOpen) && (
             <Text
               style={[
@@ -84,7 +85,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
         onPress={() => selecionarAba(ehCoordenador ? "coordenacao" : "eventos")}
         activeOpacity={0.8}
       >
-        <Text style={styles.iconeNav}>📅</Text>
+        <Text style={styles.iconeNav}>  <CustomIcon name="calendar" size={18} color="#fff"/> </Text>
         {(isDesktop || drawerOpen) && (
           <Text
             style={[
@@ -106,7 +107,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
         onPress={() => selecionarAba("notificacao")}
         activeOpacity={0.8}
       >
-        <Text style={styles.iconeNav}>🔔</Text>
+        <Text style={styles.iconeNav}> <CustomIcon name="bell" size={18} color="#fff" /> </Text>
         {(isDesktop || drawerOpen) && (
           <Text
             style={[
@@ -129,7 +130,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           onPress={() => selecionarAba("parcerias")}
           activeOpacity={0.8}
         >
-          <Text style={styles.iconeNav}>🤝</Text>
+          <Text style={styles.iconeNav}> <CustomIcon name="card-outline" size={18} color="#fff" /> </Text>
           {(isDesktop || drawerOpen) && (
             <Text
               style={[

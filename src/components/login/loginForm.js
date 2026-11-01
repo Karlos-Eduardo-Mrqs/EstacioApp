@@ -70,6 +70,7 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
     if (onClose) onClose();
   };
 
+  console.log(CustomIcon);
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView

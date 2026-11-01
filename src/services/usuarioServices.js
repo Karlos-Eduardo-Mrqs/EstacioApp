@@ -38,6 +38,18 @@ export async function criarUsuarioNoBanco(novoUsuario) {
   return data;
 }
 
+export async function atualizarUsuarioNoBanco(id, usuarioAtualizado) {
+  const { data, error } = await supabase
+    .from('usuario')
+    .update(usuarioAtualizado)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+}
+
 export async function removerUsuarioNoBanco(id) {
   const { error } = await supabase
     .from('usuario')

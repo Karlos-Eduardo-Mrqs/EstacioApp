@@ -30,11 +30,16 @@ export default function GerenciarUsuarios() {
     setSenha,
     perfil,
     setPerfil,
+    matricula,
+    setMatricula,
+    curso,
+    setCurso,
     fecharCadastro,
     criarUsuario,
     alternarStatus,
     solicitarRemocao,
   } = useGerenciarUsuarios();
+
 
   const renderUsuario = ({ item }) => (
     <View style={styles.usuarioCard}>
@@ -187,12 +192,16 @@ export default function GerenciarUsuarios() {
         onClose={fecharCadastro}
         nome={nome}
         setNome={setNome}
+        matricula={matricula}
+        setMatricula={setMatricula}
         email={email}
         setEmail={setEmail}
         senha={senha}
         setSenha={setSenha}
         perfil={perfil}
         setPerfil={setPerfil}
+        curso={curso}
+        setCurso={setCurso}
         onCriar={criarUsuario}
         styles={styles}
       />

@@ -19,6 +19,8 @@ export function useGerenciarUsuarios() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [matricula, setMatricula] = useState('');
+  const [curso, setCurso] = useState('');
   const [perfil, setPerfil] = useState('Coordenador');
 
   useEffect(() => {
@@ -126,23 +128,23 @@ export function useGerenciarUsuarios() {
   };
 
   return {
-    usuarios,
-    usuariosFiltrados,
-    pesquisa,
-    setPesquisa,
-    feedback,
-    modalCadastro,
-    setModalCadastro,
-    confirmPopup,
-    setConfirmPopup,
-    nome, setNome,
-    email, setEmail,
-    senha, setSenha,
-    perfil, setPerfil,
+    nome,
+    setNome,
+    email,
+    setEmail,
+    senha,
+    setSenha,
+    perfil,
+    setPerfil,
+    matricula,
+    setMatricula,
+    curso,
+    setCurso,
+
     fecharCadastro,
     criarUsuario,
     alternarStatus,
     solicitarRemocao,
-    limparFormulario
+    limparFormulario,
   };
 }

@@ -1,17 +1,17 @@
 
 import {
-  View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  Modal,
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
   useWindowDimensions,
+  View,
 } from 'react-native';
 
-import CustomIcon from '../../components/CustomIcon';
+import CustomIcon from "../../components/CustomIcon";
 
 export default function PainelCadastro({
   visible,
@@ -61,7 +61,7 @@ export default function PainelCadastro({
               accessibilityLabel="Fechar cadastro"
             >
               <CustomIcon
-                name={isDesktop ? 'close' : 'arrow-back'}
+                name={isDesktop ? "close" : "arrow-back"}
                 size={22}
                 color="#032551"
               />
@@ -76,7 +76,7 @@ export default function PainelCadastro({
             <Text style={styles.label}>Nome *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ex.: Nome do professor"
+              placeholder="Ex.: Coordenador"
               placeholderTextColor="#9ca3af"
               value={nome}
               onChangeText={setNome}
@@ -86,7 +86,7 @@ export default function PainelCadastro({
             <Text style={styles.label}>E-mail *</Text>
             <TextInput
               style={styles.input}
-              placeholder="professor@estacio.br"
+              placeholder="coordenador@estacio.br"
               placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={setEmail}

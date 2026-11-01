@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioDoBanco } from '../services/apiServices';
 
 export function useGerenciarUsuarios() {
@@ -128,6 +128,15 @@ export function useGerenciarUsuarios() {
   };
 
   return {
+    usuarios,
+    usuariosFiltrados,
+    pesquisa,
+    setPesquisa,
+    feedback,
+    modalCadastro,
+    setModalCadastro,
+    confirmPopup,
+    setConfirmPopup,
     nome,
     setNome,
     email,
@@ -145,6 +154,6 @@ export function useGerenciarUsuarios() {
     criarUsuario,
     alternarStatus,
     solicitarRemocao,
-    limparFormulario,
+    limparFormulario
   };
 }

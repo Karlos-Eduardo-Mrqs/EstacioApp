@@ -1,5 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
+import CustomIcon from "../CustomIcon";
 
 export default function CalendarioAcademico({
   semestre, diasSemana, renderizarDias,
@@ -107,12 +108,15 @@ export default function CalendarioAcademico({
                   <Text style={styles.tituloCartaoPequeno}>
                     {evento.titulo}
                   </Text>
-                  <Text style={{ fontSize: 10, color: "#666" }}>
-                    📍 {evento.local || "A definir"} | 🕛 {evento.horas_acc || 0}h Acc
+                  <Text style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+                    📍 {evento.local || "A definir"}  |  🕛 {evento.horasAAC || evento.horas_acc || 0}h ACC
                   </Text>
                 </View>
-                <TouchableOpacity onPress={() => onSelectEvento(evento)}>
-                  <Text style={styles.btnTextoMiniAzul}>Ver Descrição</Text>
+                <TouchableOpacity 
+                  style={{ backgroundColor: '#032551', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6 }}
+                  onPress={() => onSelectEvento(evento)}
+                >
+                  <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>Ver Descrição</Text>
                 </TouchableOpacity>
               </View>
             ))

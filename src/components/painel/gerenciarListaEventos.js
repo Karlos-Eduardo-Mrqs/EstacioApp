@@ -189,7 +189,7 @@ export default function GerenciarListaEventos({
                       onPress={() => onEditar(evento)}
                     >
                       <CustomIcon
-                        name="log-in-outline"
+                        name="pencil-outline"
                         size={16}
                         color="#1d4ed8"
                       />

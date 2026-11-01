@@ -4,11 +4,10 @@ import { useScriptApp } from "../hooks/ScriptApp";
 import { useAppController } from "../hooks/useAppController";
 
 // Importações dos componentes do mural
-import BottomNavBar from "../components/BottomNavBar";
+import { BottomNavBar, SidebarNavBar } from "../components/Navegacao";
 import LoginScreen from "../components/login/loginForm";
 import Cabecalho from "../components/mural/CabecalhoMural";
 import RodapeInstitucional from "../components/mural/RodapeMural";
-import SidebarNavBar from "../components/SideNavBar";
 import OnboardingCursos from "../components/OnboardingCursos";
 import ConteudoAbas from "../components/mural/conteudosAbas"; // 👈 Novo componente desmembrado
 
@@ -34,7 +33,7 @@ export default function App() {
       </View>
     );
   }
-  
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#f4f5f7" }} edges={["top", "bottom"]}>
       
@@ -110,7 +109,9 @@ export default function App() {
               <View style={{ marginTop: "auto", width: "100%", paddingBottom: 0, marginBottom: 0 }}>
                 <RodapeInstitucional
                   onOpenDevs={() => appCtrl.setModalDevsVisivel(true)}
-                  onOpenSobre={() => scriptApp.exibirPopup("ℹ️ Sobre", "Mural Acadêmico v1.0", "sucesso", 6)}
+                  onOpenSobre={() => scriptApp.exibirPopup("ℹ️ Sobre", 
+                  "Este portal foi desenvolvido para centralizar a comunicação acadêmica, avisos da gerência, prazos de notas, eventos e atividades complementares (ACC) do campus com máxima eficiência e performance.", 
+                  "sucesso", 6)}
                 />
               </View>
             )}

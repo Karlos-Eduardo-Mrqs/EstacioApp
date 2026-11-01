@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, Linking, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import CustomIcon from '../CustomIcon';
 import { buscarParceriasDoBanco, obterIconeDaWeb } from '../../services/parceriaServices';
 
 export default function ParceriasAlunoTab() {
@@ -137,8 +137,8 @@ export default function ParceriasAlunoTab() {
                       style={{ backgroundColor: '#173EA5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 6 }}
                       onPress={() => abrirLinkParceiro(p.link)}
                     >
-                      <Ionicons name="open-outline" size={14} color="#FFFFFF" />
-                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>Aceder ao Site</Text>
+                      <CustomIcon name="open-outline" size={14} color="#FFFFFF" />
+                      <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>Acessar o Site</Text>
                     </TouchableOpacity>
                   )}
                 </View>

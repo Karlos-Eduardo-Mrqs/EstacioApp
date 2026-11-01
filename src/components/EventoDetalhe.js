@@ -1,19 +1,12 @@
 import { useRef, useState } from "react";
-import {
-    Image,
-    Modal,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Image,Modal,ScrollView,Text,TouchableOpacity,View,} from "react-native";
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
-import { detalheStyles as styles } from "../styles/detalhesStyles";
 import { formatarDataApenas } from "../utils/dataUtils";
 import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
+import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
 const imagemExemploPadrao = require("../../assets/image.png");
 
@@ -90,23 +83,9 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
   const imagemFonte = urlImagemCapa
     ? { uri: urlImagemCapa }
     : imagemExemploPadrao;
-  // 🛡️ Tratamento seguro para extrair a string do curso/turma caso venha como objeto do Supabase
-  let nomeTurma = "Sem turma/curso definidos";
-  if (evento?.turma) {
-    nomeTurma =
-      typeof evento.turma === "object"
-        ? evento.turma.nome || "Curso"
-        : evento.turma;
-  } else if (evento?.curso) {
-    nomeTurma =
-      typeof evento.curso === "object"
-        ? evento.curso.nome || "Curso"
-        : evento.curso;
-  }
 
-  // 🛡️ Tratamento seguro para extrair o local/turma/curso do evento
+  // 🛡️ Tratamento seguro para extrair o local do evento
   let localExibido = "Estácio Nova América";
-
   if (evento?.local) {
     localExibido =
       typeof evento.local === "object"
@@ -124,29 +103,11 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
         : evento.curso;
   }
 
-  // 📅 Converte o timestamp do banco para o formato dia/mês/ano limpo
+  // 📅 Converte a data
   const dataFormatada = formatarDataApenas(
     evento.inicio || evento.dia || evento.dataEvento,
   );
-
-  {
-    /* Exemplo de renderização correta da imagem de capa no modal de detalhes */
-  }
-  {
-    (evento.imagem?.caminho_img || evento.imagem) && (
-      <Image
-        source={{ uri: evento.imagem?.caminho_img || evento.imagem }}
-        style={{
-          width: "1005",
-          height: 180, // Altura proporcional ao formato 16:9
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-          resizeMode: "cover",
-        }}
-      />
-    );
-  }
-
+  
   return (
     <>
       <Modal
@@ -155,61 +116,66 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
         visible={true}
         onRequestClose={onClose}
       >
-        <View style={styles.modalOverlay}>
+        <View style={localStyles.modalOverlay}>
           <View
             ref={viewRef}
-            style={styles.modalContentClean}
+            style={localStyles.modalContentClean}
             collapsable={false}
           >
-            <TouchableOpacity style={styles.closeButtonClean} onPress={onClose}>
+            {/* Botão de Fechar otimizado para Mobile e Computador */}
+            <TouchableOpacity 
+              style={localStyles.closeButtonClean} 
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
               <CustomIcon name="close" size={18} color="#262626" />
             </TouchableOpacity>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.modalScrollClean}
+              contentContainerStyle={localStyles.modalScrollClean}
             >
-              <View style={styles.imageContainerModal}>
+              <View style={localStyles.imageContainerModal}>
                 <Image
                   source={imagemFonte}
-                  style={styles.imagemPost}
+                  style={localStyles.imagemPost}
                   resizeMode="cover"
                 />
               </View>
 
-              <View style={styles.detailsInnerContainer}>
+              <View style={localStyles.detailsInnerContainer}>
                 <FeedbackBox
                   tipo={feedback.tipo}
                   mensagem={feedback.mensagem}
                 />
 
-                <Text style={styles.modalTituloClean}>{evento.titulo}</Text>
+                <Text style={localStyles.modalTituloClean}>{evento.titulo}</Text>
 
-                <Text style={styles.modalSubInfoClean}>
+                <Text style={localStyles.modalSubInfoClean}>
                   📅 {dataFormatada} • 📍 {localExibido}
                 </Text>
 
-                {evento.autor && (
-                  <Text style={styles.modalSubInfoClean}>
+                {evento.palestrante && (
+                  <Text style={localStyles.modalSubInfoClean}>
                     🎤 Palestrante: {evento.palestrante}
                   </Text>
                 )}
 
-                {evento.horas_acc && (
-                  <Text style={styles.modalSubInfoClean}>
-                    🕛 Horas Acc: {evento.horas_acc}
+                {(evento.horasAAC || evento.horas_acc) && (
+                  <Text style={localStyles.modalSubInfoClean}>
+                    🕛 Horas ACC: {evento.horasAAC || evento.horas_acc}h
                   </Text>
                 )}
 
-                <Text style={styles.modalSecaoLabelClean}>Sobre o evento:</Text>
-                <Text style={styles.modalDescricaoClean}>
+                <Text style={localStyles.modalSecaoLabelClean}>Sobre o evento:</Text>
+                <Text style={localStyles.modalDescricaoClean}>
                   {evento.descricao ||
-                    "Prazo inicial para envio de atividades complementares."}
+                    "Informações detalhadas sobre o evento acadêmico."}
                 </Text>
 
-                <View style={styles.actionButtonsRowClean}>
+                <View style={localStyles.actionButtonsRowClean}>
                   <TouchableOpacity
-                    style={styles.btnNotificarClean}
+                    style={localStyles.btnNotificarClean}
                     onPress={handleNotificarClick}
                   >
                     <CustomIcon
@@ -218,14 +184,14 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
                       color="#ffffff"
                       style={{ marginRight: 6 }}
                     />
-                    <Text style={styles.btnNotificarTextoClean}>Notificar</Text>
+                    <Text style={localStyles.btnNotificarTextoClean}>Notificar</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.btnCompartilharClean}
+                    style={localStyles.btnCompartilharClean}
                     onPress={handleCompartilharClick}
                   >
-                    <Text style={styles.btnCompartilharTextoClean}>
+                    <Text style={localStyles.btnCompartilharTextoClean}>
                       Compartilhar ↗
                     </Text>
                   </TouchableOpacity>

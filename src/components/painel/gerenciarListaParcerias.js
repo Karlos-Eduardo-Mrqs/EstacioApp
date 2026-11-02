@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Image } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
 import { obterIconeDaWeb } from '../../services/parceriaServices'; // 👈 Sobe duas pastas (painel -> components -> services)
 import CustomIcon from "../CustomIcon"; // 👈 Sobe uma pasta (painel -> components)
 
@@ -94,7 +93,7 @@ export default function GerenciarListaParcerias({
             onPress={onNovaParceria}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <CustomIcon name="add" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         )}
       </View>

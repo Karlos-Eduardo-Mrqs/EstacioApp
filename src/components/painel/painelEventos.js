@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { CustomIcon } from "@expo/vector-icons";
 import {
     ActivityIndicator,
     ScrollView,
@@ -12,6 +12,7 @@ import ConfirmPopup from "../ConfirmPopup";
 import ToastPopup from "../Popup";
 import GerenciarListaEventos from "./gerenciarListaEventos"; // 👈 Importa o componente de listagem isolado e correto
 import ModalGerenciarEvento from "./modalGerenciarEvento";
+import CustomIcon from "../CustomIcon";
 
 export default function PainelEventosTela() {
   const {
@@ -70,13 +71,13 @@ export default function PainelEventosTela() {
 
         <View style={styles.resumoContainer}>
           <View style={styles.resumoCard}>
-            <Ionicons name="calendar-outline" size={23} color="#173EA5" />
+            <CustomIcon name="calendar-outline" size={23} color="#173EA5" />
             <Text style={styles.resumoNumero}>{quantidadeAtivos}</Text>
             <Text style={styles.resumoTexto}>Eventos ativos</Text>
           </View>
 
           <View style={styles.resumoCard}>
-            <Ionicons name="albums-outline" size={23} color="#173EA5" />
+            <CustomIcon name="albums-outline" size={23} color="#173EA5" />
             <Text style={styles.resumoNumero}>{eventos.length}</Text>
             <Text style={styles.resumoTexto}>Total de eventos</Text>
           </View>

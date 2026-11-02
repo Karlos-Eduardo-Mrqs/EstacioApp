@@ -173,7 +173,7 @@ export default function ModalGerenciarParceria({
               style={styles.botaoEnviar}
               onPress={salvarParceria}
             >
-              <Ionicons name="save-outline" size={19} color="#FFFFFF" />
+              <CustomIcon name="save-outline" size={19} color="#FFFFFF" />
               <Text style={styles.textoBotaoEnviar}>Salvar parceria</Text>
             </TouchableOpacity>
 

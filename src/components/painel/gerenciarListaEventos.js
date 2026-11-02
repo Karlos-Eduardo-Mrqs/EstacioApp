@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons"; // 👈 Importa os ícones do Expo
 import { useState } from "react";
 import {
   ScrollView,
@@ -90,7 +89,7 @@ export default function GerenciarListaEventos({
             onPress={onNovoEvento}
             activeOpacity={0.8}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <CustomIcon name="add" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         )}
       </View>

@@ -1,9 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
 import { formatarEntradaData } from "../../utils/dataUtils";
 import FeedbackBox from "../FeedPopup";
+import CustomIcon from "../CustomIcon";
 
 function Campo({ label, style, ...props }) {
   return (
@@ -181,7 +181,7 @@ export default function ModalGerenciarEvento({
                     setDescricaoImagem("");
                   }}
                 >
-                  <Ionicons name="trash-outline" size={18} color="#FFFFFF" />
+                  <CustomIcon name="trash-outline" size={18} color="#FFFFFF" />
                   <Text style={styles.textoRemoverImagem}>Remover imagem</Text>
                 </TouchableOpacity>
               </View>
@@ -190,7 +190,7 @@ export default function ModalGerenciarEvento({
                 style={styles.seletorImagem}
                 onPress={selecionarImagem}
               >
-                <Ionicons name="image-outline" size={34} color="#173EA5" />
+                <CustomIcon name="image-outline" size={34} color="#173EA5" />
                 <Text style={styles.textoSeletorImagem}>Selecionar imagem</Text>
                 <Text style={styles.textoAuxiliar}>
                   Redimensionamento e compressão automáticos. (16:9)
@@ -199,7 +199,7 @@ export default function ModalGerenciarEvento({
             )}
 
             <TouchableOpacity style={styles.botaoEnviar} onPress={salvarEvento}>
-              <Ionicons name="save-outline" size={19} color="#FFFFFF" />
+              <CustomIcon name="save-outline" size={19} color="#FFFFFF" />
               <Text style={styles.textoBotaoEnviar}>Salvar evento</Text>
             </TouchableOpacity>
 

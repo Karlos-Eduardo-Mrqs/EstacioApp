@@ -1,9 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
+import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
 import { formatarEntradaData } from "../../utils/dataUtils";
 import FeedbackBox from "../FeedPopup";
-import CustomIcon from "../CustomIcon";
+import CustomIcon from "../CustomIcon"; // 👈 Correção do ReferenceError
 
 function Campo({ label, style, ...props }) {
   return (

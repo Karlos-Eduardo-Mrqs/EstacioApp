@@ -96,7 +96,7 @@ export default function AvisosGerencia({ avisosAtivos = [], onReexibirAviso }) {
                   Avisos Importantes Disponíveis
                 </Text>
                 <Text style={{ fontSize: 11, color: '#854D0E', marginTop: 2 }}>
-                  Existem {avisosAtivos.length} avisos ativos para você. Clique para visualizar[cite: 10].
+                  Existem {avisosAtivos.length} avisos ativos para você. Clique para visualizar.
                 </Text>
               </View>
             </View>
@@ -140,7 +140,7 @@ export default function AvisosGerencia({ avisosAtivos = [], onReexibirAviso }) {
         </View>
       )}
 
-      {/* Modal para mais de 3 avisos[cite: 10] */}
+      {/* Modal para mais de 3 avisos */}
       <Modal 
         visible={modalVisivel} 
         transparent 
@@ -176,7 +176,7 @@ export default function AvisosGerencia({ avisosAtivos = [], onReexibirAviso }) {
                   <Text style={modalLocalStyles.cardTitulo}>{item.titulo}</Text>
                   <Text style={modalLocalStyles.cardTexto} numberOfLines={3}>{item.mensagem}</Text>
                   <Text style={modalLocalStyles.cardRodape}>
-                    Expira em: {new Date(item.expira_em).toLocaleString()}[cite: 10]
+                    Expira em: {new Date(item.expira_em).toLocaleString()}
                   </Text>
                 </TouchableOpacity>
               )}

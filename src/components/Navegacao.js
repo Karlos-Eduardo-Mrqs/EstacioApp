@@ -9,7 +9,7 @@ const tabs = [
   { id: "mural", name: "calendar-outline", label: "Mural", labelSidebar: "Mural Acadêmico" },
   { id: "busca", name: "search-outline", label: "Busca", labelSidebar: "Pesquisar Eventos" },
   { id: "notificacoes", name: "notifications-outline", label: "Avisos", labelSidebar: "Notificações" },
-  { id: "parcerias", name: "partner-shops", label: "Parcerias", labelSidebar: "Parcerias" },
+  { id: "parcerias", name: "card-outline", label: "Parcerias", labelSidebar: "Parcerias" },
   { id: "configuracoes", name: "settings-outline", label: "Ajustes", labelSidebar: "Configurações" },
 ];
 

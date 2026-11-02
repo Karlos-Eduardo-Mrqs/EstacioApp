@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { notificacaoFormStyles as styles } from '@/styles/painel/notificacaoGlobalTabStyles';
+import CustomIcon from '../CustomIcon';
 
 export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, onVisualizar, carregando }) {
   const [tipoDestino, setTipoDestino] = useState('todos');
@@ -64,7 +64,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
             style={[styles.radioBtn, tipoDestino === 'todos' && styles.radioBtnAtivo]}
             onPress={() => { setTipoDestino('todos'); setCursoSelecionado(null); setEventoSelecionado(null); }}
           >
-            <Ionicons name={tipoDestino === 'todos' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'todos' ? "#173EA5" : "#64748B"} />
+            <CustomIcon name={tipoDestino === 'todos' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'todos' ? "#173EA5" : "#64748B"} />
             <Text style={[styles.radioText, tipoDestino === 'todos' && styles.radioTextAtivo]}>Todos</Text>
           </TouchableOpacity>
 
@@ -72,7 +72,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
             style={[styles.radioBtn, tipoDestino === 'curso' && styles.radioBtnAtivo]}
             onPress={() => { setTipoDestino('curso'); setEventoSelecionado(null); }}
           >
-            <Ionicons name={tipoDestino === 'curso' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'curso' ? "#173EA5" : "#64748B"} />
+            <CustomIcon name={tipoDestino === 'curso' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'curso' ? "#173EA5" : "#64748B"} />
             <Text style={[styles.radioText, tipoDestino === 'curso' && tipoDestino === 'curso' && styles.radioTextAtivo]}>Curso</Text>
           </TouchableOpacity>
 
@@ -80,7 +80,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
             style={[styles.radioBtn, tipoDestino === 'evento' && styles.radioBtnAtivo]}
             onPress={() => { setTipoDestino('evento'); setCursoSelecionado(null); }}
           >
-            <Ionicons name={tipoDestino === 'evento' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'evento' ? "#173EA5" : "#64748B"} />
+            <CustomIcon name={tipoDestino === 'evento' ? "radio-button-on" : "radio-button-off"} size={18} color={tipoDestino === 'evento' ? "#173EA5" : "#64748B"} />
             <Text style={[styles.radioText, tipoDestino === 'evento' && styles.radioTextAtivo]}>Evento</Text>
           </TouchableOpacity>
         </View>
@@ -90,7 +90,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
             <Text style={styles.label}>Selecione o Curso</Text>
             <TouchableOpacity style={styles.seletorCurso} onPress={() => setModalCursos(true)}>
               <Text style={styles.textoCurso} numberOfLines={1}>{nomeCursoAtual}</Text>
-              <Ionicons name="chevron-down" size={20} color="#64748B" />
+              <CustomIcon name="chevron-down" size={20} color="#64748B" />
             </TouchableOpacity>
           </View>
         )}
@@ -100,7 +100,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
             <Text style={styles.label}>Selecione o Evento</Text>
             <TouchableOpacity style={styles.seletorCurso} onPress={() => setModalEventos(true)}>
               <Text style={styles.textoCurso} numberOfLines={1}>{nomeEventoAtual}</Text>
-              <Ionicons name="chevron-down" size={20} color="#64748B" />
+              <CustomIcon name="chevron-down" size={20} color="#64748B" />
             </TouchableOpacity>
           </View>
         )}
@@ -139,7 +139,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
           onPress={handleSubmeter}
           disabled={carregando}
         >
-          <Ionicons name="send-outline" size={18} color="#FFFFFF" />
+          <CustomIcon name="send-outline" size={18} color="#FFFFFF" />
           <Text style={styles.textoBotaoEnviar}>{carregando ? 'A enviar...' : 'Enviar notificação'}</Text>
         </TouchableOpacity>
 
@@ -147,7 +147,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
           style={styles.botaoVisualizar} 
           onPress={onVisualizar}
         >
-          <Ionicons name="eye-outline" size={18} color="#032551" />
+          <CustomIcon name="eye-outline" size={18} color="#032551" />
           <Text style={styles.textoBotaoVisualizar}>Ver Avisos Enviados</Text>
         </TouchableOpacity>
       </View>
@@ -168,7 +168,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
                     onPress={() => { setCursoSelecionado(item); setModalCursos(false); }}
                   >
                     <Text style={[styles.textoCurso, selecionado && styles.textoCursoSelecionado]}>{item.titulo}</Text>
-                    {selecionado && <Ionicons name="checkmark-circle" size={21} color="#173EA5" />}
+                    {selecionado && <CustomIcon name="checkmark-circle" size={21} color="#173EA5" />}
                   </TouchableOpacity>
                 );
               }}
@@ -200,7 +200,7 @@ export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, 
                     <Text style={[styles.textoCurso, selecionado && styles.textoCursoSelecionado]} numberOfLines={1}>
                       {item.titulo}
                     </Text>
-                    {selecionado && <Ionicons name="checkmark-circle" size={21} color="#173EA5" />}
+                    {selecionado && <CustomIcon name="checkmark-circle-outline" size={21} color="#173EA5" />}
                   </TouchableOpacity>
                 );
               }}

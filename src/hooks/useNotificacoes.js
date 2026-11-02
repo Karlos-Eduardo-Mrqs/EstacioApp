@@ -5,11 +5,11 @@ import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoServi
 export function useNotificacoes(exibirPopup) {
   const [notificacoesSalvas, setNotificacoesSalvas] = useState([]);
 
-  // Carregar notificações salvas ao iniciar
+  // Carregar notificações salvas ao iniciar utilizando a chave unificada
   useEffect(() => {
     async function carregarNotificacoes() {
       try {
-        const salvas = await AsyncStorage.getItem("@eventos_notificados");
+        const salvas = await AsyncStorage.getItem("@notificacoes_salvas");
         if (salvas) {
           setNotificacoesSalvas(JSON.parse(salvas));
         }
@@ -48,7 +48,7 @@ export function useNotificacoes(exibirPopup) {
       const novaLista = [evento, ...notificacoesSalvas];
       setNotificacoesSalvas(novaLista);
       await AsyncStorage.setItem(
-        "@eventos_notificados",
+        "@notificacoes_salvas",
         JSON.stringify(novaLista),
       );
 
@@ -73,7 +73,7 @@ export function useNotificacoes(exibirPopup) {
       const novaLista = notificacoesSalvas.filter((item) => item.id !== id);
       setNotificacoesSalvas(novaLista);
       await AsyncStorage.setItem(
-        "@eventos_notificados",
+        "@notificacoes_salvas",
         JSON.stringify(novaLista),
       );
 

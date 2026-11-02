@@ -85,4 +85,10 @@ export const globalIcons = {
   'pencil': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/pencil.svg',
   'briefcase-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/briefcase-outline.svg',
   'fitness-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/fitness-outline.svg',
+  'radio-button-on': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/radio-button-on.svg',
+  'radio-button-off': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/radio-button-off.svg',
+  'add': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/add.svg',
+  'chevron-down': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chevron-down.svg',
+  'send-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/send-outline.svg',
+  'save-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/save-outline.svg',
 };

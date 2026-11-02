@@ -29,7 +29,7 @@ const nomesDosIcones = [
   'analytics-outline',
   'bookmarks-outline',
   'log-out-outline','create-outline', 'create',
-  'pencil-outline', 'pencil','briefcase-outline','fitness-outline'
+  'pencil-outline', 'pencil','briefcase-outline','fitness-outline','radio-button-on','radio-button-off','add','chevron-down','send-outline','save-outline'
 ];
 
 async function iniciar() {

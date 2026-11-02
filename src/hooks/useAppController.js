@@ -133,24 +133,18 @@ export function useAppController(scriptApp) {
   };
 
   useEffect(() => {
-    //  CONTROLO INTELIGENTE DE AVISOS E POPUPS ──
     async function carregarAvisos() {
       try {
         const avisos = await buscarAvisosAtivosDoBanco(cursosSelecionados);
         setAvisosAtivos(avisos);
 
-        // REGRA 1: Só dispara o popup se o utilizador estiver estritamente na aba "mural"
-        // (Evita disparar se estiver no painel de gerência ou noutra aba)
         if (activeTab === "mural" && avisos.length > 0) {
           const ultimoAviso = avisos[0];
-
-          // REGRA 2: Verifica no armazenamento local se este aviso já foi visto
           const ultimoAvisoVistoId = await AsyncStorage.getItem(
             "@ultimo_aviso_visto_id",
           );
 
           if (String(ultimoAvisoVistoId) !== String(ultimoAviso.id)) {
-            // É um aviso novo ou a primeira vez que o utilizador entra!
             setTimeout(() => {
               scriptApp.exibirPopup(
                 `📢 ${ultimoAviso.titulo}`,
@@ -160,7 +154,6 @@ export function useAppController(scriptApp) {
               );
             }, 1800);
 
-            // Grava o ID deste aviso como já visto para não repetir no F5/recarregamento
             await AsyncStorage.setItem(
               "@ultimo_aviso_visto_id",
               String(ultimoAviso.id),
@@ -175,7 +168,7 @@ export function useAppController(scriptApp) {
     if (!carregandoSessao && cursosSelecionados.length > 0) {
       carregarAvisos();
     }
-  }, [cursosSelecionados, carregandoSessao, activeTab]); // Dispara também ao mudar de aba se for para o mural
+  }, [cursosSelecionados, carregandoSessao, activeTab]);
 
   const reexibirAvisoPopup = (aviso) => {
     scriptApp.exibirPopup(`📢 ${aviso.titulo}`, aviso.mensagem, "sucesso", 7);

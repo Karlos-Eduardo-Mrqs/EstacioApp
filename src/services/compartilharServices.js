@@ -30,24 +30,36 @@ export async function compartilharCard(viewRef, evento) {
       };
 
     } else {
+      // --- LÓGICA PARA MOBILE (Android / iOS) ---
       const { captureRef } = await import('react-native-view-shot');
       const Sharing = await import('expo-sharing');
 
+      // Captura o elemento em formato PNG
       const uri = await captureRef(viewRef, {
         format: "png",
         quality: 1.0,
       });
 
-      if (!(await Sharing.isAvailableAsync())) {
-        return { tipo: 'erro', mensagem: 'O compartilhamento não está disponível neste dispositivo.' };
+      // Verifica se o sharing é suportado no dispositivo atual
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        return { 
+          tipo: 'erro', 
+          mensagem: 'A partilha de ficheiros não está disponível neste dispositivo.' 
+        };
       }
 
+      // Abre diretamente a gaveta nativa de partilha do telemóvel
       await Sharing.shareAsync(uri, {
-        dialogTitle: "Compartilhar Evento",
+        dialogTitle: "Compartilhar Evento Acadêmico",
         mimeType: 'image/png',
+        UTI: 'public.png', // Essencial para iOS reconhecer o formato da imagem
       });
 
-      return { tipo: 'sucesso', mensagem: 'Evento partilhado com sucesso!' };
+      return { 
+        tipo: 'sucesso', 
+        mensagem: 'Gaveta de partilha aberta com sucesso!' 
+      };
     }
   } catch (error) {
     console.log("Erro na partilha:", error);

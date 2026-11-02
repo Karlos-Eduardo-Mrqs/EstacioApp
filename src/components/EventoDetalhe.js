@@ -22,6 +22,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
     tipo: "info",
   });
 
+  
   if (!evento) return null;
 
   // 🔗 Ação de Compartilhar

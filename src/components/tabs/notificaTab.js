@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import CustomIcon from "../CustomIcon";
 import ConfirmModal from "../ConfirmPopup";
 import { NotificaTabStyles as styles } from "../../styles/tabs/notificaTabStyles";
-import { formatarDataApenas } from "../../utils/dataUtils"; // 👈 Importa a função utilitária de data
+import { formatarDataApenas } from "../../utils/dataUtils";
 
 export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvento }) {
   const [confirmModal, setConfirmModal] = useState({
@@ -35,7 +35,6 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
       {notificacoes && notificacoes.length > 0 ? (
         <View style={styles.listaContainer}>
           {notificacoes.map((evento) => {
-            // 🛡️ Tratamento seguro para extrair o nome do curso/turma (evita erros com objetos do JOIN)
             let nomeTurma = "Geral";
             if (evento?.turma) {
               nomeTurma = typeof evento.turma === 'object' ? (evento.turma.nome || "Geral") : evento.turma;
@@ -43,7 +42,6 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
               nomeTurma = typeof evento.curso === 'object' ? (evento.curso.nome || "Geral") : evento.curso;
             }
 
-            // 📅 Formata a data com o utilitário centralizado
             const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento) || `${evento.dia || ''} de ${evento.mes || ''}`;
 
             return (
@@ -65,7 +63,6 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
                     </TouchableOpacity>
                   )}
 
-                  {/* Botão para solicitar a remoção com o modal padrão */}
                   <TouchableOpacity 
                     style={styles.btnRemover} 
                     onPress={() => abrirConfirmacao(evento)}
@@ -79,13 +76,11 @@ export default function NotificacoesTab({ notificacoes, onRemover, onSelectEvent
           })}
         </View>
       ) : (
-        // Caso não tenha notificações salvas
         <Text style={styles.textoTab}>
           Nenhum evento salvo nas suas notificações ainda. Clique em "Notificar" nos detalhes de um evento para guardá-lo aqui.
         </Text>
       )}
     
-      {/* MODAL DE CONFIRMAÇÃO PADRÃO */}
       <ConfirmModal
         visible={confirmModal.visible}
         titulo="Remover Notificação"

@@ -37,10 +37,10 @@ export default function ConteudoAbas({ activeTab, scriptApp, appCtrl, avisosAtiv
       )}
 
       {activeTab === "notificacoes" && (
-        <NotificacoesTab
+        <NotificacoesTab 
           notificacoes={scriptApp.notificacoesSalvas}
-          onRemover={(id) => scriptApp.removerNotificacao(id)}
-          onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+          onRemover={(id) => scriptApp.removerNotificacao(id)} 
+          onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)} 
         />
       )}
 

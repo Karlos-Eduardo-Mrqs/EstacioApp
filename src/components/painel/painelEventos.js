@@ -1,4 +1,3 @@
-import { CustomIcon } from "@expo/vector-icons";
 import {
     ActivityIndicator,
     ScrollView,
@@ -77,7 +76,7 @@ export default function PainelEventosTela() {
           </View>
 
           <View style={styles.resumoCard}>
-            <CustomIcon name="albums-outline" size={23} color="#173EA5" />
+            <CustomIcon name="library-outline" size={23} color="#173EA5" />
             <Text style={styles.resumoNumero}>{eventos.length}</Text>
             <Text style={styles.resumoTexto}>Total de eventos</Text>
           </View>

@@ -83,4 +83,6 @@ export const globalIcons = {
   'create': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/create.svg',
   'pencil-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/pencil-outline.svg',
   'pencil': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/pencil.svg',
+  'briefcase-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/briefcase-outline.svg',
+  'fitness-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/fitness-outline.svg',
 };

@@ -28,26 +28,29 @@ export default function ConfiguracoesTab({
         
         <View style={styles.cardsRow}>
           {cursosEscolhidosNomes.length > 0 ? (
-            cursosEscolhidosNomes.map((curso, idx) => {
-              const nomeCurso = curso.titulo || curso.nome;
-              
-              return (
-                <View key={idx} style={styles.cursoCard}>
-                  {/* Ícone global padrão para os cursos */}
-                  <CustomIcon name="book-outline" size={22} color="#032551" style={{ marginBottom: 6 }} />
-                  <Text style={styles.cursoCardTexto} numberOfLines={2}>
-                    {nomeCurso}
-                  </Text>
-                </View>
-              );
-            })
-          ) : (
-            <View style={styles.emptyCardContainer}>
-              <Text style={styles.emptyCardTexto}>
-                Nenhum curso configurado ainda.
-              </Text>
-            </View>
-          )}
+  cursosEscolhidosNomes.map((curso, idx) => {
+    const nomeCurso = curso.titulo || curso.nome;
+    
+    // 🛠️ Usa o ícone que veio do banco de dados (curso.icone), ou usa 'book-outline' como padrão
+    const iconeDinamico = curso.icone || "book-outline";
+    
+    return (
+      <View key={idx} style={styles.cursoCard}>
+        {/* Ícone dinâmico específico de cada curso carregado do BD */}
+        <CustomIcon name={iconeDinamico} size={22} color="#032551" style={{ marginBottom: 6 }} />
+        <Text style={styles.cursoCardTexto} numberOfLines={2}>
+          {nomeCurso}
+        </Text>
+      </View>
+    );
+  })
+) : (
+  <View style={styles.emptyCardContainer}>
+    <Text style={styles.emptyCardTexto}>
+      Nenhum curso configurado ainda.
+    </Text>
+  </View>
+)}
         </View>
       </View>
 

@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase'; // 👈 Adicione esta linha no topo do arquivo
+import { supabase } from '../../lib/supabase'; // 👈 Essencial para o Supabase deixar de dar "not defined"
 import * as Notifications from 'expo-notifications';
 import { Platform, Vibration } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -125,8 +125,8 @@ async function guardarNotificacaoLocal(evento) {
   }
 }
 
-// Envia/Cria um novo aviso global ou direcionado a um curso específico
-export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, duracaoHoras = 24 }) {
+// Envia/Cria um novo aviso (Global, para um Curso específico ou para um Evento específico)
+export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, evento_id, duracaoHoras = 24 }) {
   const dataExpiracao = new Date();
   dataExpiracao.setHours(dataExpiracao.getHours() + Number(duracaoHoras));
 
@@ -135,7 +135,8 @@ export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, dura
     .insert([{
       titulo: titulo.trim(),
       mensagem: mensagem.trim(),
-      curso_id: curso_id ? Number(curso_id) : null, // null significa global (para todo mundo)
+      curso_id: curso_id ? Number(curso_id) : null,     // Se preenchido, é focado no curso
+      evento_id: evento_id ? Number(evento_id) : null,   // Se preenchido, é focado no evento
       expira_em: dataExpiracao.toISOString(),
     }])
     .select()
@@ -145,27 +146,93 @@ export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, dura
   return data;
 }
 
-// Busca os avisos válidos (não expirados) para o mural do aluno, filtrando pela lista de cursos favoritos ou globais
-export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = []) {
+// 1. Certifique-se de que esta função está exportada
+export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventosInscritosIds = []) {
   const agoraIso = new Date().toISOString();
 
-  // Busca todos os avisos que ainda não expiraram
+  // 1. Busca todos os avisos válidos (não expirados) no banco
   const { data, error } = await supabase
     .from('aviso')
-    .select('*, curso(nome)')
+    .select('*')
     .gt('expira_em', agoraIso)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-
   const avisos = data || [];
 
-  // Filtra os avisos: mantém se o curso_id for nulo (global) ou se o curso_id do aviso estiver incluído na lista de favoritos do aluno
+  // 2. Se a lista de eventos inscritos/salvos não foi passada, recupera do AsyncStorage (@notificacoes_salvas)
+  let idsEventosUsuario = eventosInscritosIds || [];
+  if (idsEventosUsuario.length === 0) {
+    try {
+      const salvosJson = await AsyncStorage.getItem('@notificacoes_salvas');
+      const lembretesSalvos = salvosJson ? JSON.parse(salvosJson) : [];
+      idsEventosUsuario = lembretesSalvos.map(e => e.id);
+    } catch (e) {
+      console.log("Erro ao ler lembretes locais para o filtro:", e);
+    }
+  }
+
+  // 3. Aplica o filtro cruzando Global, Cursos Favoritos e Eventos Salvos/Inscritos
   return avisos.filter(a => {
-    if (a.curso_id === null) return true;
-    if (!cursosFavoritosIds || cursosFavoritosIds.length === 0) return false;
-    
-    // Converte para número para garantir compatibilidade na comparação
-    return cursosFavoritosIds.some(idFav => Number(idFav) === Number(a.curso_id));
+    // Aviso Global (sem restrição de curso ou evento)
+    if (a.curso_id === null && a.evento_id === null) return true;
+
+    // Aviso direcionado a Curso
+    if (a.curso_id !== null) {
+      if (cursosFavoritosIds && cursosFavoritosIds.some(idFav => Number(idFav) === Number(a.curso_id))) {
+        return true;
+      }
+    }
+
+    // Aviso direcionado a Evento
+    if (a.evento_id !== null) {
+      if (idsEventosUsuario && idsEventosUsuario.some(idEvt => Number(idEvt) === Number(a.evento_id))) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+}
+
+// 2. Certifique-se de que esta função administrativa também está exportada com 'export'
+export async function buscarTodosAvisosAtivosDoBanco() {
+  const agoraIso = new Date().toISOString();
+
+  const { data: avisos, error } = await supabase
+    .from('aviso')
+    .select('*')
+    .gt('expira_em', agoraIso)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  if (!avisos || avisos.length === 0) return [];
+
+  const { data: cursos } = await supabase.from('curso').select('*');
+  const { data: eventos } = await supabase.from('evento').select('*');
+
+  return avisos.map(aviso => {
+    let nomeCurso = null;
+    let nomeEvento = null;
+
+    if (aviso.curso_id && cursos) {
+      const cursoFound = cursos.find(c => Number(c.id) === Number(aviso.curso_id));
+      if (cursoFound) {
+        nomeCurso = cursoFound.titulo || cursoFound.nome || `Curso #${aviso.curso_id}`;
+      }
+    }
+
+    if (aviso.evento_id && eventos) {
+      const eventoFound = eventos.find(e => Number(e.id) === Number(aviso.evento_id));
+      if (eventoFound) {
+        nomeEvento = eventoFound.titulo || eventoFound.nome || `Evento #${aviso.evento_id}`;
+      }
+    }
+
+    return {
+      ...aviso,
+      nomeDestinatarioCurso: nomeCurso,
+      nomeDestinatarioEvento: nomeEvento,
+    };
   });
 }

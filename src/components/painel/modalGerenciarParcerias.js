@@ -1,5 +1,5 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Image,Platform } from 'react-native';
+import CustomIcon from '../CustomIcon';
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
 import FeedbackBox from '../FeedPopup'; // 👈 Sobe uma pasta (painel -> components)
 import { obterIconeDaWeb } from '../../services/parceriaServices'; // 👈 Sobe duas pastas (painel -> components -> services)
@@ -65,7 +65,11 @@ export default function ModalGerenciarParceria({
               {parceriaEditando ? "Editar parceria" : "Nova parceria"}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={26} color="#64748B" />
+              <CustomIcon 
+                name={Platform.OS === 'web' ? 'close' : 'arrow-back'} 
+                size={24} 
+                color="#64748B" 
+              />
             </TouchableOpacity>
           </View>
 

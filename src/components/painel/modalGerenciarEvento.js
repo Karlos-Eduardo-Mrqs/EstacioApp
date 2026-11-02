@@ -1,14 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import {
-    Image,
-    Modal,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
 import { formatarEntradaData } from "../../utils/dataUtils";
 import FeedbackBox from "../FeedPopup";
@@ -67,7 +59,11 @@ export default function ModalGerenciarEvento({
               {eventoEditando ? "Editar evento" : "Novo evento"}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name="close" size={26} color="#64748B" />
+              <CustomIcon 
+                name={Platform.OS === 'web' ? 'close' : 'arrow-back'} 
+                size={24} 
+                color="#64748B" 
+              />
             </TouchableOpacity>
           </View>
 

@@ -1,6 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
 import CustomIcon from "../CustomIcon";
+import AvisosGerencia from "./AvisosGerencia"; // 👈 Importa o componente separado
 
 export default function CalendarioAcademico({
   semestre, diasSemana, renderizarDias,
@@ -9,46 +10,11 @@ export default function CalendarioAcademico({
 }) {
   return (
     <View>
-      {/* AVISOS DA GERÊNCIA */}
-      <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>AVISOS DA GERÊNCIA</Text>
-        
-        {avisosAtivos && avisosAtivos.length > 0 ? (
-          avisosAtivos.map((aviso) => (
-            <TouchableOpacity
-              key={aviso.id}
-              style={{
-                backgroundColor: '#FEF9C3',
-                borderLeftWidth: 4,
-                borderLeftColor: '#FACC15',
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 8,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}
-              onPress={() => onReexibirAviso && onReexibirAviso(aviso)}
-            >
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#713F12' }} numberOfLines={1}>
-                  {aviso.titulo}
-                </Text>
-                <Text style={{ fontSize: 11, color: '#854D0E', marginTop: 2 }} numberOfLines={2}>
-                  {aviso.mensagem}
-                </Text>
-              </View>
-              <Text style={{ fontSize: 11, fontWeight: '700', color: '#CA8A04' }}>Ver 👆</Text>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <View style={styles.caixaAviso}>
-            <Text style={styles.textoMutavel}>
-              Sem avisos globais no momento.
-            </Text>
-          </View>
-        )}
-      </View>
+      {/* 🔔 Chamada limpa em forma de componente/função */}
+      <AvisosGerencia 
+        avisosAtivos={avisosAtivos} 
+        onReexibirAviso={onReexibirAviso} 
+      />
 
       {/* CALENDÁRIO COMPLETO DO SEMESTRE */}
       <View style={styles.blocoSection}>
@@ -64,7 +30,7 @@ export default function CalendarioAcademico({
             semestre.map((mes) => (
               <View key={mes.id} style={styles.calendarioBoxMini}>
                 <View style={styles.mesHeaderAzul}>
-                  <Text style={styles.mesTituloBranco}>{mes.nome}</Text>
+                  <Text style={styles.mesTitulo}>{mes.nome}</Text>
                 </View>
                 <View style={styles.calendarioGrid}>
                   {diasSemana &&

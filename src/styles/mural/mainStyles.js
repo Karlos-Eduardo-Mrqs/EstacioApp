@@ -82,8 +82,8 @@ export const appStyles = StyleSheet.create({
     padding: 8,
     alignItems: "center",
   },
-  mesTituloBranco: {
-    color: CoresInstitucionais.brancoPuro, // 👈 Ajustado para branco para destacar bem no fundo escuro
+  mesTitulo: {
+    color: CoresInstitucionais.azulPrincipal, // 👈 Ajustado para branco para destacar bem no fundo escuro
     fontWeight: "bold",
     fontSize: 12,
   },

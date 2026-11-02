@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import {Image,Modal,ScrollView,Text,TouchableOpacity,View,} from "react-native";
+import {Image,Modal,ScrollView,Text,TouchableOpacity,View,Platform} from "react-native";
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 import { formatarDataApenas } from "../utils/dataUtils";
@@ -128,7 +128,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <CustomIcon name="close" size={18} color="#262626" />
+              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
             </TouchableOpacity>
 
             <ScrollView

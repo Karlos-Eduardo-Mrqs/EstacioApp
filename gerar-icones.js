@@ -14,7 +14,7 @@ const nomesDosIcones = [
   'hand-left-outline', 'school-outline', 'location-outline', 'mail-outline', 
   'document-text-outline', 'megaphone-outline', 'trophy-outline', 'people-outline', 
   'open-outline', 'filter-outline','chatbubbles-outline', 'chatbubbles',
-  'document-lock-outline',
+  'document-lock-outline','image-outline',
   'wallet-outline', 'wallet',
   'card-outline',
   'shield-checkmark-outline',

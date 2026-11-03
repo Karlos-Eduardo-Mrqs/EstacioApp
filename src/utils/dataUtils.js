@@ -14,6 +14,25 @@ export function formatarDataApenas(valor) {
   return `${dois(d.getDate())}/${dois(d.getMonth() + 1)}/${d.getFullYear()}`;
 }
 
+export function formatarEntradaHora(texto) {
+  // Remove tudo o que não for número
+  const apenasNumeros = texto.replace(/\D/g, "").substring(0, 6); // Limita a 6 dígitos (HHMMSS)
+
+  let horaFormatada = "";
+
+  if (apenasNumeros.length > 0) {
+    horaFormatada = apenasNumeros.substring(0, 2);
+  }
+  if (apenasNumeros.length > 2) {
+    horaFormatada += ":" + apenasNumeros.substring(2, 4);
+  }
+  if (apenasNumeros.length > 4) {
+    horaFormatada += ":" + apenasNumeros.substring(4, 6);
+  }
+
+  return horaFormatada;
+}
+
 export function converterParaISO(texto) {
   const digitos = texto.replace(/\D/g, '');
   if (digitos.length !== 14) return null;

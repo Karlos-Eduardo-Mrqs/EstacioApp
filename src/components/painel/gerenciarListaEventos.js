@@ -1,16 +1,11 @@
 import { useState } from "react";
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import {ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
 import { formatarDataApenas } from "../../utils/dataUtils";
 import CustomIcon from "../CustomIcon";
 
 export default function GerenciarListaEventos({
   eventos = [],
+  agora = Date.now(),
   onEditar,
   onExcluir,
   onNovoEvento,
@@ -28,12 +23,9 @@ export default function GerenciarListaEventos({
       );
 
       // Verifica se a data já passou (comparando com a meia-noite de hoje)
-      const jaPassou = !isNaN(dataObj.getTime()) && dataObj < hoje;
-
       return {
         ...evento,
-        dataObj,
-        jaPassou,
+        dataObj
       };
     })
     .filter((evento) => {
@@ -126,88 +118,130 @@ export default function GerenciarListaEventos({
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "center",
-                  padding: 12,
-                  marginBottom: 10,
-                  borderRadius: 8,
+                  padding: 16,
+                  marginBottom: 12,
+                  borderRadius: 12,
                   borderWidth: 1,
-                  // Estilização condicional baseada na data:
-                  borderColor: evento.jaPassou ? "#e5e7eb" : "#93c5fd",
-                  backgroundColor: evento.jaPassou ? "#f9fafb" : "#f0f4ff",
-                  opacity: evento.jaPassou ? 0.65 : 1, // Mais opaco se já passou
+                  borderColor: "#E2E8F0", // Borda mais suave e moderna (Slate 200)
+                  backgroundColor: "#FFFFFF", // Fundo limpo em vez de azul total
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 1,
                 }}
               >
-                <View style={{ flex: 1, marginRight: 10 }}>
+                <View style={{ flex: 1, marginRight: 12 }}>
+                  {/* Linha Superior: Data e Local */}
                   <View
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
-                      gap: 6,
-                      marginBottom: 4,
+                      gap: 8,
+                      marginBottom: 6,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: 11,
-                        fontWeight: "bold",
-                        color: evento.jaPassou ? "#6b7280" : "#1d4ed8",
-                      }}
-                    >
-                      {evento.jaPassou ? "⏳ ENCERRADO" : "🟢 ATIVO"}
+                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
+                      📅 {dataFormatada || "Data a definir"}
                     </Text>
-                    <Text style={{ fontSize: 11, color: "#4b5563" }}>
-                      • 📍 {evento.local || "Local a definir"}
+                    <Text style={{ fontSize: 12, color: "#CBD5E1" }}>•</Text>
+                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
+                      📍 {evento.local || "Local a definir"}
                     </Text>
                   </View>
 
+                  {/* Título do Evento */}
                   <Text
                     style={{
-                      fontSize: 14,
-                      fontWeight: "bold",
-                      color: evento.jaPassou ? "#4b5563" : "#111827",
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: "#0F172A",
+                      marginBottom: 8,
                     }}
                     numberOfLines={1}
                   >
                     {evento.titulo}
                   </Text>
-                  <Text
-                    style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}
-                  >
-                    📅 {dataFormatada || "Data a definir"}
-                  </Text>
+                  
+                  {/* Bloco Inferior: Timer e Horas AAC em linha única ou organizada */}
+                  {(() => {
+                    const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
+                    const temHoras = horas !== undefined && horas !== null && horas !== "" && horas !== 0;
+
+                    const diffMs = evento.dataObj.getTime() - agora;
+                    const jaAconteceu = diffMs < 0;
+
+                    let textoTempo = "";
+                    let corBadgeFundo = jaAconteceu ? "#FEF2F2" : "#EFF6FF";
+                    let corBadgeTexto = jaAconteceu ? "#DC2626" : "#2563EB";
+
+                    if (jaAconteceu) {
+                      textoTempo = "🔴 Encerrado";
+                    } else {
+                      const segundosTotais = Math.floor(diffMs / 1000);
+                      const dias = Math.floor(segundosTotais / (3600 * 24));
+                      const horasFaltam = Math.floor((segundosTotais % (3600 * 24)) / 3600);
+                      const minutosFaltam = Math.floor((segundosTotais % 3600) / 60);
+                      const segundosFaltam = segundosTotais % 60;
+
+                      const h = String(horasFaltam).padStart(2, "0");
+                      const m = String(minutosFaltam).padStart(2, "0");
+                      const s = String(segundosFaltam).padStart(2, "0");
+
+                      if (dias > 0) {
+                        textoTempo = `⏳ ${dias} dias • ${h}:${m}:${s}`;
+                      } else {
+                        textoTempo = `⏳ ${h}:${m}:${s}`;
+                      }
+                    }
+
+                    return (
+                      <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                        {/* Pílula de Tempo / Timer */}
+                        <View style={{
+                          backgroundColor: corBadgeFundo,
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                          borderRadius: 6,
+                        }}>
+                          <Text style={{ fontSize: 11, color: corBadgeTexto, fontWeight: "600" }}>
+                            {textoTempo}
+                          </Text>
+                        </View>
+
+                        {/* Horas AAC */}
+                        <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "500" }}>
+                          🕒 {temHoras ? `${horas} h AAC` : "Horas não definidas"}
+                        </Text>
+                      </View>
+                    );
+                  })()}
                 </View>
 
-                {/* Botões de Ação Administrativa */}
-                <View style={{ flexDirection: "row", gap: 8 }}>
+                {/* Botões de Ação Administrativa Limpos */}
+                <View style={{ flexDirection: "row", gap: 6 }}>
                   {onEditar && (
                     <TouchableOpacity
                       style={{
-                        padding: 6,
-                        backgroundColor: "#e0e7ff",
-                        borderRadius: 6,
+                        padding: 8,
+                        backgroundColor: "#F1F5F9",
+                        borderRadius: 8,
                       }}
                       onPress={() => onEditar(evento)}
                     >
-                      <CustomIcon
-                        name="pencil-outline"
-                        size={16}
-                        color="#1d4ed8"
-                      />
+                      <CustomIcon name="pencil-outline" size={16} color="#334155" />
                     </TouchableOpacity>
                   )}
                   {onExcluir && (
                     <TouchableOpacity
                       style={{
-                        padding: 6,
-                        backgroundColor: "#fee2e2",
-                        borderRadius: 6,
+                        padding: 8,
+                        backgroundColor: "#FEF2F2",
+                        borderRadius: 8,
                       }}
-                      onPress={() => onExcluir(evento)} // 👈 Envia o objeto 'evento' completo em vez de apenas 'evento.id'
+                      onPress={() => onExcluir(evento)}
                     >
-                      <CustomIcon
-                        name="trash-outline"
-                        size={16}
-                        color="#b91c1c"
-                      />
+                      <CustomIcon name="trash-outline" size={16} color="#DC2626" />
                     </TouchableOpacity>
                   )}
                 </View>

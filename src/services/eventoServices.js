@@ -21,15 +21,33 @@ export async function criarEventoNoBanco(novoEvento) {
   return data;
 }
 
-export async function atualizarEventoNoBanco(id, eventoAtualizado) {
+export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaObj = null) {
+  // 1. Atualiza os dados do evento
   const { data, error } = await supabase
     .from('evento')
     .update(eventoAtualizado)
     .eq('id', id)
-    .select()
+    .select('*, curso(nome), imagem(*)')
     .single();
 
   if (error) throw error;
+
+  // 2. Se uma nova imagem foi associada e era diferente da anterior, limpa a antiga do Storage
+  if (imagemAntigaObj && eventoAtualizado.imagem_id && imagemAntigaObj.id !== eventoAtualizado.imagem_id) {
+    try {
+      const caminhoCompleto = imagemAntigaObj.caminho_img;
+      if (caminhoCompleto) {
+        const partesUrl = caminhoCompleto.split('/imagensposts/');
+        const nomeArquivo = partesUrl.length > 1 ? partesUrl[1] : null;
+        if (nomeArquivo) {
+          await supabase.storage.from('imagensposts').remove([nomeArquivo]);
+        }
+      }
+    } catch (e) {
+      console.warn("Aviso ao limpar imagem antiga do storage:", e);
+    }
+  }
+
   return data;
 }
 
@@ -75,14 +93,3 @@ export async function removerEventoDoBanco(eventoOuId) {
   return true;
 }
 
-export async function alterarStatusEventoNoBanco(id, novoStatus) {
-  const { data, error } = await supabase
-    .from('evento')
-    .update({ status: novoStatus })
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-}

@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import { formatarEntradaData } from "../../utils/dataUtils";
+import { formatarEntradaData,formatarEntradaHora   } from "../../utils/dataUtils";
 import FeedbackBox from "../FeedPopup";
 import CustomIcon from "../CustomIcon"; // 👈 Correção do ReferenceError
 
@@ -40,6 +40,8 @@ export default function ModalGerenciarEvento({
   setDescricao,
   imagem,
   setImagem,
+  dataApenas, setDataApenas, horaApenas, setHoraApenas,
+  solicitarRemocaoImagem,
   descricaoImagem,
   setDescricaoImagem,
   feedback,
@@ -82,14 +84,30 @@ export default function ModalGerenciarEvento({
               maxLength={100}
             />
 
-            <Campo
-              label="Data e Hora (DD/MM/AAAA HH:MM:SS) *"
-              value={dataTexto}
-              onChangeText={(t) => setDataTexto(formatarEntradaData(t))}
-              placeholder="15/12/2026 19:00:00"
-              keyboardType="numeric"
-              maxLength={21}
-            />
+            
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={{ flex: 2 }}>
+                <Campo
+                  label="Data *"
+                  value={dataApenas}
+                  onChangeText={(t) => setDataApenas(formatarEntradaData(t))} // Usa a tua função de máscara existente
+                  placeholder="15/12/2026"
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+              </View>
+
+              <View style={{ flex: 1.2 }}>
+                <Campo
+                  label="Hora *"
+                  value={horaApenas}
+                  onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))} // 👈 Aplica a máscara automática
+                  placeholder="19:00:00"
+                  keyboardType="numeric"
+                  maxLength={8}
+                />
+              </View>
+            </View>
 
             <Campo
               label="Palestrante / Responsável"
@@ -139,6 +157,7 @@ export default function ModalGerenciarEvento({
                   }}
                 >
                   <Picker.Item label="Selecione um curso..." value="" />
+                  <Picker.Item label="Todos" value="NULL" />
                   {cursos.map((c) => (
                     <Picker.Item key={c.id} label={c.titulo} value={c.id} />
                   ))}
@@ -163,10 +182,10 @@ export default function ModalGerenciarEvento({
               <View style={styles.previaContainer}>
                 <Image
                   source={{ uri: imagem }}
-                  style={styles.previaImagem}
-                  resizeMode="cover"
+                  style={[styles.previaImagem, { height: 350, backgroundColor: '#f8fafc' }]} 
+                  resizeMode="contain" // 👈 Mantém toda a proporção original da imagem intacta sem cortes
                 />
-
+                
                 <Campo
                   label="Descrição da imagem (Alt text / Legenda)"
                   value={descricaoImagem}
@@ -174,14 +193,8 @@ export default function ModalGerenciarEvento({
                   placeholder="Descreva o conteúdo da imagem"
                   maxLength={200}
                 />
-
-                <TouchableOpacity
-                  style={styles.removerImagem}
-                  onPress={() => {
-                    setImagem(null);
-                    setDescricaoImagem("");
-                  }}
-                >
+                
+                <TouchableOpacity style={styles.removerImagem} onPress={solicitarRemocaoImagem}>
                   <CustomIcon name="trash-outline" size={18} color="#FFFFFF" />
                   <Text style={styles.textoRemoverImagem}>Remover imagem</Text>
                 </TouchableOpacity>

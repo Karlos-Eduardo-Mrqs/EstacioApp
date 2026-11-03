@@ -63,6 +63,7 @@ export const globalIcons = {
   'chatbubbles-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chatbubbles-outline.svg',
   'chatbubbles': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chatbubbles.svg',
   'document-lock-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/document-lock-outline.svg',
+  'image-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/image-outline.svg',
   'wallet-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/wallet-outline.svg',
   'wallet': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/wallet.svg',
   'card-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/card-outline.svg',

@@ -1,15 +1,9 @@
-import {
-    ActivityIndicator,
-    ScrollView,
-    StatusBar,
-    Text,
-    View,
-} from "react-native";
+import {ActivityIndicator,ScrollView,StatusBar,Text,View,} from "react-native";
 import { useGerenciarEventos } from "../../hooks/useGerenciarEventos";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
 import ConfirmPopup from "../ConfirmPopup";
 import ToastPopup from "../Popup";
-import GerenciarListaEventos from "./gerenciarListaEventos"; // 👈 Importa o componente de listagem isolado e correto
+import GerenciarListaEventos from "./gerenciarListaEventos"; 
 import ModalGerenciarEvento from "./modalGerenciarEvento";
 import CustomIcon from "../CustomIcon";
 
@@ -17,10 +11,7 @@ export default function PainelEventosTela() {
   const {
     eventos,
     eventosFiltrados,
-    quantidadeAtivos,
     cursos,
-    busca,
-    setBusca,
     modalEvento,
     setModalEvento,
     eventoEditando,
@@ -42,6 +33,7 @@ export default function PainelEventosTela() {
     setImagem,
     descricaoImagem,
     setDescricaoImagem,
+    dataApenas, setDataApenas, horaApenas, setHoraApenas,
     feedback,
     toast,
     setToast,
@@ -52,8 +44,14 @@ export default function PainelEventosTela() {
     selecionarImagem,
     salvarEvento,
     excluirEvento,
-    carregando,
+    carregando, solicitarRemocaoImagem, agora
   } = useGerenciarEventos();
+
+  // 📊 Calcula dinamicamente quantos eventos já passaram com base no relógio 'agora'
+  const quantidadeEncerrados = eventos.filter((evento) => {
+    const dataObj = new Date(evento.inicio || evento.data || evento.dataEvento);
+    return dataObj.getTime() < agora;
+  }).length;
 
   return (
     <View style={styles.safeArea}>
@@ -68,17 +66,19 @@ export default function PainelEventosTela() {
           Gerencie os eventos e o calendário acadêmico.
         </Text>
 
-        <View style={styles.resumoContainer}>
-          <View style={styles.resumoCard}>
-            <CustomIcon name="calendar-outline" size={23} color="#173EA5" />
-            <Text style={styles.resumoNumero}>{quantidadeAtivos}</Text>
-            <Text style={styles.resumoTexto}>Eventos ativos</Text>
+        {/* 📈 Cartões de Resumo Atualizados (3 colunas) */}
+        <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+
+          <View style={[styles.resumoCard, { flex: 1 }]}>
+            <CustomIcon name="time-outline" size={21} color="#DC2626" />
+            <Text style={[styles.resumoNumero, { color: "#DC2626" }]}>{quantidadeEncerrados}</Text>
+            <Text style={styles.resumoTexto}>Encerrados</Text>
           </View>
 
-          <View style={styles.resumoCard}>
-            <CustomIcon name="library-outline" size={23} color="#173EA5" />
+          <View style={[styles.resumoCard, { flex: 1 }]}>
+            <CustomIcon name="library-outline" size={21} color="#173EA5" />
             <Text style={styles.resumoNumero}>{eventos.length}</Text>
-            <Text style={styles.resumoTexto}>Total de eventos</Text>
+            <Text style={styles.resumoTexto}>Total</Text>
           </View>
         </View>
 
@@ -89,9 +89,9 @@ export default function PainelEventosTela() {
             style={{ marginVertical: 20 }}
           />
         ) : (
-          /* ── COMPONENTE ISOLADO DE GERENCIAMENTO E LISTAGEM ── */
           <GerenciarListaEventos
             eventos={eventosFiltrados}
+            agora={agora}
             onEditar={(evento) => abrirEdicao(evento)}
             onExcluir={(id) => excluirEvento({ id })}
             onNovoEvento={abrirNovoEvento}
@@ -122,13 +122,17 @@ export default function PainelEventosTela() {
         imagem={imagem}
         setImagem={setImagem}
         descricaoImagem={descricaoImagem}
+        dataApenas={dataApenas}
+        setDataApenas={setDataApenas}     
+        horaApenas={horaApenas}
+        setHoraApenas={setHoraApenas}
         setDescricaoImagem={setDescricaoImagem}
         feedback={feedback}
         selecionarImagem={selecionarImagem}
+        solicitarRemocaoImagem={solicitarRemocaoImagem}
         salvarEvento={salvarEvento}
       />
 
-      {/* ── POPUPS DE FEEDBACK E CONFIRMAÇÃO ── */}
       <ToastPopup
         visible={toast.visible}
         titulo={toast.titulo}

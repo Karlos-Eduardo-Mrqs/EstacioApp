@@ -155,10 +155,14 @@ export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, even
 export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventosInscritosIds = []) {
   const agoraIso = new Date().toISOString();
 
-  // 1. Busca todos os avisos válidos (não expirados) no banco
+  // 1. Busca os avisos fazendo o JOIN com as tabelas curso e evento
   const { data, error } = await supabase
     .from('aviso')
-    .select('*')
+    .select(`
+      *,
+      curso:curso_id ( id, nome ),
+      evento:evento_id ( id, titulo )
+    `)
     .gt('expira_em', agoraIso)
     .order('created_at', { ascending: false });
 
@@ -200,7 +204,6 @@ export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventos
   });
 }
 
-// 2. Certifique-se de que esta função administrativa também está exportada com 'export'
 export async function buscarTodosAvisosAtivosDoBanco() {
   const agoraIso = new Date().toISOString();
 

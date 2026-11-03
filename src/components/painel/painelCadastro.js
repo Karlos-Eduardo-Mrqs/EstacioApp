@@ -13,6 +13,8 @@ import {
 
 import CustomIcon from "../../components/CustomIcon";
 
+import { Picker } from '@react-native-picker/picker';
+
 export default function PainelCadastro({
   visible,
   onClose,
@@ -26,8 +28,9 @@ export default function PainelCadastro({
   setPerfil,
   matricula,
   setMatricula,
-  curso,
-  setCurso,
+  cursos = [],
+  cursoId,
+  setCursoId,
   onCriar,
   styles,
 }) {
@@ -150,17 +153,86 @@ export default function PainelCadastro({
             {/* CURSO: SOMENTE PARA COORDENADORES */}
             {perfil === 'Coordenador' && (
               <>
-                <Text style={styles.label}>Curso</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ex.: Ciência da Computação"
-                  placeholderTextColor="#9ca3af"
-                  value={curso}
-                  onChangeText={setCurso}
-                  autoCapitalize="words"
-                />
+                <Text style={styles.label}>Curso *</Text>
+
+                <View
+                  style={[
+                    styles.input,
+                    {
+                      padding: 0,
+                      overflow: 'hidden',
+                      justifyContent: 'center',
+                    },
+                  ]}
+                >
+                  {Platform.OS === 'web' ? (
+                    <select
+                      value={cursoId == null ? '' : String(cursoId)}
+                      onChange={(event) => {
+                        const valor = event.target.value;
+
+                        setCursoId(valor === '' ? null : Number(valor));
+                      }}
+                      style={{
+                        width: '100%',
+                        height: 46,
+                        padding: '0 12px',
+                        border: 'none',
+                        outline: 'none',
+                        backgroundColor: 'transparent',
+                        color: '#334155',
+                        fontSize: 14,
+                        cursor: 'pointer',
+                        boxSizing: 'border-box',
+                      }}
+                    >
+                      <option value="">Selecione um curso</option>
+
+                      {cursos.map((item) => (
+                        <option
+                          key={item.id}
+                          value={String(item.id)}
+                        >
+                          {item.titulo}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <Picker
+                      selectedValue={cursoId == null ? '' : String(cursoId)}
+                      onValueChange={(valor) => {
+                        if (valor === '') {
+                          setCursoId(null);
+                          return;
+                        }
+
+                        const selecionado = cursos.find(
+                          (item) => String(item.id) === String(valor)
+                        );
+
+                        setCursoId(selecionado ? selecionado.id : null);
+                      }}
+                      style={{ width: '100%' }}
+                    >
+                      <Picker.Item
+                        label="Selecione um curso"
+                        value=""
+                      />
+
+                      {cursos.map((item) => (
+                        <Picker.Item
+                          key={item.id}
+                          label={item.titulo}
+                          value={String(item.id)}
+                        />
+                      ))}
+                    </Picker>
+                  )}
+                </View>
               </>
             )}
+
+
 
             <Text style={styles.label}>Senha temporária *</Text>
             <TextInput
@@ -171,6 +243,7 @@ export default function PainelCadastro({
               onChangeText={setSenha}
               secureTextEntry
               autoCapitalize="none"
+              autoComplete="off"
             />
 
             <TouchableOpacity

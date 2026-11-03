@@ -32,8 +32,9 @@ export default function GerenciarUsuarios() {
     setPerfil,
     matricula,
     setMatricula,
-    curso,
-    setCurso,
+    cursos = [],
+    cursoId,
+    setCursoId,
     fecharCadastro,
     criarUsuario,
     alternarStatus,
@@ -143,6 +144,9 @@ export default function GerenciarUsuarios() {
                   onChangeText={setPesquisa}
                   autoCapitalize="none"
                   autoCorrect={false}
+                  autoComplete="off"
+                  textContentType="none"
+                  importantForAutofill="no"
                 />
                 {pesquisa.length > 0 && (
                   <TouchableOpacity
@@ -156,7 +160,10 @@ export default function GerenciarUsuarios() {
 
               <TouchableOpacity
                 style={styles.botaoAdicionar}
-                onPress={() => setModalCadastro(true)}
+                onPress={() => {
+                  setPesquisa('');
+                  setModalCadastro(true);
+                }}
                 activeOpacity={0.8}
               >
                 <Text style={styles.iconeAdicionar}>+</Text>
@@ -200,8 +207,9 @@ export default function GerenciarUsuarios() {
         setSenha={setSenha}
         perfil={perfil}
         setPerfil={setPerfil}
-        curso={curso}
-        setCurso={setCurso}
+        cursos={cursos}
+        cursoId={cursoId}
+        setCursoId={setCursoId}
         onCriar={criarUsuario}
         styles={styles}
       />

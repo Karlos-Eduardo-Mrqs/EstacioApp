@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioDoBanco } from '../services/apiServices';
+import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioDoBanco, buscarCursosDoBanco } from '../services/apiServices';
 
 export function useGerenciarUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -20,11 +20,13 @@ export function useGerenciarUsuarios() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [matricula, setMatricula] = useState('');
-  const [curso, setCurso] = useState('');
+  const [cursos, setCursos] = useState([]);
+  const [cursoId, setCursoId] = useState(null);
   const [perfil, setPerfil] = useState('Coordenador');
 
   useEffect(() => {
     carregarUsuarios();
+    carregarCursos();
   }, []);
 
   const carregarUsuarios = async () => {
@@ -55,6 +57,8 @@ export function useGerenciarUsuarios() {
     setNome('');
     setEmail('');
     setSenha('');
+    setMatricula('');
+    setCursoId(null);
     setPerfil('Coordenador');
   };
 
@@ -79,6 +83,14 @@ export function useGerenciarUsuarios() {
       return;
     }
 
+    if (perfil === 'Coordenador' && cursoId == null) {
+      setFeedback({
+        tipo: 'erro',
+        mensagem: 'Selecione um curso para o coordenador.',
+      });
+      return;
+    }
+
     try {
       const novoRegistro = {
         nome: nomeLimpo,
@@ -86,6 +98,8 @@ export function useGerenciarUsuarios() {
         senha: senha.trim(),
         perfil,
         matricula: `MAT_${Math.floor(Math.random() * 90000 + 10000)}`,
+        curso_id:
+        perfil === 'Coordenador' ? cursoId : null,
       };
 
       const criado = await criarUsuarioNoBanco(novoRegistro);
@@ -127,6 +141,20 @@ export function useGerenciarUsuarios() {
     });
   };
 
+  const carregarCursos = async () => {
+    try {
+      const dados = await buscarCursosDoBanco();
+      setCursos(dados);
+    } catch (error) {
+      console.error('Erro ao carregar cursos:', error);
+
+      setFeedback({
+        tipo: 'erro',
+        mensagem: 'Não foi possível carregar os cursos do banco.',
+      });
+    }
+  };
+
   return {
     usuarios,
     usuariosFiltrados,
@@ -147,8 +175,10 @@ export function useGerenciarUsuarios() {
     setPerfil,
     matricula,
     setMatricula,
-    curso,
-    setCurso,
+    cursos,
+    cursoId,
+    setCursoId,
+
 
     fecharCadastro,
     criarUsuario,

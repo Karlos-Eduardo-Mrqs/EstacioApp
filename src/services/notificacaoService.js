@@ -204,17 +204,19 @@ export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventos
 export async function buscarTodosAvisosAtivosDoBanco() {
   const agoraIso = new Date().toISOString();
 
-  const { data: avisos, error } = await supabase
+  // 1. Busca os avisos fazendo o JOIN com as tabelas curso e evento
+  const { data, error } = await supabase
     .from('aviso')
-    .select('*')
+    .select(`
+      *,
+      curso:curso_id ( id, nome),
+      evento:evento_id ( id, titulo)
+    `)
     .gt('expira_em', agoraIso)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  if (!avisos || avisos.length === 0) return [];
-
-  const { data: cursos } = await supabase.from('curso').select('*');
-  const { data: eventos } = await supabase.from('evento').select('*');
+  const avisos = data || [];
 
   return avisos.map(aviso => {
     let nomeCurso = null;

@@ -45,13 +45,13 @@ export default function AvisosGerencia({ avisosAtivos = [], onReexibirAviso }) {
     if (item.curso_id) {
       // Procura o nome do curso pelo ID na lista carregada do banco
       const cursoEncontrado = cursosDisponiveis.find(c => Number(c.id) === Number(item.curso_id));
-      const nomeCurso = cursoEncontrado ? (cursoEncontrado.titulo || cursoEncontrado.nome) : (item.nomeDestinatarioCurso || `Curso #${item.curso_id}`);
+      const nomeCurso = cursoEncontrado ? (cursoEncontrado.titulo || cursoEncontrado.nome) : (item.nomeDestinatarioCurso);
       
       texto = `📚 Curso: ${nomeCurso}`;
       corFundo = "#DBEAFE";
       corTexto = "#1D4ED8";
     } else if (item.evento_id) {
-      const nomeEvento = item.nomeDestinatarioEvento || nomesEventosLocais[item.evento_id] || `Evento #${item.evento_id}`;
+      const nomeEvento = item.nomeDestinatarioEvento || nomesEventosLocais[item.evento_id];
       texto = `📅 Evento: ${nomeEvento}`;
       corFundo = "#F3E8FF";
       corTexto = "#7E22CE";

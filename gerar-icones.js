@@ -25,7 +25,7 @@ const nomesDosIcones = [
   'print-outline',
   'qr-code-outline',
   'construct-outline',
-  'bulb-outline',
+  'bulb-outline','image-outline',
   'analytics-outline',
   'bookmarks-outline',
   'log-out-outline','create-outline', 'create',

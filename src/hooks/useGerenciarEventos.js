@@ -25,6 +25,8 @@ export function useGerenciarEventos() {
   const [descricaoImagem, setDescricaoImagem] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [local, setLocal] = useState('');
+  const [dataApenas, setDataApenas] = useState('');
+  const [horaApenas, setHoraApenas] = useState('');
 
   // ── ESTADOS PARA OS POPUPS ──
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
@@ -70,7 +72,8 @@ export function useGerenciarEventos() {
   const abrirNovoEvento = () => {
     setEventoEditando(null);
     setTitulo('');
-    setDataTexto('');
+    setDataApenas('');
+    setHoraApenas('');
     setPalestrante('');
     setLocal('');
     setHorasAAC('');
@@ -86,7 +89,36 @@ export function useGerenciarEventos() {
     setTitulo(evento.titulo || '');
     
     const dataBr = evento.inicio || evento.data || evento.dataEvento;
-    setDataTexto(dataBr ? formatarDataHora(dataBr) : '');
+    if (dataBr) {
+      try {
+        const dataPura = dataBr.substring(0, 10);
+        const [ano, mes, dia] = dataPura.split('-');
+
+        if (ano && mes && dia) {
+          setDataApenas(`${dia}/${mes}/${ano}`);
+        } else {
+          setDataApenas('');
+        }
+
+        const partesEspaco = dataBr.split(' ');
+        const partesT = dataBr.split('T');
+        const stringHora = partesEspaco.length > 1 ? partesEspaco[1] : (partesT.length > 1 ? partesT[1] : '');
+
+        if (stringHora) {
+          const horaLimpa = stringHora.split('.')[0].replace('Z', '').split('+')[0];
+          setHoraApenas(horaLimpa);
+        } else {
+          setHoraApenas('00:00:00');
+        }
+      } catch (e) {
+        console.log("Erro ao processar data do evento:", e);
+        setDataApenas('');
+        setHoraApenas('00:00:00');
+      }
+    } else {
+      setDataApenas('');
+      setHoraApenas('00:00:00');
+    }
 
     setPalestrante(evento.palestrante || '');
     setLocal(evento.local || '');
@@ -94,7 +126,6 @@ export function useGerenciarEventos() {
     setCursoId(evento.curso_id || evento.cursoId || '');
     setDescricao(evento.descricao || '');
     
-    // Puxa a imagem atual do evento para exibição correta na edição
     const urlImagem = evento.imagem?.caminho_img || evento.imagem || null;
     setImagem(urlImagem);
     setDescricaoImagem(evento.imagem?.descricao || evento.descricaoImagem || '');
@@ -107,25 +138,21 @@ export function useGerenciarEventos() {
       const resultado = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
-        aspect: [16, 9], // Mantém o formato padrão de banner 16:9
-        quality: 1, // Pega o arquivo original completo do dispositivo
+        quality: 1, 
       });
 
       if (!resultado.canceled && resultado.assets?.length) {
-        const uriOriginal = resultado.assets[0].uri;
+        const asset = resultado.assets[0];
+        const uriOriginal = asset.uri;
+        const ehVertical = asset.height > asset.width;
+        const acaoRedimensionar = ehVertical ? { resize: { height: 1280 } } : { resize: { width: 1280 } };
 
-        // 📉 COMPRESSÃO DE MB PARA KB:
-        // Reduz a largura para 1280px e comprime para 75% de qualidade JPEG
         const imagemOtimizada = await ImageManipulator.manipulateAsync(
           uriOriginal,
-          [{ resize: { width: 1280 } }], // Redimensiona o excesso de resolução
-          { 
-            compress: 0.75, // Reduz o peso de MB para KB mantendo alta fidelidade visual
-            format: ImageManipulator.SaveFormat.JPEG 
-          }
+          [acaoRedimensionar], 
+          { compress: 0.75, format: ImageManipulator.SaveFormat.JPEG }
         );
 
-        // A 'imagemOtimizada.uri' agora está leve (geralmente abaixo de 300KB) e pronta para upload
         setImagem(imagemOtimizada.uri);
       }
     } catch (error) {
@@ -135,44 +162,48 @@ export function useGerenciarEventos() {
   }
 
   async function salvarEvento() {
-    if (!titulo.trim() || !dataTexto.trim()) {
-      setFeedback({ tipo: 'erro', mensagem: 'Preencha o título e a data do evento.' });
+    if (!titulo.trim() || !dataApenas.trim() || !local.trim() || !cursoId) {
+      setFeedback({ 
+        tipo: 'erro', 
+        mensagem: 'Por favor, preencha todos os campos obrigatórios (Título, Data, Local e Curso).' 
+      });
       return;
     }
 
-    const dataIso = converterParaISO(dataTexto) || dataTexto;
+    const horaFinal = horaApenas && horaApenas.length >= 5 ? horaApenas : '00:00:00';
+    const dataHoraCompleta = `${dataApenas} ${horaFinal}`;
+    const dataIso = converterParaISO(dataHoraCompleta);
+
+    if (!dataIso) {
+      setFeedback({ tipo: 'erro', mensagem: 'Formato de data ou hora inválido.' });
+      return;
+    }
 
     try {
       let imagemId = eventoEditando?.imagem_id || null;
 
       if (!imagem) {
-        imagemId = null;
+        imagemId = 21; // ID padrão da Estácio
       } else {
-        // Verifica se a imagem é um link temporário local que precisa de upload
         const ehLocalTemp = imagem.startsWith('file://') || imagem.startsWith('blob:') || imagem.startsWith('content://');
 
         if (ehLocalTemp) {
-          // 🚀 1. Faz o upload real para o Supabase Storage e obtém a URL pública permanente
-          const urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem);
-
+          const urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem, titulo);
+          
           const novaImagemPayload = {
             titulo: `Capa: ${titulo.trim()}`,
             descricao: descricaoImagem.trim() || 'Divulgação do evento',
-            caminho_img: urlDefinitiva, // 👈 Guarda a URL oficial da nuvem
+            caminho_img: urlDefinitiva,
           };
 
-          if (imagemId) {
-            try {
-              await atualizarImagemNoBanco(imagemId, novaImagemPayload);
-            } catch {
-              const imagemCriada = await criarImagemNoBanco(novaImagemPayload);
-              imagemId = imagemCriada.id;
-            }
+          if (eventoEditando && eventoEditando.imagem_id && eventoEditando.imagem_id !== 21) {
+            imagemId = eventoEditando.imagem_id;
+            await atualizarImagemNoBanco(imagemId, novaImagemPayload);
           } else {
             const imagemCriada = await criarImagemNoBanco(novaImagemPayload);
             imagemId = imagemCriada.id;
           }
-        } else if (imagemId && descricaoImagem) {
+        } else if (imagemId && imagemId !== 21 && descricaoImagem) {
           try {
             await atualizarImagemNoBanco(imagemId, { descricao: descricaoImagem.trim() });
           } catch (e) {
@@ -181,15 +212,16 @@ export function useGerenciarEventos() {
         }
       }
 
+      const cursoTratado = cursoId && cursoId !== "NULL" ? Number(cursoId) : null;
+
       const payloadEvento = {
         titulo: titulo.trim(),
         descricao: descricao.trim(),
         data: dataIso,
         palestrante: palestrante.trim() || null,
         local: local.trim() || null,
-        curso_id: cursoId ? Number(cursoId) : null,
+        curso_id: cursoTratado,
         horasAAC: horasAAC ? Number(horasAAC) : 0,
-        status: eventoEditando ? eventoEditando.status : true,
         imagem_id: imagemId,
       };
 
@@ -230,7 +262,6 @@ export function useGerenciarEventos() {
   }
 
   function excluirEvento(evento) {
-    // 🛡️ Proteção extra caso venha um ID isolado ou evento vazio
     const eventoObj = typeof evento === 'object' ? evento : eventos.find(e => e.id === evento);
     const tituloEvento = eventoObj?.titulo || 'este evento';
     const eventoId = eventoObj?.id || evento;
@@ -244,55 +275,46 @@ export function useGerenciarEventos() {
         setConfirmacao(prev => ({ ...prev, visible: false }));
         try {
           await removerEventoDoBanco(eventoObj || eventoId);
-
           setEventos(prev => prev.filter(item => item.id !== eventoId));
-          
-          setToast({ 
-            visible: true, 
-            titulo: 'Excluído', 
-            mensagem: 'O evento e sua imagem foram removidos com sucesso.' 
-          });
+          setToast({ visible: true, titulo: 'Excluído', mensagem: 'O evento e sua imagem foram removidos com sucesso.' });
         } catch (error) {
           console.error('Erro ao excluir evento:', error);
-          setToast({ 
-            visible: true, 
-            titulo: 'Erro', 
-            mensagem: 'Não foi possível excluir o evento do banco de dados.' 
-          });
+          setToast({ visible: true, titulo: 'Erro', mensagem: 'Não foi possível excluir o evento do banco de dados.' });
         }
       }
     });
   }
 
+  const solicitarRemocaoImagem = () => {
+    if (eventoEditando) {
+      setConfirmacao({
+        visible: true,
+        titulo: 'Remover Imagem',
+        mensagem: 'Deseja remover a imagem atual? Se não escolher outra antes de salvar, a imagem padrão será aplicada.',
+        tipo: 'danger',
+        onConfirm: () => {
+          setConfirmacao(prev => ({ ...prev, visible: false }));
+          setImagem(null);
+          setDescricaoImagem('');
+          setEventoEditando(prev => ({ ...prev, imagem_id: null, imagem: null }));
+          setToast({ visible: true, titulo: 'Imagem Removida', mensagem: 'Pode selecionar uma nova imagem ou salvar para usar a padrão.' });
+        }
+      });
+    } else {
+      setImagem(null);
+      setDescricaoImagem('');
+    }
+  };
+
   return {
-    eventos,
-    eventosFiltrados,
-    quantidadeAtivos,
-    cursos,
-    busca,
-    setBusca,
-    agora,
-    modalEvento,
-    setModalEvento,
-    eventoEditando,
-    titulo, setTitulo,
-    descricao, setDescricao,
-    dataTexto, setDataTexto,
-    palestrante, setPalestrante,
-    cursoId, setCursoId,
-    local, setLocal,
-    horasAAC, setHorasAAC,
-    imagem, setImagem,
-    descricaoImagem, setDescricaoImagem,
-    feedback,
-    toast, setToast,
-    confirmacao, setConfirmacao,
-    abrirNovoEvento,
-    abrirEdicao,
-    selecionarImagem,
-    salvarEvento,
-    alternarStatus,
-    excluirEvento,
-    carregando
+    eventos, eventosFiltrados, quantidadeAtivos, cursos, busca, setBusca, agora,
+    modalEvento, setModalEvento, eventoEditando,
+    titulo, setTitulo, descricao, setDescricao, dataTexto, setDataTexto,
+    palestrante, setPalestrante, cursoId, setCursoId, local, setLocal,
+    horasAAC, setHorasAAC, imagem, setImagem, descricaoImagem, setDescricaoImagem,
+    dataApenas, setDataApenas, horaApenas, setHoraApenas,
+    feedback, toast, setToast, confirmacao, setConfirmacao,
+    abrirNovoEvento, abrirEdicao, selecionarImagem, salvarEvento,
+    alternarStatus, excluirEvento, carregando, solicitarRemocaoImagem
   };
 }

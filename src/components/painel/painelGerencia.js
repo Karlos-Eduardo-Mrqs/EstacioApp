@@ -30,11 +30,17 @@ export default function GerenciarUsuarios() {
     setSenha,
     perfil,
     setPerfil,
+    matricula,
+    setMatricula,
+    cursos = [],
+    cursoId,
+    setCursoId,
     fecharCadastro,
     criarUsuario,
     alternarStatus,
     solicitarRemocao,
   } = useGerenciarUsuarios();
+
 
   const renderUsuario = ({ item }) => (
     <View style={styles.usuarioCard}>
@@ -138,6 +144,9 @@ export default function GerenciarUsuarios() {
                   onChangeText={setPesquisa}
                   autoCapitalize="none"
                   autoCorrect={false}
+                  autoComplete="off"
+                  textContentType="none"
+                  importantForAutofill="no"
                 />
                 {pesquisa.length > 0 && (
                   <TouchableOpacity
@@ -151,7 +160,10 @@ export default function GerenciarUsuarios() {
 
               <TouchableOpacity
                 style={styles.botaoAdicionar}
-                onPress={() => setModalCadastro(true)}
+                onPress={() => {
+                  setPesquisa('');
+                  setModalCadastro(true);
+                }}
                 activeOpacity={0.8}
               >
                 <Text style={styles.iconeAdicionar}>+</Text>
@@ -187,12 +199,17 @@ export default function GerenciarUsuarios() {
         onClose={fecharCadastro}
         nome={nome}
         setNome={setNome}
+        matricula={matricula}
+        setMatricula={setMatricula}
         email={email}
         setEmail={setEmail}
         senha={senha}
         setSenha={setSenha}
         perfil={perfil}
         setPerfil={setPerfil}
+        cursos={cursos}
+        cursoId={cursoId}
+        setCursoId={setCursoId}
         onCriar={criarUsuario}
         styles={styles}
       />

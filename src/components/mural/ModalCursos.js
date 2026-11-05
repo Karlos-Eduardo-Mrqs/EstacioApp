@@ -20,7 +20,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               <Text style={modalStyles.subtituloModalHeader}>
                 Graduação / Curso
               </Text>
-              <Text style={modalStyles.tituloModal}>{curso.titulo}</Text>
+              <Text style={modalStyles.tituloModal}>{curso.nome}</Text>
             </View>
             <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar}>
               <CustomIcon 
@@ -97,12 +97,12 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                           titulo: ev.titulo,
                           tipo: ev.tipo || "Evento",
                           dia: ev.data,
-                          local: ev.local || curso.titulo,
-                          turma: curso.titulo,
-                          autor: `Coordenação de ${curso.titulo}`,
+                          local: ev.local || curso.nome,
+                          turma: curso.nome,
+                          autor: `Coordenação de ${curso.nome}`,
                           descricao:
                             ev.descricao ||
-                            `Evento oficial vinculado ao curso de ${curso.titulo}.`,
+                            `Evento oficial vinculado ao curso de ${curso.nome}.`,
                           horas_acc: 10,
                         });
                       }}
@@ -152,7 +152,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                           {coord.nome}
                         </Text>
                         <Text style={modalStyles.descricaoCoordenacao}>
-                          Coordenação de {curso.titulo}
+                          Coordenação de {curso.nome}
                         </Text>
                       </View>
                     </View>
@@ -195,7 +195,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={modalStyles.nomeCoordenacao}>
-                        Coordenação de {curso.titulo}
+                        Coordenação de {curso.nome}
                       </Text>
                       <Text style={modalStyles.descricaoCoordenacao}>
                         Quer saber mais sobre o curso? Entre em contato com a
@@ -209,7 +209,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     onPress={() =>
                       Linking.openURL(
                         "mailto:coordenacao@estacio.br?subject=Dúvida sobre o curso " +
-                          curso.titulo,
+                          curso.nome,
                       )
                     }
                   >

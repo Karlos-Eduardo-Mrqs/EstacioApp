@@ -72,7 +72,7 @@ export default function ListaCarrosseis({
       <CursosCarrossel
         cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
-        cursosFavoritosIds={cursosFavoritosIds} // 👈 Garante o repasse da lista de favoritos
+        cursosFavoritosIds={cursosFavoritosIds}
         onSelectCurso={onSelectCurso}
         carregandoCursos={carregandoCursos}
         erroCursos={erroCursos}

@@ -3,18 +3,19 @@ import { supabase } from '../../lib/supabase';
 export async function buscarCursosDoBanco() {
   const { data, error } = await supabase
     .from('curso')
-    .select('id, nome, link, icone') // 👈 Inclui a coluna icone
+    .select('id, nome, link, icone, tipo, modalidade, descricao') // Garanta que a ordem e colunas batem com o banco
     .order('nome', { ascending: true });
 
   if (error) throw error;
 
   return (data ?? []).map((curso) => ({
     id: curso.id,
-    titulo: curso.nome,
-    descricao: 'Conheça este curso da Estácio.',
-    modalidade: 'Graduação',
+    nome: curso.nome,
+    descricao: curso.descricao || '', // Usa o valor do banco ou vazio se não houver
     link: curso.link && curso.link !== 'EMPTY' ? curso.link : null,
-    icone: curso.icone || 'book-outline', // 👈 Retorna o ícone do banco ou um padrão
+    icone: curso.icone || 'book-outline',
+    tipo: curso.tipo || 'Presencial',
+    modalidade: curso.modalidade || 'Graduação',
   }));
 }
 
@@ -32,6 +33,38 @@ export async function buscarCursoPorId(cursoId) {
     return null;
   }
 
-  // Retorna o título, nome ou fallback caso venha vazio
   return data ? (data.titulo || data.nome || `Curso #${cursoId}`) : null;
+}
+
+export async function criarCursoNoBanco(novoCurso) {
+  const { data, error } = await supabase
+    .from('curso')
+    .insert([novoCurso])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function atualizarCursoNoBanco(id, cursoAtualizado) {
+  const { data, error } = await supabase
+    .from('curso')
+    .update(cursoAtualizado)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function removerCursoDoBanco(id) {
+  const { error } = await supabase
+    .from('curso')
+    .delete()
+    .eq('id', id);
+
+  if (error) throw error;
+  return true;
 }

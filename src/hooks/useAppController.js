@@ -26,7 +26,7 @@ export function useAppController(scriptApp) {
     Dimensions.get("window").width,
   );
   const [avisosAtivos, setAvisosAtivos] = useState([]);
-
+  
   // Listener para redimensionamento de tela (Responsividade Web/Mobile)
   useEffect(() => {
     const subscription = Dimensions.addEventListener("change", ({ window }) => {

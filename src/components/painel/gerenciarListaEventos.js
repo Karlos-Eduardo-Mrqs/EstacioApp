@@ -12,10 +12,6 @@ export default function GerenciarListaEventos({
 }) {
   const [pesquisa, setPesquisa] = useState("");
 
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-
-  // 1. Processa, filtra por pesquisa, verifica se já passou e ordena (do mais atual para o mais antigo)
   const eventosProcessados = eventos
     .map((evento) => {
       const dataObj = new Date(
@@ -35,7 +31,6 @@ export default function GerenciarListaEventos({
       return tituloMatch || localMatch;
     })
     .sort((a, b) => {
-      // Ordenação invertida: do mais atual (futuro/próximo) para o mais antigo
       if (isNaN(a.dataObj.getTime())) return 1;
       if (isNaN(b.dataObj.getTime())) return -1;
       return b.dataObj - a.dataObj;
@@ -43,73 +38,38 @@ export default function GerenciarListaEventos({
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "#fff" }}>
-      {/* Cabeçalho da Seção com o Botão de Adicionar Circular */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <View>
-          <Text style={{ fontSize: 18, fontWeight: "bold", color: "#032551" }}>
-            Eventos cadastrados
-          </Text>
-          <Text style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
-            Gerencie datas, locais e status.
-          </Text>
+          <Text style={{ fontSize: 18, fontWeight: "bold", color: "#032551" }}>Eventos cadastrados</Text>
+          <Text style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Gerencie datas, locais e status.</Text>
         </View>
 
         {onNovoEvento && (
           <TouchableOpacity
             style={{
-              backgroundColor: "#173EA5",
-              width: 42,
-              height: 42,
-              borderRadius: 8, // Cantos levemente arredondados em vez de circular
-              justifyContent: "center",
-              alignItems: "center",
-              borderLeftWidth: 4, // 👈 Cria a faixa amarela na lateral esquerda
-              borderLeftColor: "#F2C500", // Cor amarela padrão do tema
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 3,
-              elevation: 2,
+              backgroundColor: "#173EA5", width: 42, height: 42, borderRadius: 8,
+              justifyContent: "center", alignItems: "center", borderLeftWidth: 4, borderLeftColor: "#F2C500",
+              shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3, elevation: 2,
             }}
-            onPress={onNovoEvento}
-            activeOpacity={0.8}
+            onPress={onNovoEvento} activeOpacity={0.8}
           >
             <CustomIcon name="add" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Barra de Pesquisa */}
       <TextInput
-        style={{
-          borderWidth: 1,
-          borderColor: "#d1d5db",
-          borderRadius: 8,
-          padding: 10,
-          marginBottom: 16,
-          fontSize: 14,
-          backgroundColor: "#FAFAFA",
-        }}
+        style={{ borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, padding: 10, marginBottom: 16, fontSize: 14, backgroundColor: "#FAFAFA" }}
         placeholder="Pesquisar evento por título ou local..."
         placeholderTextColor="#94A3B8"
         value={pesquisa}
         onChangeText={setPesquisa}
       />
 
-      {/* Lista de Eventos Ordenada (Mais Atual para Mais Antigo) e Estilizada por Status */}
       <ScrollView showsVerticalScrollIndicator={false}>
         {eventosProcessados.length > 0 ? (
           eventosProcessados.map((evento) => {
-            const dataFormatada = formatarDataApenas(
-              evento.inicio || evento.data || evento.dataEvento,
-            );
+            const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento);
 
             return (
               <View
@@ -249,11 +209,7 @@ export default function GerenciarListaEventos({
             );
           })
         ) : (
-          <Text
-            style={{ textAlign: "center", color: "#6b7280", marginTop: 32 }}
-          >
-            Nenhum evento encontrado.
-          </Text>
+          <Text style={{ textAlign: "center", color: "#6b7280", marginTop: 32 }}>Nenhum evento encontrado.</Text>
         )}
       </ScrollView>
     </View>

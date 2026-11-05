@@ -77,6 +77,7 @@ export const globalIcons = {
   'qr-code-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/qr-code-outline.svg',
   'construct-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/construct-outline.svg',
   'bulb-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/bulb-outline.svg',
+  'image-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/image-outline.svg',
   'analytics-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/analytics-outline.svg',
   'bookmarks-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/bookmarks-outline.svg',
   'log-out-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/log-out-outline.svg',

@@ -1,20 +1,15 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
 import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
 import { formatarEntradaData,formatarEntradaHora   } from "../../utils/dataUtils";
 import FeedbackBox from "../FeedPopup";
-import CustomIcon from "../CustomIcon"; // 👈 Correção do ReferenceError
+import CustomIcon from "../CustomIcon";
 
 function Campo({ label, style, ...props }) {
   return (
     <View style={styles.campo}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        {...props}
-        style={[styles.input, style]}
-        placeholderTextColor="#94A3B8"
-      />
+      <TextInput {...props} style={[styles.input, style]} placeholderTextColor="#94A3B8" />
     </View>
   );
 }
@@ -49,40 +44,29 @@ export default function ModalGerenciarEvento({
   salvarEvento,
 }) {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.modalCabecalho}>
-            <Text style={styles.tituloModal}>
-              {eventoEditando ? "Editar evento" : "Novo evento"}
-            </Text>
+            <Text style={styles.tituloModal}>{eventoEditando ? "Editar evento" : "Novo evento"}</Text>
             <TouchableOpacity onPress={onClose}>
-              <CustomIcon 
-                name={Platform.OS === 'web' ? 'close' : 'arrow-back'} 
-                size={24} 
-                color="#64748B" 
-              />
+              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
 
-            <Campo
-              label="Título do evento *"
-              value={titulo}
-              onChangeText={setTitulo}
-              placeholder="Ex.: Workshop de Tecnologia"
-              maxLength={100}
-            />
+            <Campo label="Título do evento *" value={titulo} onChangeText={setTitulo} placeholder="Ex.: Workshop de Tecnologia" maxLength={100} />
+            
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={{ flex: 2 }}>
+                <Campo label="Data *" value={dataApenas} onChangeText={(t) => setDataApenas(formatarEntradaData(t))} placeholder="15/12/2026" keyboardType="numeric" maxLength={10} />
+              </View>
+              <View style={{ flex: 1.2 }}>
+                <Campo label="Hora *" value={horaApenas} onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))} placeholder="19:00:00" keyboardType="numeric" maxLength={8} />
+              </View>
+            </View>
 
             
             <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -136,26 +120,9 @@ export default function ModalGerenciarEvento({
             />
 
             <View style={styles.campo}>
-              <Text style={styles.label}>Curso Destinatário</Text>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#CBD5E1",
-                  borderRadius: 8,
-                  backgroundColor: "#F8FAFC",
-                  overflow: "hidden",
-                }}
-              >
-                <Picker
-                  selectedValue={cursoId}
-                  onValueChange={(itemValue) => setCursoId(itemValue)}
-                  style={{
-                    height: 48,
-                    width: "100%",
-                    color: "#0F172A",
-                    backgroundColor: "transparent",
-                  }}
-                >
+              <Text style={styles.label}>Curso Destinatário *</Text>
+              <View style={{ borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 8, backgroundColor: "#F8FAFC", overflow: "hidden" }}>
+                <Picker selectedValue={cursoId} onValueChange={(itemValue) => setCursoId(itemValue)} style={{ height: 48, width: "100%", color: "#0F172A", backgroundColor: "transparent" }}>
                   <Picker.Item label="Selecione um curso..." value="" />
                   <Picker.Item label="Todos" value="NULL" />
                   {cursos.map((c) => (
@@ -165,16 +132,7 @@ export default function ModalGerenciarEvento({
               </View>
             </View>
 
-            <Campo
-              label="Descrição do evento"
-              value={descricao}
-              onChangeText={setDescricao}
-              placeholder="Detalhes sobre o evento..."
-              multiline
-              style={styles.inputDescricao}
-              textAlignVertical="top"
-              maxLength={500}
-            />
+            <Campo label="Descrição do evento" value={descricao} onChangeText={setDescricao} placeholder="Detalhes sobre o evento..." multiline style={styles.inputDescricao} textAlignVertical="top" maxLength={500} />
 
             <Text style={styles.label}>Imagem de capa</Text>
 
@@ -200,15 +158,10 @@ export default function ModalGerenciarEvento({
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity
-                style={styles.seletorImagem}
-                onPress={selecionarImagem}
-              >
+              <TouchableOpacity style={styles.seletorImagem} onPress={selecionarImagem}>
                 <CustomIcon name="image-outline" size={34} color="#173EA5" />
                 <Text style={styles.textoSeletorImagem}>Selecionar imagem</Text>
-                <Text style={styles.textoAuxiliar}>
-                  Redimensionamento e compressão automáticos. (16:9)
-                </Text>
+                <Text style={styles.textoAuxiliar}>Redimensionamento e compressão automáticos. (16:9)</Text>
               </TouchableOpacity>
             )}
 

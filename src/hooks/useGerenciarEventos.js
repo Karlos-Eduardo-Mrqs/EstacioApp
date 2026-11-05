@@ -279,7 +279,6 @@ export function useGerenciarEventos() {
   }
 
   function excluirEvento(evento) {
-    // 🛡️ Proteção extra caso venha um ID isolado ou evento vazio
     const eventoObj = typeof evento === 'object' ? evento : eventos.find(e => e.id === evento);
     const tituloEvento = eventoObj?.titulo || 'este evento';
     const eventoId = eventoObj?.id || evento;
@@ -293,21 +292,11 @@ export function useGerenciarEventos() {
         setConfirmacao(prev => ({ ...prev, visible: false }));
         try {
           await removerEventoDoBanco(eventoObj || eventoId);
-
           setEventos(prev => prev.filter(item => item.id !== eventoId));
-          
-          setToast({ 
-            visible: true, 
-            titulo: 'Excluído', 
-            mensagem: 'O evento e sua imagem foram removidos com sucesso.' 
-          });
+          setToast({ visible: true, titulo: 'Excluído', mensagem: 'O evento e sua imagem foram removidos com sucesso.' });
         } catch (error) {
           console.error('Erro ao excluir evento:', error);
-          setToast({ 
-            visible: true, 
-            titulo: 'Erro', 
-            mensagem: 'Não foi possível excluir o evento do banco de dados.' 
-          });
+          setToast({ visible: true, titulo: 'Erro', mensagem: 'Não foi possível excluir o evento do banco de dados.' });
         }
       }
     });

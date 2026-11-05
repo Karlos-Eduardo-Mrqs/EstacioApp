@@ -1,18 +1,6 @@
 
-import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-
+import {KeyboardAvoidingView,Modal,Platform,ScrollView,Text,TextInput,TouchableOpacity,useWindowDimensions,View,} from 'react-native';
 import CustomIcon from "../../components/CustomIcon";
-
 import { Picker } from '@react-native-picker/picker';
 
 export default function PainelCadastro({

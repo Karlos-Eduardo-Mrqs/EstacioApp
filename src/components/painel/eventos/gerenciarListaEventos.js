@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
-import { formatarDataApenas } from "../../utils/dataUtils";
-import CustomIcon from "../CustomIcon";
+import { formatarDataApenas } from "../../../utils/dataUtils";
+import CustomIcon from "../../CustomIcon";
 
 export default function GerenciarListaEventos({
   eventos = [],

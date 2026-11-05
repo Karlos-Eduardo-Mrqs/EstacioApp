@@ -1,9 +1,9 @@
 import { Picker } from "@react-native-picker/picker";
 import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import { formatarEntradaData,formatarEntradaHora   } from "../../utils/dataUtils";
-import FeedbackBox from "../FeedPopup";
-import CustomIcon from "../CustomIcon";
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
+import { formatarEntradaData, formatarEntradaHora } from "../../../utils/dataUtils";
+import FeedbackBox from "../../FeedPopup";
+import CustomIcon from "../../CustomIcon";
 
 function Campo({ label, style, ...props }) {
   return (
@@ -59,22 +59,13 @@ export default function ModalGerenciarEvento({
 
             <Campo label="Título do evento *" value={titulo} onChangeText={setTitulo} placeholder="Ex.: Workshop de Tecnologia" maxLength={100} />
             
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <View style={{ flex: 2 }}>
-                <Campo label="Data *" value={dataApenas} onChangeText={(t) => setDataApenas(formatarEntradaData(t))} placeholder="15/12/2026" keyboardType="numeric" maxLength={10} />
-              </View>
-              <View style={{ flex: 1.2 }}>
-                <Campo label="Hora *" value={horaApenas} onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))} placeholder="19:00:00" keyboardType="numeric" maxLength={8} />
-              </View>
-            </View>
-
-            
+            {/* Bloco de Data e Hora Único e Otimizado */}
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ flex: 2 }}>
                 <Campo
                   label="Data *"
                   value={dataApenas}
-                  onChangeText={(t) => setDataApenas(formatarEntradaData(t))} // Usa a tua função de máscara existente
+                  onChangeText={(t) => setDataApenas(formatarEntradaData(t))}
                   placeholder="15/12/2026"
                   keyboardType="numeric"
                   maxLength={10}
@@ -85,7 +76,7 @@ export default function ModalGerenciarEvento({
                 <Campo
                   label="Hora *"
                   value={horaApenas}
-                  onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))} // 👈 Aplica a máscara automática
+                  onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))}
                   placeholder="19:00:00"
                   keyboardType="numeric"
                   maxLength={8}
@@ -101,9 +92,8 @@ export default function ModalGerenciarEvento({
               maxLength={100}
             />
 
-            {/* 📍 Campo Local corrigido com state correspondente */}
             <Campo
-              label="Local do Evento"
+              label="Local do Evento *"
               value={local}
               onChangeText={setLocal}
               placeholder="Ex.: Auditório"
@@ -141,7 +131,7 @@ export default function ModalGerenciarEvento({
                 <Image
                   source={{ uri: imagem }}
                   style={[styles.previaImagem, { height: 350, backgroundColor: '#f8fafc' }]} 
-                  resizeMode="contain" // 👈 Mantém toda a proporção original da imagem intacta sem cortes
+                  resizeMode="contain"
                 />
                 
                 <Campo

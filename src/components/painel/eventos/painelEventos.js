@@ -1,11 +1,11 @@
 import {ActivityIndicator,ScrollView,StatusBar,Text,View,} from "react-native";
-import { useGerenciarEventos } from "../../hooks/useGerenciarEventos";
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import ConfirmPopup from "../ConfirmPopup";
-import ToastPopup from "../Popup";
-import GerenciarListaEventos from "./gerenciarListaEventos"; 
-import ModalGerenciarEvento from "./modalGerenciarEvento";
-import CustomIcon from "../CustomIcon";
+import { useGerenciarEventos } from "../../../hooks/useGerenciarEventos";
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
+import ConfirmPopup from "../../ConfirmPopup";
+import ToastPopup from "../../Popup";
+import GerenciarListaEventos from "../eventos/gerenciarListaEventos"; 
+import ModalGerenciarEvento from "../eventos/modalGerenciarEvento";
+import CustomIcon from "../../CustomIcon";
 
 export default function PainelEventosTela() {
   const {

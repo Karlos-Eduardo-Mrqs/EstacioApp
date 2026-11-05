@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native';
-import { notificacaoFormStyles as styles } from '@/styles/painel/notificacaoGlobalTabStyles';
-import CustomIcon from '../CustomIcon';
+import { View, Text, TextInput, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { notificacaoFormStyles as styles } from '../../../styles/painel/notificacaoGlobalTabStyles';
+import CustomIcon from '../../CustomIcon';
 
 export default function FormularioNotificacao({ cursos, eventos = [], onEnviar, onVisualizar, carregando }) {
   const [tipoDestino, setTipoDestino] = useState('todos');

@@ -1,14 +1,14 @@
 import { useState } from "react";
-import {Modal,Platform,Text,TouchableOpacity,useWindowDimensions,View} from "react-native";
+import { Modal, Platform, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { painelNavegacaostyles as styles } from "../../styles/painel/painelNavegacaostyles";
 import ConfirmPopup from "../ConfirmPopup";
 import AuthGuard from "../mural/guardaAutenticacao";
-import NotificacaoGlobalTab from "./notificacaoGlobalTab";
-import PainelCoordenador from "./painelCoordenador";
-import GerenciarEventos from "./painelEventos";
-import GerenciarUsuarios from "./painelGerencia";
-import ParceriaTab from "./parceriaTab"; // 👈 1. Import da nova aba de Parcerias
-import CustomIcon from "../CustomIcon"; // 👈 Importa o componente CustomIcon para exibir ícones
+import PainelCoordenador from "../painel/painelCoordenador";
+import GerenciarUsuarios from "../painel/painelGerencia";
+import CustomIcon from "../CustomIcon";
+import GerenciarEventos from "./eventos/painelEventos";
+import NotificacaoGlobalTab from "../painel/notificacoes/notificacaoGlobalTab";
+import ParceriaTab from "../painel/parcerias/parceriaTab";
 
 export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   const perfilStr = usuarioAtual?.perfil

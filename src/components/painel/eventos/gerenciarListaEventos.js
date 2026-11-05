@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
-import { formatarDataApenas } from "../../utils/dataUtils";
-import CustomIcon from "../CustomIcon";
+import { formatarDataApenas } from "../../../utils/dataUtils";
+import CustomIcon from "../../CustomIcon";
 
 export default function GerenciarListaEventos({
   eventos = [],
@@ -14,8 +14,15 @@ export default function GerenciarListaEventos({
 
   const eventosProcessados = eventos
     .map((evento) => {
-      const dataObj = new Date(evento.inicio || evento.data || evento.dataEvento);
-      return { ...evento, dataObj };
+      const dataObj = new Date(
+        evento.inicio || evento.data || evento.dataEvento,
+      );
+
+      // Verifica se a data já passou (comparando com a meia-noite de hoje)
+      return {
+        ...evento,
+        dataObj
+      };
     })
     .filter((evento) => {
       const termo = pesquisa.toLowerCase();
@@ -68,26 +75,59 @@ export default function GerenciarListaEventos({
               <View
                 key={evento.id}
                 style={{
-                  flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-                  padding: 16, marginBottom: 12, borderRadius: 12, borderWidth: 1,
-                  borderColor: "#E2E8F0", backgroundColor: "#FFFFFF", shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: 16,
+                  marginBottom: 12,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: "#E2E8F0", // Borda mais suave e moderna (Slate 200)
+                  backgroundColor: "#FFFFFF", // Fundo limpo em vez de azul total
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 1,
                 }}
               >
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>📅 {dataFormatada || "Data a definir"}</Text>
+                  {/* Linha Superior: Data e Local */}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 8,
+                      marginBottom: 6,
+                    }}
+                  >
+                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
+                      📅 {dataFormatada || "Data a definir"}
+                    </Text>
                     <Text style={{ fontSize: 12, color: "#CBD5E1" }}>•</Text>
-                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>📍 {evento.local || "Local a definir"}</Text>
+                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
+                      📍 {evento.local || "Local a definir"}
+                    </Text>
                   </View>
 
-                  <Text style={{ fontSize: 15, fontWeight: "700", color: "#0F172A", marginBottom: 8 }} numberOfLines={1}>
+                  {/* Título do Evento */}
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "700",
+                      color: "#0F172A",
+                      marginBottom: 8,
+                    }}
+                    numberOfLines={1}
+                  >
                     {evento.titulo}
                   </Text>
                   
+                  {/* Bloco Inferior: Timer e Horas AAC em linha única ou organizada */}
                   {(() => {
                     const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
                     const temHoras = horas !== undefined && horas !== null && horas !== "" && horas !== 0;
+
                     const diffMs = evento.dataObj.getTime() - agora;
                     const jaAconteceu = diffMs < 0;
 
@@ -108,14 +148,28 @@ export default function GerenciarListaEventos({
                       const m = String(minutosFaltam).padStart(2, "0");
                       const s = String(segundosFaltam).padStart(2, "0");
 
-                      textoTempo = dias > 0 ? `⏳ ${dias} dias • ${h}:${m}:${s}` : `⏳ ${h}:${m}:${s}`;
+                      if (dias > 0) {
+                        textoTempo = `⏳ ${dias} dias • ${h}:${m}:${s}`;
+                      } else {
+                        textoTempo = `⏳ ${h}:${m}:${s}`;
+                      }
                     }
 
                     return (
                       <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                        <View style={{ backgroundColor: corBadgeFundo, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }}>
-                          <Text style={{ fontSize: 11, color: corBadgeTexto, fontWeight: "600" }}>{textoTempo}</Text>
+                        {/* Pílula de Tempo / Timer */}
+                        <View style={{
+                          backgroundColor: corBadgeFundo,
+                          paddingHorizontal: 8,
+                          paddingVertical: 3,
+                          borderRadius: 6,
+                        }}>
+                          <Text style={{ fontSize: 11, color: corBadgeTexto, fontWeight: "600" }}>
+                            {textoTempo}
+                          </Text>
                         </View>
+
+                        {/* Horas AAC */}
                         <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "500" }}>
                           🕒 {temHoras ? `${horas} h AAC` : "Horas não definidas"}
                         </Text>
@@ -124,14 +178,29 @@ export default function GerenciarListaEventos({
                   })()}
                 </View>
 
+                {/* Botões de Ação Administrativa Limpos */}
                 <View style={{ flexDirection: "row", gap: 6 }}>
                   {onEditar && (
-                    <TouchableOpacity style={{ padding: 8, backgroundColor: "#F1F5F9", borderRadius: 8 }} onPress={() => onEditar(evento)}>
+                    <TouchableOpacity
+                      style={{
+                        padding: 8,
+                        backgroundColor: "#F1F5F9",
+                        borderRadius: 8,
+                      }}
+                      onPress={() => onEditar(evento)}
+                    >
                       <CustomIcon name="pencil-outline" size={16} color="#334155" />
                     </TouchableOpacity>
                   )}
                   {onExcluir && (
-                    <TouchableOpacity style={{ padding: 8, backgroundColor: "#FEF2F2", borderRadius: 8 }} onPress={() => onExcluir(evento)}>
+                    <TouchableOpacity
+                      style={{
+                        padding: 8,
+                        backgroundColor: "#FEF2F2",
+                        borderRadius: 8,
+                      }}
+                      onPress={() => onExcluir(evento)}
+                    >
                       <CustomIcon name="trash-outline" size={16} color="#DC2626" />
                     </TouchableOpacity>
                   )}

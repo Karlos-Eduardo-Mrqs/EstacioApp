@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Image } from "react-native";
-import { obterIconeDaWeb } from '../../services/parceriaServices'; // 👈 Sobe duas pastas (painel -> components -> services)
-import CustomIcon from "../CustomIcon"; // 👈 Sobe uma pasta (painel -> components)
+import {
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { obterIconeDaWeb } from "../../../services/parceriaServices"; // 👈 Sobe duas pastas (painel -> components -> services)
+import CustomIcon from "../../CustomIcon"; // 👈 Sobe uma pasta (painel -> components)
 
 export default function GerenciarListaParcerias({
   parcerias = [],

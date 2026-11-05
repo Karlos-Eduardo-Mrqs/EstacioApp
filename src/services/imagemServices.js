@@ -27,14 +27,24 @@ export async function atualizarImagemNoBanco(id, imagemAtualizada) {
   return data;
 }
 
-export async function fazerUploadParaSupabaseStorage(uriLocal) {
+export async function fazerUploadParaSupabaseStorage(uriLocal, tituloEvento = '') {
   try {
-    const nomeArquivo = `capa_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+    // Formata o título para criar um nome limpo (ex: "Workshop de IA" vira "workshop_de_ia")
+    const tituloLimpo = tituloEvento
+      ? tituloEvento
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+          .replace(/[^a-z0-9]/g, '_')     // Substitui carateres especiais por underline
+          .replace(/_+/g, '_')            // Evita underlines duplicados
+          .substring(0, 30)               // Limita o tamanho do nome
+      : 'capa';
+
+    const nomeArquivo = `${tituloLimpo}_${Date.now()}.jpg`;
     
     const resposta = await fetch(uriLocal);
     const blob = await resposta.blob();
 
-    // 🎯 Usa o nome exato do bucket que está criado no seu painel ('imagensposts')
     const { data, error } = await supabase.storage
       .from('imagensposts') 
       .upload(nomeArquivo, blob, {
@@ -45,7 +55,7 @@ export async function fazerUploadParaSupabaseStorage(uriLocal) {
     if (error) throw error;
 
     const { data: urlPublica } = supabase.storage
-      .from('imagensposts') // 🎯 Garante que busca a URL pública do mesmo bucket
+      .from('imagensposts') 
       .getPublicUrl(data.path);
 
     return urlPublica.publicUrl;
@@ -53,4 +63,45 @@ export async function fazerUploadParaSupabaseStorage(uriLocal) {
     console.error("Erro no upload para o Storage:", error);
     throw error;
   }
+}
+
+export async function removerOuSubstituirImagemEvento(eventoEditando) {
+  if (!eventoEditando || !eventoEditando.imagem_id) return null;
+
+  const imagemIdAtual = eventoEditando.imagem_id;
+  const imagemObj = eventoEditando.imagem;
+
+  // 1. 🔍 Verifica quantos eventos usam esta mesma imagem
+  const { data: eventosComMesmaImagem, error: erroConsulta } = await supabase
+    .from('evento')
+    .select('id')
+    .eq('imagem_id', imagemIdAtual);
+
+  if (erroConsulta) throw erroConsulta;
+
+  const qtdUso = eventosComMesmaImagem ? eventosComMesmaImagem.length : 0;
+
+  // 2. Se nenhum outro evento usa e não é a imagem padrão (ID 21), apaga do Storage e do banco
+  if (qtdUso <= 1 && imagemIdAtual !== 21) {
+    if (imagemObj && imagemObj.caminho_img) {
+      const partesUrl = imagemObj.caminho_img.split('/imagensposts/');
+      const nomeArquivo = partesUrl.length > 1 ? partesUrl[1] : null;
+      if (nomeArquivo) {
+        await supabase.storage.from('imagensposts').remove([nomeArquivo]);
+      }
+      await supabase.from('imagem').delete().eq('id', imagemObj.id);
+    }
+  }
+
+  // 3. Atualiza o evento no banco associando a imagem padrão (ID 21)
+  const novaImagemId = 21;
+  const { data, error } = await supabase
+    .from('evento')
+    .update({ imagem_id: novaImagemId })
+    .eq('id', eventoEditando.id)
+    .select('*, curso(nome), imagem(*)')
+    .single();
+
+  if (error) throw error;
+  return data;
 }

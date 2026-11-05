@@ -10,24 +10,22 @@ export async function buscarParceriasDoBanco() {
   return data || [];
 }
 
-export async function criarParceriaNoBanco(novaParceria) {
+export async function atualizarParceriaNoBanco(id, dadosAtualizados) {
   const { data, error } = await supabase
     .from('parceria')
-    .insert([novaParceria])
-    .select()
-    .single();
+    .update(dadosAtualizados)
+    .eq('id', Number(id)) // Assegura que o ID é tratado como número
+    .select();
 
   if (error) throw error;
   return data;
 }
 
-export async function atualizarParceriaNoBanco(id, dadosAtualizados) {
+export async function criarParceriaNoBanco(novaParceria) {
   const { data, error } = await supabase
     .from('parceria')
-    .update(dadosAtualizados)
-    .eq('id', id)
-    .select()
-    .single();
+    .insert([novaParceria])
+    .select();
 
   if (error) throw error;
   return data;
@@ -46,8 +44,9 @@ export async function excluirParceriaDoBanco(id) {
 export function obterIconeDaWeb(linkSite) {
   if (!linkSite) return null;
   try {
-    const url = new URL(linkSite.startsWith('http') ? linkSite : `https://${linkSite}`);
-    // Utiliza o serviço de favicon do Google optimizado para 32x32 pixels
+    const urlFormatada = linkSite.startsWith('http') ? linkSite : `https://${linkSite}`;
+    const url = new URL(urlFormatada);
+    // Utiliza o serviço de favicons do Google, que é amplamente aceito e raramente bloqueado por AdBlocks
     return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=64`;
   } catch (e) {
     return null;

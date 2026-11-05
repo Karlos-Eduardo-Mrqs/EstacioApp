@@ -120,13 +120,32 @@ export function useScriptApp(styles) {
     </View>
   );
 
+  // ── FILTROS DINÂMICOS DOS CURSOS PARA O CARROSSEL ──
+  const cursosDestaque = (cursosDoBanco || []).filter(
+    (curso) => curso.modalidade === 'Graduação' && curso.tipo !== 'Online/EAD'
+  );
+
+  const cursosTecnicos = (cursosDoBanco || []).filter(
+    (curso) => curso.tipo === 'Online/EAD' || curso.modalidade === 'Técnico'
+  );
+
+  const handleSelecionarCurso = (curso) => {
+    if (curso.link) {
+      Linking.openURL(curso.link);
+    } else {
+      exibirPopup("Aviso", `Curso selecionado: ${curso.nome || curso.titulo}`, "sucesso", 3);
+    }
+  };
+
   return {
     eventoSelecionado, setEventoSelecionado,
     diaFocado, eventosDoDia, carregandoEventos, erroEventos,
     diasSemana, semestre,
     listaProximos, listaSemana,
     cursos: cursosDoBanco,
-    cursosTecnicos: [],
+    cursosDestaque,             
+    cursosTecnicos,             
+    handleSelecionarCurso,
     carregandoCursos, erroCursos,
     eventosProximoMes,
     notificacoesSalvas,
@@ -136,6 +155,6 @@ export function useScriptApp(styles) {
     renderCartaoPequeno,
     popupInfo, setPopupInfo,
     exibirPopup,
-    todosOsEventos: eventosValidos, // 👈 Retorna a lista tratada e segura para toda a aplicação
+    todosOsEventos: eventosValidos,
   };
 }

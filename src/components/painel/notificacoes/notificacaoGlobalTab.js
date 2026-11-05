@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Modal, View, Text, TouchableOpacity, FlatList, Platform } from "react-native";
-import { buscarCursosDoBanco } from "../../services/cursoServices"; 
-import { criarAvisoGlobalNoBanco, buscarTodosAvisosAtivosDoBanco } from "../../services/notificacaoService";
-import { buscarEventosDoBanco } from "../../services/eventoServices"; 
-import { notificacaoGlobalstyles as styles } from "../../styles/painel/notificacaoGlobalTabStyles"; 
-import { modalLocalStyles } from "../../styles/painel/notificacaoGlobalTabStyles";
-import FormularioNotificacao from "./formNotificacao";
-import CustomIcon from '../CustomIcon';  
-import ToastPopup from "../Popup";
+import { buscarCursosDoBanco } from "../../../services/cursoServices"; 
+import { criarAvisoGlobalNoBanco, buscarTodosAvisosAtivosDoBanco } from "../../../services/notificacaoService";
+import { buscarEventosDoBanco } from "../../../services/eventoServices"; 
+import { notificacaoGlobalstyles as styles } from "../../../styles/painel/notificacaoGlobalTabStyles"; 
+import { modalLocalStyles } from "../../../styles/painel/notificacaoGlobalTabStyles";
+import FormularioNotificacao from "../notificacoes/formNotificacao";
+import CustomIcon from '../../CustomIcon';  
+import ToastPopup from "../../Popup";
 
 export default function NotificacaoGlobalTab() {
   const [cursos, setCursos] = useState([]);

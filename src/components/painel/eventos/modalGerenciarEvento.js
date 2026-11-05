@@ -1,9 +1,9 @@
 import { Picker } from "@react-native-picker/picker";
 import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import { formatarEntradaData, formatarEntradaHora } from "../../utils/dataUtils";
-import FeedbackBox from "../FeedPopup";
-import CustomIcon from "../CustomIcon";
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
+import { formatarEntradaData, formatarEntradaHora } from "../../../utils/dataUtils";
+import FeedbackBox from "../../FeedPopup";
+import CustomIcon from "../../CustomIcon";
 
 function Campo({ label, style, ...props }) {
   return (
@@ -15,14 +15,33 @@ function Campo({ label, style, ...props }) {
 }
 
 export default function ModalGerenciarEvento({
-  visible, onClose, eventoEditando,
-  titulo, setTitulo, dataTexto, setDataTexto,
-  palestrante, setPalestrante, local, setLocal,
-  horasAAC, setHorasAAC, cursos, cursoId, setCursoId,
-  descricao, setDescricao, imagem, setImagem,
+  visible,
+  onClose,
+  eventoEditando,
+  titulo,
+  setTitulo,
+  dataTexto,
+  setDataTexto,
+  palestrante,
+  setPalestrante,
+  local,
+  setLocal,
+  horasAAC,
+  setHorasAAC,
+  cursos,
+  cursoId,
+  setCursoId,
+  descricao,
+  setDescricao,
+  imagem,
+  setImagem,
   dataApenas, setDataApenas, horaApenas, setHoraApenas,
-  solicitarRemocaoImagem, descricaoImagem, setDescricaoImagem,
-  feedback, selecionarImagem, salvarEvento,
+  solicitarRemocaoImagem,
+  descricaoImagem,
+  setDescricaoImagem,
+  feedback,
+  selecionarImagem,
+  salvarEvento,
 }) {
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -40,18 +59,55 @@ export default function ModalGerenciarEvento({
 
             <Campo label="Título do evento *" value={titulo} onChangeText={setTitulo} placeholder="Ex.: Workshop de Tecnologia" maxLength={100} />
             
+            {/* Bloco de Data e Hora Único e Otimizado */}
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <View style={{ flex: 2 }}>
-                <Campo label="Data *" value={dataApenas} onChangeText={(t) => setDataApenas(formatarEntradaData(t))} placeholder="15/12/2026" keyboardType="numeric" maxLength={10} />
+                <Campo
+                  label="Data *"
+                  value={dataApenas}
+                  onChangeText={(t) => setDataApenas(formatarEntradaData(t))}
+                  placeholder="15/12/2026"
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
               </View>
+
               <View style={{ flex: 1.2 }}>
-                <Campo label="Hora *" value={horaApenas} onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))} placeholder="19:00:00" keyboardType="numeric" maxLength={8} />
+                <Campo
+                  label="Hora *"
+                  value={horaApenas}
+                  onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))}
+                  placeholder="19:00:00"
+                  keyboardType="numeric"
+                  maxLength={8}
+                />
               </View>
             </View>
 
-            <Campo label="Palestrante / Responsável" value={palestrante} onChangeText={setPalestrante} placeholder="Ex.: Prof. Carlos" maxLength={100} />
-            <Campo label="Local do Evento *" value={local} onChangeText={setLocal} placeholder="Ex.: Auditório" maxLength={100} />
-            <Campo label="Horas AAC" value={horasAAC} onChangeText={setHorasAAC} placeholder="Ex.: 10" keyboardType="numeric" maxLength={4} />
+            <Campo
+              label="Palestrante / Responsável"
+              value={palestrante}
+              onChangeText={setPalestrante}
+              placeholder="Ex.: Prof. Carlos"
+              maxLength={100}
+            />
+
+            <Campo
+              label="Local do Evento *"
+              value={local}
+              onChangeText={setLocal}
+              placeholder="Ex.: Auditório"
+              maxLength={100}
+            />
+
+            <Campo
+              label="Horas AAC"
+              value={horasAAC}
+              onChangeText={setHorasAAC}
+              placeholder="Ex.: 10"
+              keyboardType="numeric"
+              maxLength={4}
+            />
 
             <View style={styles.campo}>
               <Text style={styles.label}>Curso Destinatário *</Text>
@@ -72,8 +128,19 @@ export default function ModalGerenciarEvento({
 
             {imagem ? (
               <View style={styles.previaContainer}>
-                <Image source={{ uri: imagem }} style={[styles.previaImagem, { height: 350, backgroundColor: '#f8fafc' }]} resizeMode="contain" />
-                <Campo label="Descrição da imagem (Alt text / Legenda)" value={descricaoImagem} onChangeText={setDescricaoImagem} placeholder="Descreva o conteúdo da imagem" maxLength={200} />
+                <Image
+                  source={{ uri: imagem }}
+                  style={[styles.previaImagem, { height: 350, backgroundColor: '#f8fafc' }]} 
+                  resizeMode="contain"
+                />
+                
+                <Campo
+                  label="Descrição da imagem (Alt text / Legenda)"
+                  value={descricaoImagem}
+                  onChangeText={setDescricaoImagem}
+                  placeholder="Descreva o conteúdo da imagem"
+                  maxLength={200}
+                />
                 
                 <TouchableOpacity style={styles.removerImagem} onPress={solicitarRemocaoImagem}>
                   <CustomIcon name="trash-outline" size={18} color="#FFFFFF" />

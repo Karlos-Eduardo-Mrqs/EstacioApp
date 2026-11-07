@@ -14,7 +14,6 @@ function Campo({ label, style, ...props }) {
   );
 }
 
-// Adicione modalidade e setModalidade nos parâmetros da função ModalGerenciarCurso:
 export default function ModalGerenciarCurso({
   visible,
   onClose,
@@ -29,12 +28,16 @@ export default function ModalGerenciarCurso({
   setIcone,
   tipo,
   setTipo,
-  modalidade,     // 👈 Novo parâmetro
-  setModalidade,  // 👈 Novo parâmetro
+  modalidade,    
+  setModalidade,  
+  coordenadorId,          
+  setCoordenadorId,       
+  coordenadoresDisponiveis,
   feedback,
   salvarCurso,
 }) {
   const [modalIconesVisivel, setModalIconesVisivel] = useState(false);
+  const [dropdownAberto, setDropdownAberto] = useState(false);
 
   const buscarLinkCorretoNaWeb = () => {
     if (!nome.trim()) {
@@ -44,7 +47,6 @@ export default function ModalGerenciarCurso({
     const query = encodeURIComponent(`Estacio ${nome} curso`);
     Linking.openURL(`https://www.google.com/search?q=${query}`);
   };
-
 
   const TIPOS_CURSO = ['Presencial', 'Online/EAD', 'SemiPresencial'];
   const MODALIDADES_CURSO = ['Graduação', 'Mestrado', 'Doutorado', 'Técnico', 'Licenciatura'];
@@ -71,7 +73,7 @@ export default function ModalGerenciarCurso({
               maxLength={100}
             />
 
-            {/* Seletor de Tipo de Curso (Enum: Presencial, Online/EAD, SemiPresencial) */}
+            {/* Seletor de Tipo de Curso */}
             <View style={styles.campo}>
               <Text style={styles.label}>Tipo de Ensino *</Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -101,7 +103,7 @@ export default function ModalGerenciarCurso({
               </View>
             </View>
 
-            {/* Seletor de Modalidade (Enum: Graduação, Mestrado, Doutorado, Técnico, Licenciatura) */}
+            {/* Seletor de Modalidade */}
             <View style={styles.campo}>
               <Text style={styles.label}>Modalidade Acadêmica *</Text>
               <ScrollView horizontal showsHorizontalIndicator={false} contentContainerStyle={{ gap: 8 }}>
@@ -163,8 +165,114 @@ export default function ModalGerenciarCurso({
                   <CustomIcon name="search-outline" size={16} color="#DC2626" />
                   <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#DC2626' }}>Pesquisar no Google</Text>
                 </TouchableOpacity>
-
               </View>
+            </View>
+            
+            {/* 📌 DROPDOWN CUSTOMIZADO DE COORDENADOR CORRIGIDO */}
+            <View style={[styles.campo, { zIndex: 9999, elevation: 9999 }]}>
+              <Text style={styles.label}>Coordenador Responsável</Text>
+              
+              {(() => {
+                const coordSelecionado = coordenadoresDisponiveis?.find(
+                  (c) => String(c.id) === String(coordenadorId)
+                );
+                const nomeExibido = coordSelecionado 
+                  ? `👤 ${coordSelecionado.nome} (${coordSelecionado.email})` 
+                  : '📌 Nenhum (Geral)';
+
+                return (
+                  <View style={{ position: 'relative' }}>
+                    {/* Botão Principal do Dropdown */}
+                    <TouchableOpacity
+                      style={{
+                        borderWidth: 1,
+                        borderColor: '#CBD5E1',
+                        borderRadius: 8,
+                        backgroundColor: '#FFFFFF',
+                        padding: 12,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                      onPress={() => setDropdownAberto(!dropdownAberto)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={{ fontSize: 14, color: '#0F172A', flex: 1 }} numberOfLines={1}>
+                        {nomeExibido}
+                      </Text>
+                      <CustomIcon 
+                        name={dropdownAberto ? "chevron-up" : "chevron-down"} 
+                        size={18} 
+                        color="#64748B" 
+                      />
+                    </TouchableOpacity>
+
+                    {/* Lista Flutuante de Opções com Fundo Sólido */}
+                    {dropdownAberto && (
+                      <View style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        marginTop: 4,
+                        borderWidth: 1,
+                        borderColor: '#CBD5E1',
+                        borderRadius: 8,
+                        backgroundColor: '#FFFFFF',
+                        maxHeight: 180,
+                        elevation: 10,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.2,
+                        shadowRadius: 6,
+                        zIndex: 10000,
+                      }}>
+                        <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                          <TouchableOpacity
+                            style={{
+                              padding: 12,
+                              backgroundColor: !coordenadorId ? '#EFF6FF' : '#FFFFFF',
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#F1F5F9',
+                            }}
+                            onPress={() => {
+                              setCoordenadorId('');
+                              setDropdownAberto(false);
+                            }}
+                          >
+                            <Text style={{ fontSize: 14, color: !coordenadorId ? '#173EA5' : '#334155', fontWeight: !coordenadorId ? 'bold' : 'normal' }}>
+                              📌 Nenhum (Geral)
+                            </Text>
+                          </TouchableOpacity>
+
+                          {coordenadoresDisponiveis?.map((coord) => {
+                            const selecionado = String(coordenadorId) === String(coord.id);
+                            return (
+                              <TouchableOpacity
+                                key={coord.id}
+                                style={{
+                                  padding: 12,
+                                  backgroundColor: selecionado ? '#EFF6FF' : '#FFFFFF',
+                                  borderBottomWidth: 1,
+                                  borderBottomColor: '#F1F5F9',
+                                }}
+                                onPress={() => {
+                                  setCoordenadorId(String(coord.id));
+                                  setDropdownAberto(false);
+                                }}
+                              >
+                                <Text style={{ fontSize: 14, color: selecionado ? '#173EA5' : '#334155', fontWeight: selecionado ? 'bold' : 'normal' }}>
+                                  👤 {coord.nome} ({coord.email})
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </ScrollView>
+                      </View>
+                    )}
+                  </View>
+                );
+              })()}
             </View>
 
             {/* Seletor de Ícones */}

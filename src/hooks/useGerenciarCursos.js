@@ -3,12 +3,14 @@ import {
   buscarCursosDoBanco, 
   criarCursoNoBanco, 
   atualizarCursoNoBanco, 
-  removerCursoDoBanco 
+  removerCursoDoBanco,
+  buscarCoordenadoresDoBanco
 } from '../services/cursoServices';
 
 export function useGerenciarCursos() {
   const [cursos, setCursos] = useState([]);
   const [busca, setBusca] = useState('');
+  const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]); // 👈 Lista para o Select
   const [carregando, setCarregando] = useState(false);
 
   const [modalCurso, setModalCurso] = useState(false);
@@ -20,6 +22,7 @@ export function useGerenciarCursos() {
   const [link, setLink] = useState('');
   const [icone, setIcone] = useState('book-outline');
   const [tipo, setTipo] = useState('Presencial'); 
+  const [coordenadorId, setCoordenadorId] = useState(''); // 👈 Estado do coordenador selecionado
   const [modalidade, setModalidade] = useState('Graduação'); // 👈 Novo estado para modalidade
 
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
@@ -50,27 +53,39 @@ export function useGerenciarCursos() {
     curso.modalidade?.toLowerCase().includes(busca.toLowerCase())
   );
 
-  const abrirNovoCurso = () => {
+  const abrirNovoCurso = async () => {
     setCursoEditando(null);
     setNome('');
     setDescricao('');
     setLink('');
     setIcone('book-outline');
     setTipo('Presencial');
-    setModalidade('Graduação'); // 👈 Reseta para o padrão
+    setModalidade('Graduação');
+    setCoordenadorId('');
     setFeedback({ tipo: '', mensagem: '' });
+    
+    // 🔍 Força a busca dos coordenadores ao abrir o modal para garantir que a lista não venha vazia
+    const coords = await buscarCoordenadoresDoBanco();
+    setCoordenadoresDisponiveis(coords || []);
+
     setModalCurso(true);
   };
 
-  const abrirEdicaoCurso = (curso) => {
+  const abrirEdicaoCurso = async (curso) => {
     setCursoEditando(curso);
-    setNome(curso.nome || curso.nome || '');
+    setNome(curso.nome || curso.titulo || '');
     setDescricao(curso.descricao || '');
     setLink(curso.link || '');
     setIcone(curso.icone || 'book-outline');
     setTipo(curso.tipo || 'Presencial');
-    setModalidade(curso.modalidade || 'Graduação'); // 👈 Carrega a modalidade salva
+    setModalidade(curso.modalidade || 'Graduação');
+    setCoordenadorId(curso.coordenador_id ? String(curso.coordenador_id) : '');
     setFeedback({ tipo: '', mensagem: '' });
+
+    // 🔍 Força a busca dos coordenadores ao abrir a edição
+    const coords = await buscarCoordenadoresDoBanco();
+    setCoordenadoresDisponiveis(coords || []);
+
     setModalCurso(true);
   };
 
@@ -87,7 +102,8 @@ export function useGerenciarCursos() {
         link: link.trim() || null,
         icone: icone || 'book-outline',
         tipo: tipo || 'Presencial',
-        modalidade: modalidade || 'Graduação', // 👈 Inclui a modalidade no payload
+        modalidade: modalidade || 'Graduação',
+        coordenador_id: coordenadorId ? Number(coordenadorId) : null, // 👈 Inclui no payload
       };
 
       if (cursoEditando) {
@@ -99,7 +115,7 @@ export function useGerenciarCursos() {
       }
 
       setModalCurso(false);
-      carregarCursos();
+      carregarDados();
     } catch (error) {
       console.log('Erro ao salvar curso:', error);
       setFeedback({ tipo: 'erro', mensagem: 'Não foi possível salvar o curso no banco de dados.' });
@@ -147,6 +163,8 @@ export function useGerenciarCursos() {
     setTipo,
     modalidade,       
     setModalidade,   
+    coordenadorId, setCoordenadorId,                 
+    coordenadoresDisponiveis,                         
     feedback,
     toast,
     setToast,
@@ -155,6 +173,7 @@ export function useGerenciarCursos() {
     abrirNovoCurso,
     abrirEdicaoCurso,
     salvarCurso,
-    excluirCurso
+    excluirCurso,
+    buscarCoordenadoresDoBanco
   };
 }

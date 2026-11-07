@@ -28,7 +28,9 @@ export default function PainelCursos() {
     tipo,
     setTipo,
     modalidade,     
-    setModalidade, 
+    setModalidade,
+    coordenadorId, setCoordenadorId,
+    coordenadoresDisponiveis,
     feedback,
     toast,
     setToast,
@@ -79,7 +81,10 @@ export default function PainelCursos() {
         link={link} setLink={setLink}
         icone={icone} setIcone={setIcone}
         tipo={tipo} setTipo={setTipo}
-        modalidade={modalidade} setModalidade={setModalidade} // 👈 Repassa ao modal
+        modalidade={modalidade} setModalidade={setModalidade}
+        coordenadorId={coordenadorId}
+        setCoordenadorId={setCoordenadorId}
+        coordenadoresDisponiveis={coordenadoresDisponiveis} // 👈 Mantém apenas a lista para exibição
         feedback={feedback}
         salvarCurso={salvarCurso}
       />

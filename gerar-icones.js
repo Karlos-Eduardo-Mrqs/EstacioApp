@@ -40,7 +40,7 @@ const nomesDosIcones = [
  "airplane-outline",
  "flash-outline",
  "business-outline",
- "restaurant-outline"
+ "restaurant-outline","chevron-up"
 ];
 
  

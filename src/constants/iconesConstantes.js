@@ -122,6 +122,7 @@ export const globalIcons = {
   'flash-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/flash-outline.svg',
   'business-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/business-outline.svg',
   'restaurant-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/restaurant-outline.svg',
+  'chevron-up': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chevron-up.svg',
 };
 
 export const LISTA_ICONES_CURSOS = [

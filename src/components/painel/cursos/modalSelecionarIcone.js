@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, FlatList, TextInput, Platform, ScrollView } from 'react-native';
 import CustomIcon from '../../CustomIcon';
+import BotaoFechar from '../../botaoFechar';
 import { LISTA_ICONES_CURSOS } from '../../../constants/iconesConstantes'; // 👈 Importa a lista rica do arquivo de constantes
 
 export default function ModalSelecionarIcone({ visible, onClose, onSelect }) {
@@ -15,7 +16,7 @@ export default function ModalSelecionarIcone({ visible, onClose, onSelect }) {
   });
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={<BotaoFechar onPress={() => onClose()} />}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
         <View style={{ backgroundColor: '#fff', width: '100%', maxWidth: 420, borderRadius: 12, padding: 20, maxHeight: '80%' }}>
           

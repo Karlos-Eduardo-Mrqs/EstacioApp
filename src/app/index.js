@@ -1,6 +1,5 @@
 import { Modal, Platform, ScrollView, View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useScriptApp } from "../hooks/ScriptApp";
 import { useAppController } from "../hooks/useAppController";
 
 // Importações dos componentes do mural
@@ -9,7 +8,7 @@ import LoginScreen from "../components/login/loginForm";
 import Cabecalho from "../components/mural/CabecalhoMural";
 import RodapeInstitucional from "../components/mural/RodapeMural";
 import OnboardingCursos from "../components/OnboardingCursos";
-import ConteudoAbas from "../components/mural/conteudosAbas"; // 👈 Novo componente desmembrado
+import ConteudoAbas from "../components/mural/conteudosAbas";
 
 // Importações dos Modals
 import ModalCurso from "../components/mural/ModalCursos";
@@ -23,8 +22,7 @@ import { appStyles as styles } from "../styles/mural/mainStyles";
 import { localStyles } from "../styles/mural/localStyles";
 
 export default function App() {
-  const scriptApp = useScriptApp(styles);
-  const appCtrl = useAppController(scriptApp);
+  const appCtrl = useAppController(styles);
 
   if (appCtrl.carregandoSessao) {
     return (
@@ -41,7 +39,7 @@ export default function App() {
         <View style={localStyles.overlayEmbacado}>
           <View style={localStyles.containerStepper}>
             <OnboardingCursos 
-              cursosDisponiveis={scriptApp.cursos} 
+              cursosDisponiveis={appCtrl.cursos} 
               onConcluirSetup={appCtrl.handleConcluirSetup} 
               onPular={appCtrl.handlePularOnboarding}
               stepInicial={appCtrl.stepInicialOnboarding}
@@ -95,10 +93,10 @@ export default function App() {
                 </View>
               )}
 
-              {/* ABAS RENDERIZADAS NO NOVO COMPONENTE */}
+              {/* ABAS RENDERIZADAS PASSANDO O appCtrl UNIFICADO */}
               <ConteudoAbas 
                   activeTab={appCtrl.activeTab}
-                  scriptApp={scriptApp}
+                  scriptApp={appCtrl}
                   appCtrl={appCtrl}
                   avisosAtivos={appCtrl.avisosAtivos}
                   onReexibirAviso={appCtrl.reexibirAvisoPopup}
@@ -109,7 +107,7 @@ export default function App() {
               <View style={{ marginTop: "auto", width: "100%", paddingBottom: 0, marginBottom: 0 }}>
                 <RodapeInstitucional
                   onOpenDevs={() => appCtrl.setModalDevsVisivel(true)}
-                  onOpenSobre={() => scriptApp.exibirPopup("ℹ️ Sobre", 
+                  onOpenSobre={() => appCtrl.exibirPopup("ℹ️ Sobre", 
                   "Este portal foi desenvolvido para centralizar a comunicação acadêmica, avisos da gerência, prazos de notas, eventos e atividades complementares (ACC) do campus com máxima eficiência e performance.", 
                   "sucesso", 6)}
                 />
@@ -138,24 +136,24 @@ export default function App() {
       <ModalDesenvolvedores visible={appCtrl.modalDevsVisivel} onClose={() => appCtrl.setModalDevsVisivel(false)} />
 
       <ToastPopup
-        visible={scriptApp.popupInfo.visible}
-        titulo={scriptApp.popupInfo.titulo}
-        mensagem={scriptApp.popupInfo.mensagem}
-        duracao={scriptApp.popupInfo.duracao}
-        onClose={() => scriptApp.setPopupInfo((prev) => ({ ...prev, visible: false }))}
+        visible={appCtrl.popupInfo.visible}
+        titulo={appCtrl.popupInfo.titulo}
+        mensagem={appCtrl.popupInfo.mensagem}
+        duracao={appCtrl.popupInfo.duracao}
+        onClose={() => appCtrl.setPopupInfo((prev) => ({ ...prev, visible: false }))}
       />
 
       <ModalCurso
         curso={appCtrl.cursoSelecionado}
         onClose={() => appCtrl.setCursoSelecionado(null)}
-        onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
+        onSelectEvento={(ev) => appCtrl.setEventoSelecionado(ev)}
       />
 
-      {scriptApp.eventoSelecionado && (
+      {appCtrl.eventoSelecionado && (
         <EventoDetalhe
-          evento={scriptApp.eventoSelecionado}
-          onClose={() => scriptApp.setEventoSelecionado(null)}
-          onNotificar={(ev) => scriptApp.salvarNotificacao(ev)}
+          evento={appCtrl.eventoSelecionado}
+          onClose={() => appCtrl.setEventoSelecionado(null)}
+          onNotificar={(ev) => appCtrl.salvarNotificacao(ev)}
         />
       )}
 

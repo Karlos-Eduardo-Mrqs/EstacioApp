@@ -4,6 +4,7 @@ import CustomIcon from '../../CustomIcon';
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
 import FeedbackBox from '../../FeedPopup';
 import ModalSelecionarIcone from './modalSelecionarIcone';
+import BotaoFechar from '../../botaoFechar';
 
 function Campo({ label, style, ...props }) {
   return (
@@ -36,6 +37,7 @@ export default function ModalGerenciarCurso({
   feedback,
   salvarCurso,
 }) {
+
   const [modalIconesVisivel, setModalIconesVisivel] = useState(false);
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
@@ -58,7 +60,7 @@ export default function ModalGerenciarCurso({
           <View style={styles.modalCabecalho}>
             <Text style={styles.tituloModal}>{cursoEditando ? "Editar curso" : "Novo curso"}</Text>
             <TouchableOpacity onPress={onClose}>
-              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 
@@ -152,18 +154,18 @@ export default function ModalGerenciarCurso({
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: '#FEF2F2',
+                    backgroundColor: '#F8FAFC', // Fundo clarinho e neutro
                     borderWidth: 1,
-                    borderColor: '#FCA5A5',
+                    borderColor: '#CBD5E1',     // Borda cinza elegante
                     borderRadius: 6,
-                    paddingVertical: 8,
+                    paddingVertical: 10,
                     gap: 6,
                   }}
                   onPress={buscarLinkCorretoNaWeb}
                   activeOpacity={0.8}
                 >
-                  <CustomIcon name="search-outline" size={16} color="#DC2626" />
-                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#DC2626' }}>Pesquisar no Google</Text>
+                  <CustomIcon name="search-outline" size={16} color="#1E3A8A" />
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#1E3A8A' }}>Pesquisar no Google</Text>
                 </TouchableOpacity>
               </View>
             </View>

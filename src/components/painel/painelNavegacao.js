@@ -7,9 +7,10 @@ import PainelCoordenador from "./painelCoordenador";
 import GerenciarUsuarios from "./painelGerencia";
 import GerenciarEventos from "./eventos/painelEventos";
 import NotificacaoGlobalTab from "../painel/notificacoes/notificacaoGlobalTab";
+import PainelServicos from "./servicos/painelServicos";
 import ParceriaTab from "./parcerias/parceriaTab";
 import PainelCursos from "./cursos/painelCursos";
-import PainelMenu from "./menu"; // 👈 Importação do menu isolado
+import PainelMenu from "./menu";
 
 export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   const perfilStr = usuarioAtual?.perfil ? usuarioAtual.perfil.trim().toLowerCase() : "";
@@ -97,16 +98,21 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           {abaAtiva === "utilizadores" && !ehCoordenador && (
             <GerenciarUsuarios usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />
           )}
-          {(abaAtiva === "eventos" || (abaAtiva === "coordenacao" && ehCoordenador)) &&
-            (ehCoordenador ? (
+          {(abaAtiva === "eventos" || (abaAtiva === "coordenacao" && ehCoordenador)) && (
+            ehCoordenador ? (
               <PainelCoordenador usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />
             ) : (
               <GerenciarEventos usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />
-            ))}
+            )
+          )}
+          
           {abaAtiva === "notificacao" && <NotificacaoGlobalTab />}
           {abaAtiva === "parcerias" && !ehCoordenador && <ParceriaTab />}
           {abaAtiva === "cursos" && !ehCoordenador && <PainelCursos />}
+          {abaAtiva === "servicos" && !ehCoordenador && <PainelServicos />}
+        
         </View>
+      
       </View>
 
       <ConfirmPopup

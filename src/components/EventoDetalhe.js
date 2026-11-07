@@ -6,6 +6,7 @@ import { formatarDataApenas } from "../utils/dataUtils";
 import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
+import BotaoFechar from "./botaoFechar";
 import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
 const imagemExemploPadrao = require("../../assets/image.png");
@@ -129,7 +130,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
 
             <ScrollView

@@ -20,10 +20,18 @@ export default function ConteudoAbas({ activeTab, scriptApp, appCtrl, avisosAtiv
             />
           
             <ListaCarrosseis
-                {...scriptApp}
-                onSelectCurso={(curso) => appCtrl.setCursoSelecionado(curso)}
-                onSelectEvento={(ev) => scriptApp.setEventoSelecionado(ev)}
-                cursosFavoritosIds={appCtrl.cursosSelecionados}
+              cursos={appCtrl.cursos}
+              cursosTecnicos={appCtrl.cursosTecnicos}
+              cursosFavoritosIds={appCtrl.cursosSelecionados}
+              listaProximos={appCtrl.listaProximos}
+              listaSemana={appCtrl.listaSemana}
+              eventosProximoMes={appCtrl.eventosProximoMes}
+              servicos={appCtrl.servicos || []} // 👈 ESSA LINHA FAZ O CARROSSEL APARECER!
+              onSelectCurso={(curso) => appCtrl.setCursoSelecionado(curso)}
+              onSelectEvento={(ev) => appCtrl.setEventoSelecionado(ev)}
+              carregandoCursos={appCtrl.carregandoCursos}
+              erroCursos={appCtrl.erroCursos}
+              todosOsEventos={appCtrl.todosOsEventos}
             />
         </>
       )}

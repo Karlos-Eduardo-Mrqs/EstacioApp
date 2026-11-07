@@ -1,12 +1,9 @@
-import { Linking, Modal, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, Platform } from "react-native";
+import { Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
 import CustomIcon from "../CustomIcon"; 
-import { CoresInstitucionais } from "../../styles/theme";
+import BotaoFechar from "../botaoFechar";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
-  const { width } = useWindowDimensions();
-  const isDesktop = Platform.OS === 'web' && width >= 768;
-
   if (!curso) return null;
 
   return (
@@ -25,11 +22,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar} activeOpacity={0.8}>
-              <CustomIcon 
-                  name={isDesktop ? "close" : "arrow-back"} 
-                  size={22} 
-                  color={CoresInstitucionais.brancoPuro} 
-              />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 

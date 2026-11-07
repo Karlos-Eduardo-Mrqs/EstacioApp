@@ -12,6 +12,7 @@ export default function FeedbackBox({ tipo, mensagem }) {
 
   return (
     <View style={[styles.feedbackBox, isErro ? styles.errorBox : styles.successBox]}>
+      
       <CustomIcon
         name={isErro ? 'alert-circle-outline' : 'checkmark-circle-outline'}
         size={20}

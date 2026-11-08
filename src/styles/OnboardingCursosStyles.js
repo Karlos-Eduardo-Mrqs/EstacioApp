@@ -6,21 +6,56 @@ export const Onboardingstyles = StyleSheet.create({
     maxWidth: 480,
     position: 'relative',
   },
-  btnPularHeader: {
-    alignSelf: 'flex-end',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    marginBottom: 6,
-    borderRadius: 8,
-    backgroundColor: 'rgba(241, 245, 249, 0.8)',
+  headerTopoContainer: {
+    alignItems: 'flex-end',
+    marginBottom: 8,
+  },
+  btnPularHeaderModerno: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   textoPularHeader: {
-    fontSize: 12,
-    color: '#64748b',
-    fontWeight: '600',
+    fontSize: 11.5,
+    color: '#475569',
+    fontWeight: '700',
   },
+  
+  /* 💡 Caixas de Aviso Condicionais */
+  avisoBoxEdicao: {
+    backgroundColor: '#EFF6FF',
+    borderLeftWidth: 4,
+    borderLeftColor: '#2563EB',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  avisoTextoEdicao: {
+    fontSize: 12,
+    color: '#1E40AF',
+    lineHeight: 18,
+  },
+  avisoBoxPrimeiroAcesso: {
+    backgroundColor: '#FFFBEB',
+    borderLeftWidth: 4,
+    borderLeftColor: '#F59E0B',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+  },
+  avisoTextoPrimeiroAcesso: {
+    fontSize: 12,
+    color: '#92400E',
+    lineHeight: 18,
+  },
+
   stepContent: {
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
   titulo: {
     fontSize: 18,
@@ -29,7 +64,7 @@ export const Onboardingstyles = StyleSheet.create({
     marginBottom: 6,
   },
   subtitulo: {
-    fontSize: 14,
+    fontSize: 13.5,
     color: '#4a5568',
     lineHeight: 20,
     marginBottom: 8,
@@ -124,7 +159,7 @@ export const Onboardingstyles = StyleSheet.create({
     color: '#032551',
   },
   descricaoFinal: {
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#64748b',
     marginTop: 6,
     lineHeight: 18,

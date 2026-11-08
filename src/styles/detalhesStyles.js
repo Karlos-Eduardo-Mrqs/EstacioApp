@@ -11,7 +11,7 @@ export const detalheStyles = StyleSheet.create({
   },
   modalContentClean: {
     width: "92%",
-    maxWidth: 540, // 👈 Modal mais largo e imponente
+    maxWidth: 540,
     backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 20,
     overflow: "hidden",
@@ -22,57 +22,102 @@ export const detalheStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 10,
   },
-  closeButtonClean: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-    zIndex: 30,
-    backgroundColor: "#ffffff",
-    borderRadius: 18,
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 4,
-  },
-  modalScrollClean: {
-    paddingBottom: 0,
-  },
-  imageContainerModal: {
-    width: "100%",
-    aspectRatio: 16 / 9, // 👈 Proporção 16:9 exata e responsiva
-    backgroundColor: "#032551",
+  
+  // 🖼️ Banner 16:9 Otimizado no Topo
+  bannerContainer: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    backgroundColor: '#032551',
+    position: 'relative',
   },
   imagemPost: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    width: '100%',
+    height: '100%',
+  },
+  closeButtonClean: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    zIndex: 10,
+  },
+
+  modalScrollClean: {
+    paddingBottom: 24,
   },
   detailsInnerContainer: {
     padding: 24,
   },
   modalTituloClean: {
-    fontSize: 22,
+    fontSize: 21,
     fontWeight: "bold",
     color: "#0f172a",
-    marginBottom: 8,
+    marginBottom: 14,
+    lineHeight: 27,
   },
-  modalSubInfoClean: {
-    fontSize: 13,
-    color: "#64748b",
-    marginBottom: 6,
-    fontWeight: "500",
+
+  // 📅 Grid de Data e Local (Destaque)
+  infoGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 12,
   },
+  infoBadgeItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#EFF6FF',
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+  },
+  infoBadgeTexto: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#1E40AF',
+    flexShrink: 1,
+  },
+
+  // 🕒 Caixa Secundária (Palestrante e Horas AAC)
+  detalhesSecundariosBox: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    padding: 12,
+    gap: 8,
+    marginBottom: 16,
+  },
+  linhaDetalhe: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  labelDetalhe: {
+    fontSize: 12.5,
+    color: '#64748B',
+    fontWeight: '500',
+  },
+  valorDetalhe: {
+    fontSize: 12.5,
+    color: '#0F172A',
+    fontWeight: '600',
+    flex: 1,
+  },
+  valorDestaqueAAC: {
+    fontSize: 12.5,
+    color: '#173EA5',
+    fontWeight: '800',
+  },
+
   modalSecaoLabelClean: {
     fontSize: 11,
     fontWeight: "bold",
     color: "#032551",
-    marginTop: 14,
-    marginBottom: 4,
+    marginTop: 6,
+    marginBottom: 6,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -80,11 +125,16 @@ export const detalheStyles = StyleSheet.create({
     fontSize: 14,
     color: "#334155",
     lineHeight: 22,
-    marginBottom: 24,
+    marginBottom: 20,
   },
+
+  // 🔘 Botões de Rodapé (Notificar / Compartilhar)
   actionButtonsRowClean: {
     flexDirection: "row",
     gap: 12,
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    backgroundColor: '#FFFFFF',
   },
   btnNotificarClean: {
     flex: 1.2,
@@ -94,6 +144,7 @@ export const detalheStyles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 14,
     borderRadius: 10,
+    gap: 6,
   },
   btnNotificarTextoClean: {
     color: "#ffffff",
@@ -156,7 +207,7 @@ export const buscaTabstyles = StyleSheet.create({
   },
   gridCard: {
     width: '32.6%',
-    height: 220, // 👈 Altura ajustada para dar proporção perfeita aos cards verticais
+    height: 220,
     backgroundColor: '#032551',
     borderRadius: 10,
     overflow: 'hidden',

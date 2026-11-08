@@ -40,6 +40,7 @@ export default function App() {
           <View style={localStyles.containerStepper}>
             <OnboardingCursos 
               cursosDisponiveis={appCtrl.cursos} 
+              jaConfigurou={appCtrl.cursosSelecionados && appCtrl.cursosSelecionados.length > 0} 
               onConcluirSetup={appCtrl.handleConcluirSetup} 
               onPular={appCtrl.handlePularOnboarding}
               stepInicial={appCtrl.stepInicialOnboarding}

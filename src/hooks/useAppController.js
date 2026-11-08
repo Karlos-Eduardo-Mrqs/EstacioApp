@@ -201,7 +201,11 @@ export function useAppController(styles) {
 
   const handlePularOnboarding = () => {
     setMostrarOnboarding(false);
-    exibirPopup("ℹ️ Lembrete", "Você pode personalizar seus cursos a qualquer momento no topo do mural.", "aviso", 5);
+    if (cursosSelecionados.length > 0) {
+      exibirPopup("ℹ️ Edição Cancelada", "Você pode refazer sua lista de cursos a qualquer momento entrando na aba Configurações.", "aviso", 5);
+    } else {
+      exibirPopup("ℹ️ Lembrete", "Você pode personalizar seus cursos a qualquer momento no topo do mural.", "aviso", 5);
+    }
   };
 
   const handleRedefinirCursos = () => {

@@ -1,6 +1,7 @@
-import {Modal,Pressable,View,Text,TouchableOpacity,ScrollView,Linking,} from 'react-native';
+import { Modal, Pressable, View, Text, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { modalServicosStyles as styles } from '../../styles/mural/modalServicosStyles';
-import BotaoFechar from '../botaoFechar'; // 👈 Certifique-se de que o caminho do import está correto para sua pasta
+import BotaoFechar from '../botaoFechar';
+import CustomIcon from '../CustomIcon';
 
 export default function ModalDetalhesServico({ servico, visible, onClose }) {
   if (!servico) return null;
@@ -17,7 +18,6 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
     }
   };
 
-  // Inicial do responsável para o avatar
   const inicialResponsavel = servico.responsavel && servico.responsavel !== 'A definir'
     ? servico.responsavel
         .split(' ')
@@ -28,20 +28,13 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
     : 'ST';
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.modalFundo} onPress={onClose}>
-        {/* Usamos o stopPropagation para que clicar dentro do modal não feche */}
         <Pressable style={styles.modalDetalhes} onPress={(e) => e.stopPropagation()}>
           
           {/* TOPO DO MODAL */}
           <View style={styles.modalHeaderDetalhes}>
-            
-            <BotaoFechar onPress={onClose} />
+            <BotaoFechar onPress={onClose} style={styles.fecharModal} />
 
             <Text style={styles.modalSubtopo}>
               {servico.curso ? servico.curso.toUpperCase() : 'SERVIÇO INSTITUCIONAL'}
@@ -62,7 +55,7 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
               {servico.descricao || 'Sem descrição informada.'}
             </Text>
 
-            {/* CURSO / MODALIDADE */}
+            {/* CURSO / CATEGORIA */}
             <View style={styles.infoLinha}>
               <Text style={styles.infoLabel}>📌 Curso / Categoria:</Text>
               <Text style={styles.infoValor}>
@@ -70,13 +63,29 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
               </Text>
             </View>
 
-            {/* DIAS DE ATENDIMENTO */}
+            {/* 🕒 HIGHLIGHT: CARD DE ATENDIMENTO / HORÁRIOS */}
             {servico.dias ? (
-              <View style={styles.infoLinha}>
-                <Text style={styles.infoLabel}>🕒 Atendimento:</Text>
-                <Text style={styles.infoValor}>{servico.dias}</Text>
+              <View style={styles.cardHorario}>
+                <View style={styles.cardHorarioIcone}>
+                  <CustomIcon name="time-outline" size={22} color="#1D4ED8" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardHorarioTitulo}>HORÁRIO DE ATENDIMENTO</Text>
+                  <Text style={styles.cardHorarioTexto}>{servico.dias}</Text>
+                </View>
               </View>
             ) : null}
+
+            {/* ⚠️ HIGHLIGHT: CARD DE AVISOS E INFORMAÇÕES */}
+            <View style={styles.cardAviso}>
+              <View style={styles.cardAvisoHeader}>
+                <CustomIcon name="information-circle-outline" size={20} color="#B45309" />
+                <Text style={styles.cardAvisoTitulo}>AVISOS E INFORMAÇÕES</Text>
+              </View>
+              <Text style={styles.cardAvisoTexto}>
+                {servico.aviso || 'Nenhum aviso publicado no momento.'}
+              </Text>
+            </View>
 
             {/* LINKS ÚTEIS */}
             {servico.linksUteis ? (
@@ -100,14 +109,6 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
                 })}
               </>
             ) : null}
-
-            {/* EVENTOS E AVISOS */}
-            <Text style={[styles.secaoTitulo, { marginTop: 18 }]}>
-              AVISOS E INFORMAÇÕES
-            </Text>
-            <Text style={styles.secaoTexto}>
-              {servico.aviso || 'Nenhum aviso publicado no momento.'}
-            </Text>
 
             {/* FALE COM A COORDENAÇÃO */}
             <Text style={[styles.secaoTitulo, { marginTop: 18 }]}>

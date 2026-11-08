@@ -1,10 +1,4 @@
-import {
-  FlatList,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import {FlatList,Text,TextInput,TouchableOpacity,View} from "react-native";
 import { useGerenciarUsuarios } from "../../hooks/userGerenciaUsuarios";
 import { painelStyles as styles } from "../../styles/painel/painelStyles";
 import ConfirmPopup from "../ConfirmPopup";
@@ -40,7 +34,6 @@ export default function GerenciarUsuarios() {
     alternarStatus,
     solicitarRemocao,
   } = useGerenciarUsuarios();
-
 
   const renderUsuario = ({ item }) => (
     <View style={styles.usuarioCard}>

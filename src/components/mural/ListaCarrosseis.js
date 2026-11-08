@@ -1,9 +1,10 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
-import { formatarDataApenas } from "../../utils/dataUtils"; // 👈 Importa o formatador centralizado
+import { formatarDataApenas } from "../../utils/dataUtils";
 import CursosCarrossel from "./CarrosselCursos";
 import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
+import CarrosselServicos from "./CarrosselServicos"; // 👈 Importa o novo carrossel de serviços
 
 export default function ListaCarrosseis({
   cursos,
@@ -12,14 +13,15 @@ export default function ListaCarrosseis({
   listaProximos,
   listaSemana,
   eventosProximoMes,
+  servicos = [], // 👈 Recebe a lista de serviços institucionais
   onSelectCurso,
   onSelectEvento,
+  onSelectServico, // 👈 Callback ao selecionar um serviço
   carregandoCursos,
   erroCursos,
   todosOsEventos = [],
 }) {
   const renderCartaoCarrossel = (evento) => {
-    // 🛡️ Tratamento seguro para extrair o nome do curso/turma (evita objetos)
     let nomeTurma = "Geral";
     if (evento?.turma) {
       nomeTurma =
@@ -33,7 +35,6 @@ export default function ListaCarrosseis({
           : evento.curso;
     }
 
-    // 📅 Formata a data de forma limpa usando a função utilitária centralizada
     const dataFormatada = formatarDataApenas(
       evento.inicio || evento.data || evento.dataEvento,
     );
@@ -68,7 +69,7 @@ export default function ListaCarrosseis({
 
   return (
     <View>
-      {/* ── CARROSSEL DOS CURSOS  (TODOS OS CURSOS) ── */}
+      {/* ── CARROSSEL DOS CURSOS (TODOS OS CURSOS) ── */}
       <CursosCarrossel
         cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
@@ -139,6 +140,14 @@ export default function ListaCarrosseis({
           )}
         </ScrollView>
       </View>
+
+      
+      {/* ── CARROSSEL DE SERVIÇOS INSTITUCIONAIS ── */}
+      <CarrosselServicos
+        servicos={servicos || []}
+        onSelectServico={onSelectServico}
+      />
+      
     </View>
   );
 }

@@ -103,7 +103,7 @@ export const painelEventosStyles = StyleSheet.create({
   },
   imagemEvento: {
     width: '100%',
-    height: 160,
+    aspectRatio: 16 / 9,
     backgroundColor: '#E2E8F0',
   },
   eventoConteudo: {
@@ -348,7 +348,7 @@ export const painelEventosStyles = StyleSheet.create({
   },
   previaImagem: {
     width: '100%',
-    height: 170,
+    aspectRatio: 16 / 9,
     borderRadius: 9,
     backgroundColor: '#E2E8F0',
   },

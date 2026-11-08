@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { buscarCursosDoBanco, buscarEventosDoBanco } from '../services/apiServices';
+import { buscarCursosDoBanco, buscarEventosDoBanco, buscarServicosDoBanco } from '../services/apiServices';
 
 export function useDadosAcademicos(exibirPopup) {
   const [todosOsEventos, setTodosOsEventos] = useState([]);
+  const [servicosInstitucionais, setServicosInstitucionais] = useState([]); // Estado já existente
   const [carregandoEventos, setCarregandoEventos] = useState(true);
   const [erroEventos, setErroEventos] = useState(null);
 
@@ -55,6 +56,23 @@ export function useDadosAcademicos(exibirPopup) {
     return () => { ativo = false; };
   }, []);
 
+  // Carregar Serviços Institucionais
+  useEffect(() => {
+    let ativo = true;
+    async function carregarServicosMural() {
+      try {
+        const dadosServicos = await buscarServicosDoBanco();
+        if (ativo) {
+          setServicosInstitucionais(dadosServicos || []);
+        }
+      } catch (error) {
+        console.log("Erro ao carregar serviços no mural:", error);
+      }
+    }
+    carregarServicosMural();
+    return () => { ativo = false; };
+  }, []);
+
   return {
     todosOsEventos,
     carregandoEventos,
@@ -62,5 +80,6 @@ export function useDadosAcademicos(exibirPopup) {
     cursosDoBanco,
     carregandoCursos,
     erroCursos,
+    servicos: servicosInstitucionais, // 👈 ADICIONADO AQUI PARA REPASSAR AO CONTROLLER/APP
   };
 }

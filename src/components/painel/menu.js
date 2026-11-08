@@ -73,6 +73,21 @@ export default function PainelMenu({
 
       {!ehCoordenador && (
         <TouchableOpacity
+          style={[styles.botaoNav, abaAtiva === "servicos" && styles.botaoNavAtivo]}
+          onPress={() => selecionarAba("servicos")}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.iconeNav}><CustomIcon name="business-outline" size={18} color="#fff" /></Text>
+          {(isDesktop || drawerOpen) && (
+            <Text style={[styles.textoBotaoNav, abaAtiva === "servicos" && styles.textoBotaoNavAtivo]}>
+              Serviços
+            </Text>
+          )}
+        </TouchableOpacity>
+      )}
+
+      {!ehCoordenador && (
+        <TouchableOpacity
           style={[styles.botaoNav, abaAtiva === "cursos" && styles.botaoNavAtivo]}
           onPress={() => selecionarAba("cursos")}
           activeOpacity={0.8}

@@ -1,33 +1,28 @@
-import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,useWindowDimensions,Platform} from "react-native";
+import { Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
 import CustomIcon from "../CustomIcon"; 
-import { CoresInstitucionais } from "../../styles/theme";
+import BotaoFechar from "../botaoFechar";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
-  // Deteção correta do ecrã para alternar o ícone de fechar
-  const { width } = useWindowDimensions();
-  const isDesktop = Platform.OS === 'web' && width >= 768;
-
   if (!curso) return null;
 
   return (
     <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
       <View style={modalStyles.overlay}>
         <View style={modalStyles.modalConteudo}>
+          
           {/* CABEÇALHO DO MODAL */}
           <View style={modalStyles.cabecalhoModal}>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, marginRight: 10 }}>
               <Text style={modalStyles.subtituloModalHeader}>
-                Graduação / Curso
+                {curso.tipo ? `${curso.tipo} • ` : ''}{curso.modalidade || 'Graduação'}
               </Text>
-              <Text style={modalStyles.tituloModal}>{curso.nome}</Text>
+              <Text style={modalStyles.tituloModal} numberOfLines={2}>
+                {curso.nome || curso.titulo}
+              </Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar}>
-              <CustomIcon 
-                  name={isDesktop ? "close" : "arrow-back"} 
-                  size={22} 
-                  color={CoresInstitucionais.brancoPuro} 
-              />
+            <TouchableOpacity onPress={onClose} style={modalStyles.btnFechar} activeOpacity={0.8}>
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 
@@ -40,20 +35,31 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
             <View style={modalStyles.blocoSecao}>
               <Text style={modalStyles.tituloBlocoSecao}>APRESENTAÇÃO</Text>
               <View style={modalStyles.linhaAmarela} />
+              
               <Text style={modalStyles.textoApresentacao}>
-                {curso.descricao}
-              </Text>
-              <Text style={modalStyles.textoModalidade}>
-                📌 <Text style={{ fontWeight: "bold" }}>Modalidades:</Text>{" "}
-                {curso.modalidade}
+                {curso.descricao || "Nenhuma descrição detalhada informada para este curso até o momento. Consulte o site oficial para mais informações sobre a matriz curricular e ementa."}
               </Text>
 
-              {/* Só exibe o botão se o curso possuir um link válido */}
+              {/* Informações de Tipo e Modalidade com Design Melhorado */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
+                <Text style={modalStyles.textoModalidade}>
+                  📌 <Text style={{ fontWeight: "bold" }}>Modalidade:</Text> {curso.modalidade || 'Graduação'}
+                </Text>
+                {curso.tipo && (
+                  <Text style={modalStyles.textoModalidade}>
+                    🎓 <Text style={{ fontWeight: "bold" }}>Ensino:</Text> {curso.tipo}
+                  </Text>
+                )}
+              </View>
+
+              {/* Botão do Site Oficial */}
               {curso.link ? (
                 <TouchableOpacity
-                  style={modalStyles.btnSiteOficial}
+                  style={[modalStyles.btnSiteOficial, { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }]}
                   onPress={() => Linking.openURL(curso.link)}
+                  activeOpacity={0.85}
                 >
+                  <CustomIcon name="globe-outline" size={18} color="#FFFFFF" />
                   <Text style={modalStyles.textoBtnSite}>
                     + Informações (Site Oficial)
                   </Text>
@@ -106,6 +112,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                           horas_acc: 10,
                         });
                       }}
+                      activeOpacity={0.8}
                     >
                       <Text style={modalStyles.textoBtnDetalhesModal}>
                         + Detalhes
@@ -115,7 +122,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 ))
               ) : (
                 <Text style={modalStyles.textoVazio}>
-                  Nenhum evento ou aviso publicado ainda.
+                  Nenhum evento ou aviso publicado para este curso no momento.
                 </Text>
               )}
             </View>
@@ -143,45 +150,35 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   >
                     <View style={modalStyles.topoCoordenacao}>
                       <View style={modalStyles.avatarCoordenacao}>
-                        <Text style={{ fontSize: 16, color: "#ffffff" }}>
-                          👤
-                        </Text>
+                        <CustomIcon name="person-outline" size={18} color="#FFFFFF" />
                       </View>
                       <View style={{ flex: 1 }}>
                         <Text style={modalStyles.nomeCoordenacao}>
                           {coord.nome}
                         </Text>
                         <Text style={modalStyles.descricaoCoordenacao}>
-                          Coordenação de {curso.nome}
+                          Coordenação de {curso.nome || curso.titulo}
                         </Text>
                       </View>
                     </View>
 
-                    <View style={{ marginTop: 8, gap: 4 }}>
+                    <View style={{ marginTop: 8, gap: 6 }}>
                       <TouchableOpacity
                         onPress={() => Linking.openURL(`mailto:${coord.email}`)}
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
                       >
-                        <Text
-                          style={{
-                            fontSize: 11,
-                            color: "#054ca9",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          ✉️ {coord.email}
+                        <CustomIcon name="mail-outline" size={14} color="#054ca9" />
+                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "bold" }}>
+                          {coord.email}
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         onPress={() => Linking.openURL(`tel:${coord.telefone}`)}
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
                       >
-                        <Text
-                          style={{
-                            fontSize: 11,
-                            color: "#054ca9",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          📞 {coord.telefone}
+                        <CustomIcon name="phone-portrait-outline" size={14} color="#054ca9" />
+                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "bold" }}>
+                          {coord.telefone}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -191,35 +188,37 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 <View style={modalStyles.cardCoordenacao}>
                   <View style={modalStyles.topoCoordenacao}>
                     <View style={modalStyles.avatarCoordenacao}>
-                      <Text style={{ fontSize: 16, color: "#ffffff" }}>👤</Text>
+                      <CustomIcon name="school-outline" size={18} color="#FFFFFF" />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={modalStyles.nomeCoordenacao}>
-                        Coordenação de {curso.nome}
+                        Coordenação Acadêmica
                       </Text>
                       <Text style={modalStyles.descricaoCoordenacao}>
-                        Quer saber mais sobre o curso? Entre em contato com a
-                        coordenação acadêmica.
+                        Precisa de suporte ou esclarecer dúvidas sobre a matriz curricular?
                       </Text>
                     </View>
                   </View>
 
                   <TouchableOpacity
-                    style={[modalStyles.btnContato, { marginTop: 10 }]}
+                    style={[modalStyles.btnContato, { marginTop: 12, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6 }]}
                     onPress={() =>
                       Linking.openURL(
                         "mailto:coordenacao@estacio.br?subject=Dúvida sobre o curso " +
-                          curso.nome,
+                          (curso.nome || curso.titulo),
                       )
                     }
+                    activeOpacity={0.8}
                   >
+                    <CustomIcon name="send-outline" size={14} color="#FFFFFF" />
                     <Text style={modalStyles.textoBtnContato}>
-                      Enviar E-mail
+                      Enviar E-mail para Coordenação
                     </Text>
                   </TouchableOpacity>
                 </View>
               )}
             </View>
+
           </ScrollView>
         </View>
       </View>

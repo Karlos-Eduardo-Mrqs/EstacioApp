@@ -27,22 +27,47 @@ export async function atualizarImagemNoBanco(id, imagemAtualizada) {
   return data;
 }
 
+export const padronizarProporcaoImagem = async (uriOriginal) => {
+  try {
+    const resultado = await ImageManipulator.manipulateAsync(
+      uriOriginal,
+      [
+        {
+          resize: {
+            width: 1200,
+            height: 675, // Força a proporção exata de banner 16:9
+          },
+        },
+      ],
+      { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    
+    return resultado.uri;
+  } catch (error) {
+    console.error("Erro ao padronizar imagem:", error);
+    return uriOriginal;
+  }
+};
+
 export async function fazerUploadParaSupabaseStorage(uriLocal, tituloEvento = '') {
   try {
-    // Formata o título para criar um nome limpo (ex: "Workshop de IA" vira "workshop_de_ia")
+    // 1. Padroniza a proporção antes do envio
+    const uriFormatada = await padronizarProporcaoImagem(uriLocal);
+
+    // 2. Formata o título para o nome do arquivo
     const tituloLimpo = tituloEvento
       ? tituloEvento
           .toLowerCase()
           .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-          .replace(/[^a-z0-9]/g, '_')     // Substitui carateres especiais por underline
-          .replace(/_+/g, '_')            // Evita underlines duplicados
-          .substring(0, 30)               // Limita o tamanho do nome
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]/g, '_')
+          .replace(/_+/g, '_')
+          .substring(0, 30)
       : 'capa';
 
     const nomeArquivo = `${tituloLimpo}_${Date.now()}.jpg`;
     
-    const resposta = await fetch(uriLocal);
+    const resposta = await fetch(uriFormatada);
     const blob = await resposta.blob();
 
     const { data, error } = await supabase.storage

@@ -4,6 +4,7 @@ import { painelEventosStyles as styles } from "../../../styles/painel/painelEven
 import { formatarEntradaData, formatarEntradaHora } from "../../../utils/dataUtils";
 import FeedbackBox from "../../FeedPopup";
 import CustomIcon from "../../CustomIcon";
+import BotaoFechar from "../../botaoFechar";
 
 function Campo({ label, style, ...props }) {
   return (
@@ -35,6 +36,8 @@ export default function ModalGerenciarEvento({
   setDescricao,
   imagem,
   setImagem,
+  status,
+  setStatus,
   dataApenas, setDataApenas, horaApenas, setHoraApenas,
   solicitarRemocaoImagem,
   descricaoImagem,
@@ -50,7 +53,7 @@ export default function ModalGerenciarEvento({
           <View style={styles.modalCabecalho}>
             <Text style={styles.tituloModal}>{eventoEditando ? "Editar evento" : "Novo evento"}</Text>
             <TouchableOpacity onPress={onClose}>
-              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
+                <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 
@@ -106,8 +109,25 @@ export default function ModalGerenciarEvento({
               onChangeText={setHorasAAC}
               placeholder="Ex.: 10"
               keyboardType="numeric"
-              maxLength={4}
+              maxLength={3}
             />
+
+            {/* 🛑 O status só aparece se estivermos editando um evento existente */}
+            {eventoEditando && (
+              <View style={styles.campo}>
+                <Text style={styles.label}>Status do Evento</Text>
+                <View style={{ borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 8, backgroundColor: "#F8FAFC", overflow: "hidden" }}>
+                  <Picker 
+                    selectedValue={status} 
+                    onValueChange={(itemValue) => setStatus(itemValue)} 
+                    style={{ height: 48, width: "100%", color: "#0F172A", backgroundColor: "transparent" }}
+                  >
+                    <Picker.Item label="🟢 Ativo (Aberto / Em andamento)" value={true} />
+                    <Picker.Item label="🔴 Encerrado" value={false} />
+                  </Picker>
+                </View>
+              </View>
+            )}
 
             <View style={styles.campo}>
               <Text style={styles.label}>Curso Destinatário *</Text>
@@ -130,8 +150,13 @@ export default function ModalGerenciarEvento({
               <View style={styles.previaContainer}>
                 <Image
                   source={{ uri: imagem }}
-                  style={[styles.previaImagem, { height: 350, backgroundColor: '#f8fafc' }]} 
-                  resizeMode="contain"
+                  style={{
+                    width: '100%',
+                    aspectRatio: 16 / 9, // Mantém a proporção exata 16:9
+                    borderRadius: 8,
+                    backgroundColor: '#F8FAFC',
+                  }} 
+                  resizeMode="cover" // Corta o excesso sem distorcer
                 />
                 
                 <Campo
@@ -139,7 +164,7 @@ export default function ModalGerenciarEvento({
                   value={descricaoImagem}
                   onChangeText={setDescricaoImagem}
                   placeholder="Descreva o conteúdo da imagem"
-                  maxLength={200}
+                  maxLength={200} 
                 />
                 
                 <TouchableOpacity style={styles.removerImagem} onPress={solicitarRemocaoImagem}>
@@ -151,7 +176,7 @@ export default function ModalGerenciarEvento({
               <TouchableOpacity style={styles.seletorImagem} onPress={selecionarImagem}>
                 <CustomIcon name="image-outline" size={34} color="#173EA5" />
                 <Text style={styles.textoSeletorImagem}>Selecionar imagem</Text>
-                <Text style={styles.textoAuxiliar}>Redimensionamento e compressão automáticos. (16:9)</Text>
+                <Text style={styles.textoAuxiliar}>Redimensionamento e compressão automáticos.</Text>
               </TouchableOpacity>
             )}
 

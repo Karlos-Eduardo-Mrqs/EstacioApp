@@ -17,8 +17,6 @@ export default function GerenciarListaEventos({
       const dataObj = new Date(
         evento.inicio || evento.data || evento.dataEvento,
       );
-
-      // Verifica se a data já passou (comparando com a meia-noite de hoje)
       return {
         ...evento,
         dataObj
@@ -71,6 +69,10 @@ export default function GerenciarListaEventos({
           eventosProcessados.map((evento) => {
             const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento);
 
+            // 🔍 LÓGICA DO STATUS (true = Ativo, false = Encerrado)
+            // Se o status for estritamente false, consideramos encerrado. Caso contrário, avalia se a data já passou.
+            const isEncerrado = evento.status === false; 
+
             return (
               <View
                 key={evento.id}
@@ -82,8 +84,8 @@ export default function GerenciarListaEventos({
                   marginBottom: 12,
                   borderRadius: 12,
                   borderWidth: 1,
-                  borderColor: "#E2E8F0", // Borda mais suave e moderna (Slate 200)
-                  backgroundColor: "#FFFFFF", // Fundo limpo em vez de azul total
+                  borderColor: "#E2E8F0",
+                  backgroundColor: "#FFFFFF",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 1 },
                   shadowOpacity: 0.05,
@@ -92,7 +94,6 @@ export default function GerenciarListaEventos({
                 }}
               >
                 <View style={{ flex: 1, marginRight: 12 }}>
-                  {/* Linha Superior: Data e Local */}
                   <View
                     style={{
                       flexDirection: "row",
@@ -110,7 +111,6 @@ export default function GerenciarListaEventos({
                     </Text>
                   </View>
 
-                  {/* Título do Evento */}
                   <Text
                     style={{
                       fontSize: 15,
@@ -123,41 +123,42 @@ export default function GerenciarListaEventos({
                     {evento.titulo}
                   </Text>
                   
-                  {/* Bloco Inferior: Timer e Horas AAC em linha única ou organizada */}
                   {(() => {
                     const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
                     const temHoras = horas !== undefined && horas !== null && horas !== "" && horas !== 0;
 
                     const diffMs = evento.dataObj.getTime() - agora;
-                    const jaAconteceu = diffMs < 0;
 
                     let textoTempo = "";
-                    let corBadgeFundo = jaAconteceu ? "#FEF2F2" : "#EFF6FF";
-                    let corBadgeTexto = jaAconteceu ? "#DC2626" : "#2563EB";
+                    let corBadgeFundo = isEncerrado ? "#FEF2F2" : "#EFF6FF";
+                    let corBadgeTexto = isEncerrado ? "#DC2626" : "#2563EB";
 
-                    if (jaAconteceu) {
+                    if (isEncerrado) {
                       textoTempo = "🔴 Encerrado";
                     } else {
                       const segundosTotais = Math.floor(diffMs / 1000);
-                      const dias = Math.floor(segundosTotais / (3600 * 24));
-                      const horasFaltam = Math.floor((segundosTotais % (3600 * 24)) / 3600);
-                      const minutosFaltam = Math.floor((segundosTotais % 3600) / 60);
-                      const segundosFaltam = segundosTotais % 60;
-
-                      const h = String(horasFaltam).padStart(2, "0");
-                      const m = String(minutosFaltam).padStart(2, "0");
-                      const s = String(segundosFaltam).padStart(2, "0");
-
-                      if (dias > 0) {
-                        textoTempo = `⏳ ${dias} dias • ${h}:${m}:${s}`;
+                      if (segundosTotais < 0) {
+                        textoTempo = "🔴 Encerrado (Passou da data)";
                       } else {
-                        textoTempo = `⏳ ${h}:${m}:${s}`;
+                        const dias = Math.floor(segundosTotais / (3600 * 24));
+                        const horasFaltam = Math.floor((segundosTotais % (3600 * 24)) / 3600);
+                        const minutosFaltam = Math.floor((segundosTotais % 3600) / 60);
+                        const segundosFaltam = segundosTotais % 60;
+
+                        const h = String(horasFaltam).padStart(2, "0");
+                        const m = String(minutosFaltam).padStart(2, "0");
+                        const s = String(segundosFaltam).padStart(2, "0");
+
+                        if (dias > 0) {
+                          textoTempo = `⏳ ${dias} dias • ${h}:${m}:${s}`;
+                        } else {
+                          textoTempo = `⏳ ${h}:${m}:${s}`;
+                        }
                       }
                     }
 
                     return (
                       <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                        {/* Pílula de Tempo / Timer */}
                         <View style={{
                           backgroundColor: corBadgeFundo,
                           paddingHorizontal: 8,
@@ -169,7 +170,6 @@ export default function GerenciarListaEventos({
                           </Text>
                         </View>
 
-                        {/* Horas AAC */}
                         <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "500" }}>
                           🕒 {temHoras ? `${horas} h AAC` : "Horas não definidas"}
                         </Text>
@@ -178,15 +178,10 @@ export default function GerenciarListaEventos({
                   })()}
                 </View>
 
-                {/* Botões de Ação Administrativa Limpos */}
                 <View style={{ flexDirection: "row", gap: 6 }}>
                   {onEditar && (
                     <TouchableOpacity
-                      style={{
-                        padding: 8,
-                        backgroundColor: "#F1F5F9",
-                        borderRadius: 8,
-                      }}
+                      style={{ padding: 8, backgroundColor: "#F1F5F9", borderRadius: 8 }}
                       onPress={() => onEditar(evento)}
                     >
                       <CustomIcon name="pencil-outline" size={16} color="#334155" />
@@ -194,11 +189,7 @@ export default function GerenciarListaEventos({
                   )}
                   {onExcluir && (
                     <TouchableOpacity
-                      style={{
-                        padding: 8,
-                        backgroundColor: "#FEF2F2",
-                        borderRadius: 8,
-                      }}
+                      style={{ padding: 8, backgroundColor: "#FEF2F2", borderRadius: 8 }}
                       onPress={() => onExcluir(evento)}
                     >
                       <CustomIcon name="trash-outline" size={16} color="#DC2626" />

@@ -77,7 +77,7 @@ export default function ModalGerenciarServico({
               <Text style={styles.modalSubtitulo}>Preencha as informações do serviço institucional.</Text>
             </View>
             <TouchableOpacity onPress={onClose}>
-              <Text style={styles.fecharTexto}>✕</Text>
+                <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 

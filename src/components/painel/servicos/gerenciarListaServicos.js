@@ -1,6 +1,7 @@
-import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { painelServicosstyles as styles } from "../../../styles/painel/painelServicosStyles";
+import CustomIcon from "../../CustomIcon";
+import BotaoFechar from "../../botaoFechar";
 
 export default function GerenciarListaServicos({
   servicos = [],

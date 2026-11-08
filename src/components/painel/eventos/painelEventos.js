@@ -31,6 +31,8 @@ export default function PainelEventosTela() {
     setLocal,
     imagem,
     setImagem,
+    status,
+    setStatus,
     descricaoImagem,
     setDescricaoImagem,
     dataApenas, setDataApenas, horaApenas, setHoraApenas,
@@ -47,11 +49,8 @@ export default function PainelEventosTela() {
     carregando, solicitarRemocaoImagem, agora
   } = useGerenciarEventos();
 
-  // 📊 Calcula dinamicamente quantos eventos já passaram com base no relógio 'agora'
-  const quantidadeEncerrados = eventos.filter((evento) => {
-    const dataObj = new Date(evento.inicio || evento.data || evento.dataEvento);
-    return dataObj.getTime() < agora;
-  }).length;
+  // 📊 Conta quantos eventos estão com status falso (Encerrado) no banco
+  const quantidadeEncerrados = eventos.filter((evento) => evento.status === false).length;
 
   return (
     <View style={styles.safeArea}>
@@ -103,6 +102,8 @@ export default function PainelEventosTela() {
         local={local} setLocal={setLocal}
         imagem={imagem} setImagem={setImagem}
         descricaoImagem={descricaoImagem}
+        status={status}         
+        setStatus={setStatus}   
         dataApenas={dataApenas}
         setDataApenas={setDataApenas}     
         horaApenas={horaApenas}

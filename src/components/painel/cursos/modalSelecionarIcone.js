@@ -23,7 +23,7 @@ export default function ModalSelecionarIcone({ visible, onClose, onSelect }) {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#032551' }}>Selecionar Ícone do Curso</Text>
             <TouchableOpacity onPress={onClose}>
-              <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={22} color="#64748B" />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 

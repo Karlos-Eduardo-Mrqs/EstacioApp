@@ -16,6 +16,10 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
     : "";
   const ehCoordenador = perfilStr.includes("coordenador");
 
+  //Teste cursoid
+  console.log('USUÁRIO LOGADO:', usuarioAtual);
+  console.log('CURSO ID DO USUÁRIO:', usuarioAtual?.curso_id);
+  
   // Define a aba inicial com base no perfil do utilizador
   const [abaAtiva, setAbaAtiva] = useState(
     ehCoordenador ? "coordenacao" : "utilizadores",

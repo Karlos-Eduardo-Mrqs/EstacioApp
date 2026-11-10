@@ -49,10 +49,11 @@ export const modalCursosStyles = StyleSheet.create({
     backgroundColor: CoresInstitucionais.brancoPuro,
     borderRadius: 8,
     padding: 12,
-    marginBottom: 12,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: CoresInstitucionais.bordaSuave,
     elevation: 2,
+    
   },
   tituloBlocoSecao: {
     fontSize: 12,
@@ -87,7 +88,7 @@ export const modalCursosStyles = StyleSheet.create({
   },
   textoBtnSite: {
     fontWeight: "bold",
-    color: CoresInstitucionais.azulPrincipal,
+    color: CoresInstitucionais.brancoPuro,
     fontSize: 11,
   },
 

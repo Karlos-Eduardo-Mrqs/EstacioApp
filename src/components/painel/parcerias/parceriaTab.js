@@ -1,11 +1,11 @@
 import { View, Text, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
-import { useGerenciarParcerias } from "../../hooks/useGerenciarParcerias"; // 👈 Sobe duas pastas (painel -> components -> hooks)
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
+import { useGerenciarParcerias } from "../../../hooks/useGerenciarParcerias";
 import GerenciarListaParcerias from './gerenciarListaParcerias';
 import ModalGerenciarParceria from './modalGerenciarParcerias';
-import ToastPopup from '../Popup'; // 👈 Sobe uma pasta (painel -> components)
-import ConfirmPopup from '../ConfirmPopup'; // 👈 Sobe uma pasta (painel -> components)
-import CustomIcon from '../CustomIcon';
+import ToastPopup from '../../Popup';
+import ConfirmPopup from '../../ConfirmPopup';
+import CustomIcon from '../../CustomIcon';
 
 export default function ParceriaTab() {
   const {

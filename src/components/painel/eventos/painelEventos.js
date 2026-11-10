@@ -1,29 +1,56 @@
 import {ActivityIndicator,ScrollView,StatusBar,Text,View,} from "react-native";
-import { useGerenciarEventos } from "../../hooks/useGerenciarEventos";
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles";
-import ConfirmPopup from "../ConfirmPopup";
-import ToastPopup from "../Popup";
-import GerenciarListaEventos from "./gerenciarListaEventos"; 
-import ModalGerenciarEvento from "./modalGerenciarEvento";
-import CustomIcon from "../CustomIcon";
+import { useGerenciarEventos } from "../../../hooks/useGerenciarEventos";
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
+import ConfirmPopup from "../../ConfirmPopup";
+import ToastPopup from "../../Popup";
+import GerenciarListaEventos from "../eventos/gerenciarListaEventos"; 
+import ModalGerenciarEvento from "../eventos/modalGerenciarEvento";
+import CustomIcon from "../../CustomIcon";
 
 export default function PainelEventosTela() {
   const {
-    eventos, eventosFiltrados, cursos,
-    modalEvento, setModalEvento, eventoEditando,
-    titulo, setTitulo, descricao, setDescricao, dataTexto, setDataTexto,
-    palestrante, setPalestrante, cursoId, setCursoId, horasAAC, setHorasAAC,
-    local, setLocal, imagem, setImagem, descricaoImagem, setDescricaoImagem,
+    eventos,
+    eventosFiltrados,
+    cursos,
+    modalEvento,
+    setModalEvento,
+    eventoEditando,
+    titulo,
+    setTitulo,
+    descricao,
+    setDescricao,
+    dataTexto,
+    setDataTexto,
+    palestrante,
+    setPalestrante,
+    cursoId,
+    setCursoId,
+    horasAAC,
+    setHorasAAC,
+    local,
+    setLocal,
+    imagem,
+    setImagem,
+    status,
+    setStatus,
+    descricaoImagem,
+    setDescricaoImagem,
     dataApenas, setDataApenas, horaApenas, setHoraApenas,
-    feedback, toast, setToast, confirmacao, setConfirmacao,
-    abrirNovoEvento, abrirEdicao, selecionarImagem, salvarEvento,
-    excluirEvento, carregando, solicitarRemocaoImagem, agora
+    feedback,
+    toast,
+    setToast,
+    confirmacao,
+    setConfirmacao,
+    abrirNovoEvento,
+    abrirEdicao,
+    selecionarImagem,
+    salvarEvento,
+    excluirEvento,
+    carregando, solicitarRemocaoImagem, agora
   } = useGerenciarEventos();
 
-  const quantidadeEncerrados = eventos.filter((evento) => {
-    const dataObj = new Date(evento.inicio || evento.data || evento.dataEvento);
-    return dataObj.getTime() < agora;
-  }).length;
+  // 📊 Conta quantos eventos estão com status falso (Encerrado) no banco
+  const quantidadeEncerrados = eventos.filter((evento) => evento.status === false).length;
 
   return (
     <View style={styles.safeArea}>
@@ -33,7 +60,9 @@ export default function PainelEventosTela() {
         <Text style={styles.tituloPagina}>Painel de Eventos</Text>
         <Text style={styles.subtitulo}>Gerencie os eventos e o calendário acadêmico.</Text>
 
+        {/* 📈 Cartões de Resumo Atualizados (3 colunas) */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
+
           <View style={[styles.resumoCard, { flex: 1 }]}>
             <CustomIcon name="time-outline" size={21} color="#DC2626" />
             <Text style={[styles.resumoNumero, { color: "#DC2626" }]}>{quantidadeEncerrados}</Text>
@@ -73,15 +102,34 @@ export default function PainelEventosTela() {
         local={local} setLocal={setLocal}
         imagem={imagem} setImagem={setImagem}
         descricaoImagem={descricaoImagem}
-        dataApenas={dataApenas} setDataApenas={setDataApenas}     
-        horaApenas={horaApenas} setHoraApenas={setHoraApenas}
+        status={status}         
+        setStatus={setStatus}   
+        dataApenas={dataApenas}
+        setDataApenas={setDataApenas}     
+        horaApenas={horaApenas}
+        setHoraApenas={setHoraApenas}
         setDescricaoImagem={setDescricaoImagem}
-        feedback={feedback} selecionarImagem={selecionarImagem}
-        solicitarRemocaoImagem={solicitarRemocaoImagem} salvarEvento={salvarEvento}
+        feedback={feedback}
+        selecionarImagem={selecionarImagem}
+        solicitarRemocaoImagem={solicitarRemocaoImagem}
+        salvarEvento={salvarEvento}
       />
 
-      <ToastPopup visible={toast.visible} titulo={toast.titulo} mensagem={toast.mensagem} onClose={() => setToast((prev) => ({ ...prev, visible: false }))} />
-      <ConfirmPopup visible={confirmacao.visible} titulo={confirmacao.titulo} mensagem={confirmacao.mensagem} tipo={confirmacao.tipo} onConfirm={confirmacao.onConfirm} onCancel={() => setConfirmacao((prev) => ({ ...prev, visible: false }))} />
+      <ToastPopup
+        visible={toast.visible}
+        titulo={toast.titulo}
+        mensagem={toast.mensagem}
+        onClose={() => setToast((prev) => ({ ...prev, visible: false }))}
+      />
+
+      <ConfirmPopup
+        visible={confirmacao.visible}
+        titulo={confirmacao.titulo}
+        mensagem={confirmacao.mensagem}
+        tipo={confirmacao.tipo}
+        onConfirm={confirmacao.onConfirm}
+        onCancel={() => setConfirmacao((prev) => ({ ...prev, visible: false }))}
+      />
     </View>
   );
 }

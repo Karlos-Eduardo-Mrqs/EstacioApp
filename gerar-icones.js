@@ -14,7 +14,7 @@ const nomesDosIcones = [
   'hand-left-outline', 'school-outline', 'location-outline', 'mail-outline', 
   'document-text-outline', 'megaphone-outline', 'trophy-outline', 'people-outline', 
   'open-outline', 'filter-outline','chatbubbles-outline', 'chatbubbles',
-  'document-lock-outline',
+  'document-lock-outline','image-outline',
   'wallet-outline', 'wallet',
   'card-outline',
   'shield-checkmark-outline',
@@ -29,8 +29,21 @@ const nomesDosIcones = [
   'analytics-outline',
   'bookmarks-outline',
   'log-out-outline','create-outline', 'create',
-  'pencil-outline', 'pencil','briefcase-outline','fitness-outline','radio-button-on','radio-button-off','add','chevron-down','send-outline','save-outline'
+  'pencil-outline', 'pencil','briefcase-outline','fitness-outline',
+  'radio-button-on','radio-button-off','add','chevron-down','send-outline','save-outline','chevron-forward','book-sharp',
+  "paw-outline",
+ "flower-outline",
+ "paw-outline",
+ "flower-outline",
+ "earth-outline",
+ "car-sport-outline",
+ "airplane-outline",
+ "flash-outline",
+ "business-outline",
+ "restaurant-outline","chevron-up","grid-outline",
 ];
+
+ 
 
 async function iniciar() {
   console.log('🔄 Gerando lista de mapeamento com os links diretos dos ícones...');
@@ -56,7 +69,7 @@ async function iniciar() {
 
   codigo += '};\n';
 
-  const pastaComponentes = path.join(__dirname, 'src', 'components');
+  const pastaComponentes = path.join(__dirname, 'src', 'constants');
   if (!fs.existsSync(pastaComponentes)) {
     fs.mkdirSync(pastaComponentes, { recursive: true });
   }

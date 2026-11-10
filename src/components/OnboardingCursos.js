@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Stepper, { Step } from './Stepper';
 import {Onboardingstyles as styles} from "../styles/OnboardingCursosStyles";
+import BotaoFechar from './botaoFechar'; // 👈 Importa o seu botão de fechar corporativo se preferir
 
 export default function OnboardingCursos({ 
   cursosDisponiveis = [], 
   onConcluirSetup, 
   onPular,
-  stepInicial = 1 
+  stepInicial = 1,
+  jaConfigurou
 }) {
   const [cursosSelecionados, setCursosSelecionados] = useState([]);
   const [stepAtual, setStepAtual] = useState(stepInicial);
@@ -31,11 +33,15 @@ export default function OnboardingCursos({
 
   return (
     <View style={styles.container}>
-      {/* BOTÃO "FAZER DEPOIS" NO TOPO */}
+      {/* ✖️ BOTÃO DE FECHAR SUPERIOR APRIMORADO */}
       {onPular && (
-        <TouchableOpacity style={styles.btnPularHeader} onPress={onPular}>
-          <Text style={styles.textoPularHeader}>Configurar Depois ✕</Text>
-        </TouchableOpacity>
+        <View style={styles.headerTopoContainer}>
+          <TouchableOpacity style={styles.btnPularHeaderModerno} onPress={onPular} activeOpacity={0.7}>
+            <Text style={styles.textoPularHeader}>
+              {jaConfigurou ? "Cancelar edição ✕" : "Configurar Depois ✕"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       )}
 
       <Stepper
@@ -56,12 +62,34 @@ export default function OnboardingCursos({
             : {}
         }
       >
-        {/* PASSO 1: Boas-vindas (Exibido apenas no primeiro acesso normal) */}
+        {/* PASSO 1: Boas-vindas */}
         <Step title="Boas-vindas">
           <View style={styles.stepContent}>
-            <Text style={styles.titulo}>Seja bem-vindo ao Mural Acadêmico! 👋</Text>
+            
+            {/* 💡 MENSAGEM CONDICIONAL DO POPUP */}
+            {jaConfigurou ? (
+              <View style={styles.avisoBoxEdicao}>
+                <Text style={styles.avisoTextoEdicao}>
+                  ℹ️ Como já possui uma lista configurada, você pode cancelar a edição a qualquer momento e <Text style={{ fontWeight: 'bold' }}>refazer a sua lista quando quiser entrando em Configurações</Text>.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.avisoBoxPrimeiroAcesso}>
+                <Text style={styles.avisoTextoPrimeiroAcesso}>
+                  ⚡ Selecione de 3 a 5 cursos para personalizar o seu feed. Você poderá alterar isso depois nas <Text style={{ fontWeight: 'bold' }}>Configurações</Text>.
+                </Text>
+              </View>
+            )}
+
+            <Text style={styles.titulo}>
+              {jaConfigurou ? "Editar seus Cursos ⚙️" : "Seja bem-vindo ao Mural Acadêmico! 👋"}
+            </Text>
+            
             <Text style={styles.subtitulo}>
-              Para personalizarmos o seu feed de eventos, avisos e comunicados do campus, selecione de 3 a 5 cursos de seu interesse na próxima etapa.
+              {jaConfigurou 
+                ? "Atualize as suas preferências para continuar a receber comunicados direcionados no seu feed."
+                : "Para personalizarmos o seu feed de eventos e avisos do campus, selecione de 3 a 5 cursos de seu interesse na próxima etapa."
+              }
             </Text>
           </View>
         </Step>
@@ -135,7 +163,7 @@ export default function OnboardingCursos({
             </View>
 
             <Text style={styles.descricaoFinal}>
-              Os eventos e avisos relacionados a esses cursos terão destaque exclusivo no seu carrossel e calendário.
+              Lembre-se de que se precisar refazer ou modificar a sua seleção de cursos futuramente, basta entrar na aba de <Text style={{ fontWeight: 'bold' }}>Configurações</Text>.
             </Text>
           </View>
         </Step>

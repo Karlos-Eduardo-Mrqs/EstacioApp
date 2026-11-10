@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { ScrollView, Modal, View, Text, TouchableOpacity, FlatList, Platform } from "react-native";
-import { buscarCursosDoBanco } from "../../services/cursoServices"; 
-import { criarAvisoGlobalNoBanco, buscarTodosAvisosAtivosDoBanco } from "../../services/notificacaoService";
-import { buscarEventosDoBanco } from "../../services/eventoServices"; 
-import { notificacaoGlobalstyles as styles } from "../../styles/painel/notificacaoGlobalTabStyles"; 
-import { modalLocalStyles } from "../../styles/painel/notificacaoGlobalTabStyles";
-import FormularioNotificacao from "./formNotificacao";
-import CustomIcon from '../CustomIcon';  
-import ToastPopup from "../Popup";
+import { buscarCursosDoBanco } from "../../../services/cursoServices"; 
+import { criarAvisoGlobalNoBanco, buscarTodosAvisosAtivosDoBanco } from "../../../services/notificacaoService";
+import { buscarEventosDoBanco } from "../../../services/eventoServices"; 
+import { notificacaoGlobalstyles as styles } from "../../../styles/painel/notificacaoGlobalTabStyles"; 
+import { modalLocalStyles } from "../../../styles/painel/notificacaoGlobalTabStyles";
+import FormularioNotificacao from "../notificacoes/formNotificacao";
+import ToastPopup from "../../Popup";
+import BotaoFechar from "../../botaoFechar";
 
 export default function NotificacaoGlobalTab() {
   const [cursos, setCursos] = useState([]);
@@ -146,9 +146,6 @@ export default function NotificacaoGlobalTab() {
           <View style={modalLocalStyles.modalContainer}>
             <View style={modalLocalStyles.headerModal}>
               <Text style={modalLocalStyles.tituloModal}>Avisos Ativos no Mural</Text>
-              <TouchableOpacity onPress={() => setModalVisualizarVisivel(false)}>
-                <CustomIcon name={Platform.OS === 'web' ? 'close' : 'arrow-back'} size={24} color="#64748B" />
-              </TouchableOpacity>
             </View>
 
             {carregandoAvisos ? (

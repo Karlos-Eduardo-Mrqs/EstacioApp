@@ -1,8 +1,9 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Image,Platform } from 'react-native';
-import CustomIcon from '../CustomIcon';
-import { painelEventosStyles as styles } from "../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
-import FeedbackBox from '../FeedPopup'; // 👈 Sobe uma pasta (painel -> components)
-import { obterIconeDaWeb } from '../../services/parceriaServices'; // 👈 Sobe duas pastas (painel -> components -> services)
+import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
+import { obterIconeDaWeb } from "../../../services/parceriaServices"; // 👈 Sobe duas pastas (painel -> components -> services)
+import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
+import CustomIcon from "../../CustomIcon";
+import FeedbackBox from "../../FeedPopup"; // 👈 Sobe uma pasta (painel -> components)
+import BotaoFechar from "../../botaoFechar"; // 👈 Sobe uma pasta (painel -> components)
 
 function Campo({ label, style, ...props }) {
   return (
@@ -65,11 +66,7 @@ export default function ModalGerenciarParceria({
               {parceriaEditando ? "Editar parceria" : "Nova parceria"}
             </Text>
             <TouchableOpacity onPress={onClose}>
-              <CustomIcon 
-                name={Platform.OS === 'web' ? 'close' : 'arrow-back'} 
-                size={24} 
-                color="#64748B" 
-              />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 

@@ -124,7 +124,7 @@ export default function GerenciarUsuarios() {
               Cadastre, ative, desative ou remova utilizadores do sistema.
             </Text>
 
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: feedback.tipo, mensagem: feedback.mensagem })} />
 
             <View style={styles.barraPesquisa}>
               <View style={styles.pesquisaContainer}>

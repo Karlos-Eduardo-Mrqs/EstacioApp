@@ -1,16 +1,35 @@
 import { Picker } from "@react-native-picker/picker";
-import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View, Platform } from "react-native";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+import {
+  LISTA_PROPORCOES,
+  obterAspectRatioNumerico,
+} from "../../../constants/proporcoesConstantes";
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
-import { formatarEntradaData, formatarEntradaHora } from "../../../utils/dataUtils";
-import FeedbackBox from "../../FeedPopup";
+import {
+  formatarEntradaData,
+  formatarEntradaHora,
+} from "../../../utils/dataUtils";
+import BotaoFechar from "../../BotaoFechar";
 import CustomIcon from "../../CustomIcon";
-import BotaoFechar from "../../botaoFechar";
+import FeedbackBox from "../../FeedPopup";
 
 function Campo({ label, style, ...props }) {
   return (
     <View style={styles.campo}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput {...props} style={[styles.input, style]} placeholderTextColor="#94A3B8" />
+      <TextInput
+        {...props}
+        style={[styles.input, style]}
+        placeholderTextColor="#94A3B8"
+      />
     </View>
   );
 }
@@ -38,7 +57,14 @@ export default function ModalGerenciarEvento({
   setImagem,
   status,
   setStatus,
-  dataApenas, setDataApenas, horaApenas, setHoraApenas,
+  proporcao,
+  setProporcao,
+  linkTransmissao,
+  setLinkTransmissao,
+  dataApenas,
+  setDataApenas,
+  horaApenas,
+  setHoraApenas,
   solicitarRemocaoImagem,
   descricaoImagem,
   setDescricaoImagem,
@@ -47,23 +73,39 @@ export default function ModalGerenciarEvento({
   salvarEvento,
 }) {
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.modalCabecalho}>
-            <Text style={styles.tituloModal}>{eventoEditando ? "Editar evento" : "Novo evento"}</Text>
+            <Text style={styles.tituloModal}>
+              {eventoEditando ? "Editar evento" : "Novo evento"}
+            </Text>
             <TouchableOpacity onPress={onClose}>
-                <BotaoFechar onPress={onClose} />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: tipo, mensagem: mensagem })} />
 
-            <Campo label="Título do evento *" value={titulo} onChangeText={setTitulo} placeholder="Ex.: Workshop de Tecnologia" maxLength={100} />
-            
+            <Campo
+              label="Título do evento *"
+              value={titulo}
+              onChangeText={setTitulo}
+              placeholder="Ex.: Workshop de Tecnologia"
+              maxLength={100}
+            />
+
             {/* Bloco de Data e Hora Único e Otimizado */}
-            <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flexDirection: "row", gap: 12 }}>
               <View style={{ flex: 2 }}>
                 <Campo
                   label="Data *"
@@ -116,13 +158,29 @@ export default function ModalGerenciarEvento({
             {eventoEditando && (
               <View style={styles.campo}>
                 <Text style={styles.label}>Status do Evento</Text>
-                <View style={{ borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 8, backgroundColor: "#F8FAFC", overflow: "hidden" }}>
-                  <Picker 
-                    selectedValue={status} 
-                    onValueChange={(itemValue) => setStatus(itemValue)} 
-                    style={{ height: 48, width: "100%", color: "#0F172A", backgroundColor: "transparent" }}
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#CBD5E1",
+                    borderRadius: 8,
+                    backgroundColor: "#F8FAFC",
+                    overflow: "hidden",
+                  }}
+                >
+                  <Picker
+                    selectedValue={status}
+                    onValueChange={(itemValue) => setStatus(itemValue)}
+                    style={{
+                      height: 48,
+                      width: "100%",
+                      color: "#0F172A",
+                      backgroundColor: "transparent",
+                    }}
                   >
-                    <Picker.Item label="🟢 Ativo (Aberto / Em andamento)" value={true} />
+                    <Picker.Item
+                      label="🟢 Ativo (Aberto / Em andamento)"
+                      value={true}
+                    />
                     <Picker.Item label="🔴 Encerrado" value={false} />
                   </Picker>
                 </View>
@@ -131,8 +189,25 @@ export default function ModalGerenciarEvento({
 
             <View style={styles.campo}>
               <Text style={styles.label}>Curso Destinatário *</Text>
-              <View style={{ borderWidth: 1, borderColor: "#CBD5E1", borderRadius: 8, backgroundColor: "#F8FAFC", overflow: "hidden" }}>
-                <Picker selectedValue={cursoId} onValueChange={(itemValue) => setCursoId(itemValue)} style={{ height: 48, width: "100%", color: "#0F172A", backgroundColor: "transparent" }}>
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#CBD5E1",
+                  borderRadius: 8,
+                  backgroundColor: "#F8FAFC",
+                  overflow: "hidden",
+                }}
+              >
+                <Picker
+                  selectedValue={cursoId}
+                  onValueChange={(itemValue) => setCursoId(itemValue)}
+                  style={{
+                    height: 48,
+                    width: "100%",
+                    color: "#0F172A",
+                    backgroundColor: "transparent",
+                  }}
+                >
                   <Picker.Item label="Selecione um curso..." value="" />
                   <Picker.Item label="Todos" value="NULL" />
                   {cursos.map((c) => (
@@ -142,41 +217,119 @@ export default function ModalGerenciarEvento({
               </View>
             </View>
 
-            <Campo label="Descrição do evento" value={descricao} onChangeText={setDescricao} placeholder="Detalhes sobre o evento..." multiline style={styles.inputDescricao} textAlignVertical="top" maxLength={500} />
+            <Campo
+              label="Descrição do evento"
+              value={descricao}
+              onChangeText={setDescricao}
+              placeholder="Detalhes sobre o evento..."
+              multiline
+              style={styles.inputDescricao}
+              textAlignVertical="top"
+              maxLength={500}
+            />
+
+            <Campo
+              label="Link de Transmissão / Vídeo Chamada (Opcional)"
+              value={linkTransmissao}
+              onChangeText={setLinkTransmissao}
+              placeholder="Ex.: https://meet.google.com/abc-defg-hij"
+              autoCapitalize="none"
+              keyboardType="url"
+              maxLength={300}
+            />
 
             <Text style={styles.label}>Imagem de capa</Text>
 
             {imagem ? (
               <View style={styles.previaContainer}>
-                <Image
-                  source={{ uri: imagem }}
+                <Text style={[styles.label, { marginTop: 4, marginBottom: 6 }]}>
+                  Formatação da Imagem *
+                </Text>
+
+                {/* LISTA DINÂMICA DE PROPORÇÕES */}
+                <View
                   style={{
-                    width: '100%',
-                    aspectRatio: 16 / 9, // Mantém a proporção exata 16:9
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    gap: 8,
+                    marginBottom: 12,
+                  }}
+                >
+                  {LISTA_PROPORCOES.map((item) => (
+                    <TouchableOpacity
+                      key={item.value}
+                      style={{
+                        flexGrow: 1,
+                        minWidth: "30%",
+                        paddingVertical: 8,
+                        paddingHorizontal: 8,
+                        borderRadius: 8,
+                        backgroundColor:
+                          proporcao === item.value ? "#173EA5" : "#F1F5F9",
+                        borderWidth: 1,
+                        borderColor:
+                          proporcao === item.value ? "#173EA5" : "#CBD5E1",
+                        alignItems: "center",
+                      }}
+                      onPress={() => setProporcao(item.value)}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: "bold",
+                          color:
+                            proporcao === item.value ? "#FFFFFF" : "#475569",
+                        }}
+                      >
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* PRÉVIA USANDO A FUNÇÃO CENTRALIZADA */}
+                <View
+                  style={{
+                    width: "100%",
+                    aspectRatio: obterAspectRatioNumerico(proporcao),
                     borderRadius: 8,
-                    backgroundColor: '#F8FAFC',
-                  }} 
-                  resizeMode="cover" // Corta o excesso sem distorcer
-                />
-                
+                    overflow: "hidden",
+                    backgroundColor: "#F8FAFC",
+                  }}
+                >
+                  <Image
+                    source={{ uri: imagem }}
+                    style={{ width: "100%", height: "100%" }}
+                    resizeMode="cover"
+                  />
+                </View>
+
                 <Campo
                   label="Descrição da imagem (Alt text / Legenda)"
                   value={descricaoImagem}
                   onChangeText={setDescricaoImagem}
                   placeholder="Descreva o conteúdo da imagem"
-                  maxLength={200} 
+                  maxLength={200}
                 />
-                
-                <TouchableOpacity style={styles.removerImagem} onPress={solicitarRemocaoImagem}>
+
+                <TouchableOpacity
+                  style={styles.removerImagem}
+                  onPress={solicitarRemocaoImagem}
+                >
                   <CustomIcon name="trash-outline" size={18} color="#FFFFFF" />
                   <Text style={styles.textoRemoverImagem}>Remover imagem</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity style={styles.seletorImagem} onPress={selecionarImagem}>
+              <TouchableOpacity
+                style={styles.seletorImagem}
+                onPress={selecionarImagem}
+              >
                 <CustomIcon name="image-outline" size={34} color="#173EA5" />
                 <Text style={styles.textoSeletorImagem}>Selecionar imagem</Text>
-                <Text style={styles.textoAuxiliar}>Redimensionamento e compressão automáticos.</Text>
+                <Text style={styles.textoAuxiliar}>
+                  Esolha uma imagem para salvar na base de dados.
+                </Text>
               </TouchableOpacity>
             )}
 

@@ -1,25 +1,40 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Modal, Platform } from 'react-native';
+import { useState } from "react";
+import {
+    Modal,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { painelServicosstyles as styles } from "../../../styles/painel/painelServicosStyles";
-import BotaoFechar from "../../botaoFechar";
+import BotaoFechar from "../../BotaoFechar";
 
 export default function ModalGerenciarServico({
   visible,
   onClose,
   servicoEditando,
-  nome, setNome,
-  coordenadorId, setCoordenadorId,
-  cursoId, setCursoId,
-  descricao, setDescricao,
-  dias, setDias,
-  linksUteis, setLinksUteis,
-  aviso, setAviso,
+  nome,
+  setNome,
+  coordenadorId,
+  setCoordenadorId,
+  cursoId,
+  setCursoId,
+  descricao,
+  setDescricao,
+  dias,
+  setDias,
+  linksUteis,
+  setLinksUteis,
+  aviso,
+  setAviso,
   coordenadoresDisponiveis = [],
   cursosDisponiveis = [],
   salvarServico,
 }) {
-  const [nomeLinkTemp, setNomeLinkTemp] = useState('');
-  const [urlLinkTemp, setUrlLinkTemp] = useState('');
+  const [nomeLinkTemp, setNomeLinkTemp] = useState("");
+  const [urlLinkTemp, setUrlLinkTemp] = useState("");
 
   // Seleciona o coordenador e preenche o curso automaticamente (mantendo editável)
   const handleSelecaoCoordenador = (idSelecionado) => {
@@ -27,16 +42,17 @@ export default function ModalGerenciarServico({
     if (!idSelecionado) return;
 
     const coordEncontrado = coordenadoresDisponiveis.find(
-      (c) => String(c.id) === String(idSelecionado)
+      (c) => String(c.id) === String(idSelecionado),
     );
 
     if (coordEncontrado) {
-      const idDoCursoAssociado = coordEncontrado.cursoId || coordEncontrado.curso_id;
+      const idDoCursoAssociado =
+        coordEncontrado.cursoId || coordEncontrado.curso_id;
       if (idDoCursoAssociado) {
         setCursoId(String(idDoCursoAssociado));
       } else if (coordEncontrado.curso) {
         const cursoCorrespondente = cursosDisponiveis.find(
-          (c) => c.nome?.toLowerCase() === coordEncontrado.curso?.toLowerCase()
+          (c) => c.nome?.toLowerCase() === coordEncontrado.curso?.toLowerCase(),
         );
         if (cursoCorrespondente) {
           setCursoId(String(cursoCorrespondente.id));
@@ -49,40 +65,48 @@ export default function ModalGerenciarServico({
     if (!nomeLinkTemp.trim() || !urlLinkTemp.trim()) return;
 
     const novoItem = `${nomeLinkTemp.trim()}: ${urlLinkTemp.trim()};`;
-    const textoAtualizado = linksUteis 
-      ? `${linksUteis.trim()}\n${novoItem}` 
+    const textoAtualizado = linksUteis
+      ? `${linksUteis.trim()}\n${novoItem}`
       : novoItem;
 
     setLinksUteis(textoAtualizado);
-    setNomeLinkTemp('');
-    setUrlLinkTemp('');
+    setNomeLinkTemp("");
+    setUrlLinkTemp("");
   };
 
   // 🧹 Função opcional para limpar formatações estranhas ao colar do Docs
   const limparTextoColado = (texto) => {
     // Remove caracteres de controle indesejados mantendo quebras de linha normais
-    return texto.replace(/[\u200B-\u200D\uFEFF]/g, '');
+    return texto.replace(/[\u200B-\u200D\uFEFF]/g, "");
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={<BotaoFechar onPress={() => onClose()} />}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={<BotaoFechar onPress={() => onClose()} />}
+    >
       <View style={styles.modalFundo}>
         <View style={styles.modalFormulario}>
-          
           <View style={styles.modalHeaderFormulario}>
             <View style={{ flex: 1 }}>
               <Text style={styles.modalTitulo}>
-                {servicoEditando ? 'Editar serviço' : 'Novo serviço'}
+                {servicoEditando ? "Editar serviço" : "Novo serviço"}
               </Text>
-              <Text style={styles.modalSubtitulo}>Preencha as informações do serviço institucional.</Text>
+              <Text style={styles.modalSubtitulo}>
+                Preencha as informações do serviço institucional.
+              </Text>
             </View>
             <TouchableOpacity onPress={onClose}>
-                <BotaoFechar onPress={onClose} />
+              <BotaoFechar onPress={onClose} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-            
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
             <Text style={styles.label}>Nome do serviço *</Text>
             <TextInput
               style={styles.inputFormulario}
@@ -95,29 +119,41 @@ export default function ModalGerenciarServico({
             {/* COORDENADOR */}
             <Text style={styles.label}>Coordenador responsável *</Text>
             <View style={styles.seletorWrapperWeb}>
-              {Platform.OS === 'web' ? (
+              {Platform.OS === "web" ? (
                 <select
                   value={coordenadorId}
                   onChange={(e) => handleSelecaoCoordenador(e.target.value)}
                   style={styles.selectEstilizadoWeb}
                 >
                   <option value="">Selecione um coordenador</option>
-                  {coordenadoresDisponiveis.map(coord => (
-                    <option key={coord.id} value={coord.id}>{coord.nome}</option>
+                  {coordenadoresDisponiveis.map((coord) => (
+                    <option key={coord.id} value={coord.id}>
+                      {coord.nome}
+                    </option>
                   ))}
                 </select>
               ) : (
-                <ScrollView style={styles.listaCoordenadores} nestedScrollEnabled>
-                  {coordenadoresDisponiveis.map(coord => (
+                <ScrollView
+                  style={styles.listaCoordenadores}
+                  nestedScrollEnabled
+                >
+                  {coordenadoresDisponiveis.map((coord) => (
                     <TouchableOpacity
                       key={coord.id}
                       style={[
                         styles.opcaoCoordenador,
-                        { backgroundColor: String(coordenadorId) === String(coord.id) ? '#EFF6FF' : 'transparent' }
+                        {
+                          backgroundColor:
+                            String(coordenadorId) === String(coord.id)
+                              ? "#EFF6FF"
+                              : "transparent",
+                        },
                       ]}
                       onPress={() => handleSelecaoCoordenador(String(coord.id))}
                     >
-                      <Text style={styles.opcaoCoordenadorTexto}>{coord.nome}</Text>
+                      <Text style={styles.opcaoCoordenadorTexto}>
+                        {coord.nome}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -127,35 +163,52 @@ export default function ModalGerenciarServico({
             {/* CURSO VINCULADO (AUTOMÁTICO MAS EDITÁVEL) */}
             <Text style={styles.label}>Curso vinculado</Text>
             <View style={styles.seletorWrapperWeb}>
-              {Platform.OS === 'web' ? (
+              {Platform.OS === "web" ? (
                 <select
                   value={cursoId}
                   onChange={(e) => setCursoId(e.target.value)}
                   style={styles.selectEstilizadoWeb}
                 >
                   <option value="">Geral / Todos</option>
-                  {cursosDisponiveis.map(curso => (
-                    <option key={curso.id} value={curso.id}>{curso.nome}</option>
+                  {cursosDisponiveis.map((curso) => (
+                    <option key={curso.id} value={curso.id}>
+                      {curso.nome}
+                    </option>
                   ))}
                 </select>
               ) : (
-                <ScrollView style={styles.listaCoordenadores} nestedScrollEnabled>
+                <ScrollView
+                  style={styles.listaCoordenadores}
+                  nestedScrollEnabled
+                >
                   <TouchableOpacity
-                    style={[styles.opcaoCoordenador, { backgroundColor: !cursoId ? '#EFF6FF' : 'transparent' }]}
-                    onPress={() => setCursoId('')}
+                    style={[
+                      styles.opcaoCoordenador,
+                      { backgroundColor: !cursoId ? "#EFF6FF" : "transparent" },
+                    ]}
+                    onPress={() => setCursoId("")}
                   >
-                    <Text style={styles.opcaoCoordenadorTexto}>Geral / Todos</Text>
+                    <Text style={styles.opcaoCoordenadorTexto}>
+                      Geral / Todos
+                    </Text>
                   </TouchableOpacity>
-                  {cursosDisponiveis.map(curso => (
+                  {cursosDisponiveis.map((curso) => (
                     <TouchableOpacity
                       key={curso.id}
                       style={[
                         styles.opcaoCoordenador,
-                        { backgroundColor: String(cursoId) === String(curso.id) ? '#EFF6FF' : 'transparent' }
+                        {
+                          backgroundColor:
+                            String(cursoId) === String(curso.id)
+                              ? "#EFF6FF"
+                              : "transparent",
+                        },
                       ]}
                       onPress={() => setCursoId(String(curso.id))}
                     >
-                      <Text style={styles.opcaoCoordenadorTexto}>{curso.nome}</Text>
+                      <Text style={styles.opcaoCoordenadorTexto}>
+                        {curso.nome}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -205,13 +258,17 @@ export default function ModalGerenciarServico({
                 style={styles.botaoAddLinkModerno}
                 onPress={adicionarLinkRapido}
               >
-                <Text style={styles.botaoAddLinkTextoModerno}>+ Adicionar Link</Text>
+                <Text style={styles.botaoAddLinkTextoModerno}>
+                  + Adicionar Link
+                </Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
               style={[styles.inputFormulario, styles.inputMultilinha]}
-              placeholder={'Formulário de Inscrição: https://...;\nManual do Aluno: https://...;'}
+              placeholder={
+                "Formulário de Inscrição: https://...;\nManual do Aluno: https://...;"
+              }
               placeholderTextColor="#999"
               value={linksUteis}
               onChangeText={setLinksUteis}
@@ -234,14 +291,13 @@ export default function ModalGerenciarServico({
               onPress={salvarServico}
             >
               <Text style={styles.botaoSalvarTexto}>
-                {servicoEditando ? 'Salvar alterações' : '+ Cadastrar serviço'}
+                {servicoEditando ? "Salvar alterações" : "+ Cadastrar serviço"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.botaoCancelar} onPress={onClose}>
               <Text style={styles.botaoCancelarTexto}>Cancelar</Text>
             </TouchableOpacity>
-
           </ScrollView>
         </View>
       </View>

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { buscarEventosDoBanco, criarEventoNoBanco, atualizarEventoNoBanco, removerEventoDoBanco, 
-alterarStatusEventoNoBanco, criarImagemNoBanco, atualizarImagemNoBanco, buscarCursosDoBanco,fazerUploadParaSupabaseStorage,removerOuSubstituirImagemEvento } from '../services/apiServices';
-import { formatarDataHora, converterParaISO } from '../utils/dataUtils';
+alterarStatusEventoNoBanco, criarImagemNoBanco, atualizarImagemNoBanco, buscarCursosDoBanco, fazerUploadParaSupabaseStorage } from '../services/apiServices';
+import { converterParaISO } from '../utils/dataUtils';
 
-export function useGerenciarEventos() {
+export function useGerenciarEventos(usuarioAtual = null) {
   const [eventos, setEventos] = useState([]);
   const [cursos, setCursos] = useState([]);
   const [busca, setBusca] = useState('');
@@ -25,8 +25,10 @@ export function useGerenciarEventos() {
   const [descricaoImagem, setDescricaoImagem] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [local, setLocal] = useState('');
+  const [linkTransmissao, setLinkTransmissao] = useState('');
   const [dataApenas, setDataApenas] = useState('');
   const [horaApenas, setHoraApenas] = useState('');
+  const [proporcao, setProporcao] = useState('16:9');
 
   // ── ESTADOS PARA OS POPUPS ──
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
@@ -40,19 +42,19 @@ export function useGerenciarEventos() {
 
   useEffect(() => {
     carregarDadosIniciais();
-  }, []);
+  }, [usuarioAtual]);
 
   async function carregarDadosIniciais() {
     try {
       setCarregando(true);
       const [dadosEventos, dadosCursos] = await Promise.all([
-        buscarEventosDoBanco(),
+        buscarEventosDoBanco(usuarioAtual),
         buscarCursosDoBanco()
       ]);
       
       setEventos(dadosEventos || []);
       setCursos(dadosCursos || []);
-      if (dadosCursos && dadosCursos.length > 0) {
+      if (dadosCursos && dadosCursos.length > 0 && !cursoId) {
         setCursoId(dadosCursos[0].id);
       }
     } catch (error) {
@@ -77,11 +79,13 @@ export function useGerenciarEventos() {
     setPalestrante('');
     setLocal('');
     setHorasAAC('');
-    setCursoId('');
+    setCursoId(cursos.length > 0 ? cursos[0].id : '');
     setDescricao('');
     setImagem(null);
+    setProporcao('16:9');
     setDescricaoImagem('');
     setModalEvento(true);
+    setLinkTransmissao('');
   };
 
   const abrirEdicao = (evento) => {
@@ -91,26 +95,22 @@ export function useGerenciarEventos() {
     const dataBr = evento.inicio || evento.data || evento.dataEvento;
     if (dataBr) {
       try {
-        // Exemplo de formato do banco: "2026-10-17 19:54:34.521676+00" ou ISO "2026-10-17T19:54:34..."
-        // Pegamos apenas os primeiros 10 caracteres que correspondem a "AAAA-MM-DD"
-        const dataPura = dataBr.substring(0, 10); // "2026-10-17"
+        const dataPura = dataBr.substring(0, 10);
         const [ano, mes, dia] = dataPura.split('-');
 
         if (ano && mes && dia) {
-          setDataApenas(`${dia}/${mes}/${ano}`); // Transforma em "17/10/2026"
+          setDataApenas(`${dia}/${mes}/${ano}`);
         } else {
           setDataApenas('');
         }
 
-        // Extrai a hora (procura pelo espaço ou pelo 'T')
         const partesEspaco = dataBr.split(' ');
         const partesT = dataBr.split('T');
         const stringHora = partesEspaco.length > 1 ? partesEspaco[1] : (partesT.length > 1 ? partesT[1] : '');
 
         if (stringHora) {
-          // Remove os milissegundos, o 'Z' ou o fuso horário (+00)
           const horaLimpa = stringHora.split('.')[0].replace('Z', '').split('+')[0];
-          setHoraApenas(horaLimpa); // Ex: "19:54:34"
+          setHoraApenas(horaLimpa);
         } else {
           setHoraApenas('00:00:00');
         }
@@ -129,7 +129,8 @@ export function useGerenciarEventos() {
     setHorasAAC(evento.horasAAC ? String(evento.horasAAC) : '');
     setCursoId(evento.curso_id || evento.cursoId || '');
     setDescricao(evento.descricao || '');
-    
+    setProporcao(evento.imagem?.proporcao || '16:9');
+    setLinkTransmissao(evento.link_transmissao || evento.linkTransmissao || '');
     const urlImagem = evento.imagem?.caminho_img || evento.imagem || null;
     setImagem(urlImagem);
     setDescricaoImagem(evento.imagem?.descricao || evento.descricaoImagem || '');
@@ -141,41 +142,49 @@ export function useGerenciarEventos() {
     try {
       const resultado = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true,
+        allowsEditing: false, 
         quality: 1, 
       });
 
       if (!resultado.canceled && resultado.assets?.length) {
         const asset = resultado.assets[0];
-        const uriOriginal = asset.uri;
+        const { width, height, uri } = asset;
 
-        // Determina se a imagem é mais alta (vertical) ou mais larga (horizontal)
-        const ehVertical = asset.height > asset.width;
+        const ratio = width / height;
+        let proporcaoIdentificada = '16:9';
 
-        // Redimensiona inteligentemente: se for vertical ajusta pela altura, se for horizontal pela largura
-        const acaoRedimensionar = ehVertical 
-          ? { resize: { height: 1280 } } 
-          : { resize: { width: 1280 } };
+        if (ratio >= 1.5) {
+          proporcaoIdentificada = '16:9'; 
+        } else if (ratio >= 1.2) {
+          proporcaoIdentificada = '4:3';  
+        } else if (ratio <= 0.75) {
+          proporcaoIdentificada = '4:5';  
+        } else if (ratio <= 0.85) {
+          proporcaoIdentificada = '3:4';  
+        } else {
+          proporcaoIdentificada = '1:1'; 
+        }
+
+        setProporcao(proporcaoIdentificada);
+
+        const ehVertical = height > width;
+        const acaoRedimensionar = ehVertical ? { resize: { height: 1280 } } : { resize: { width: 1280 } };
 
         const imagemOtimizada = await ImageManipulator.manipulateAsync(
-          uriOriginal,
+          uri,
           [acaoRedimensionar], 
-          { 
-            compress: 0.75, // Comprime para 75% para garantir que o ficheiro fique menor que o original (abaixo de 100kb)
-            format: ImageManipulator.SaveFormat.JPEG 
-          }
+          { compress: 0.75, format: ImageManipulator.SaveFormat.JPEG }
         );
 
         setImagem(imagemOtimizada.uri);
       }
     } catch (error) {
-      console.log("Erro ao comprimir imagem:", error);
-      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível otimizar a imagem.' });
+      console.log("Erro ao selecionar imagem:", error);
+      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível carregar a imagem.' });
     }
   }
 
   async function salvarEvento() {
-    // 1. 🛡️ Validação dos campos obrigatórios
     if (!titulo.trim() || !dataApenas.trim() || !local.trim() || !cursoId) {
       setFeedback({ 
         tipo: 'erro', 
@@ -195,36 +204,40 @@ export function useGerenciarEventos() {
 
     try {
       let imagemId = eventoEditando?.imagem_id || null;
+      let urlDefinitiva = null;
 
-      // 2. 🖼️ Gestão da Imagem (Se não houver imagem, atribui uma padrão)
       if (!imagem) {
-        imagemId = 21; // 👈 Substitua pelo ID real da imagem padrão no seu banco
+        imagemId = 21; 
       } else {
         const ehLocalTemp = imagem.startsWith('file://') || imagem.startsWith('blob:') || imagem.startsWith('content://');
 
         if (ehLocalTemp) {
-          const urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem, titulo);
+          urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem);
           
           const novaImagemPayload = {
             titulo: `Capa: ${titulo.trim()}`,
             descricao: descricaoImagem.trim() || 'Divulgação do evento',
             caminho_img: urlDefinitiva,
+            proporcao: proporcao 
           };
 
-          if (eventoEditando && eventoEditando.imagem_id && eventoEditando.imagem_id !== 1) {
-            // Atualiza a imagem existente (se não for a padrão)
+          if (eventoEditando && eventoEditando.imagem_id && eventoEditando.imagem_id !== 21) {
             imagemId = eventoEditando.imagem_id;
             await atualizarImagemNoBanco(imagemId, novaImagemPayload);
           } else {
-            // Cria um novo registo de imagem se for novo ou se usava a padrão antes
             const imagemCriada = await criarImagemNoBanco(novaImagemPayload);
             imagemId = imagemCriada.id;
           }
-        } else if (imagemId && imagemId !== 1 && descricaoImagem) {
-          try {
-            await atualizarImagemNoBanco(imagemId, { descricao: descricaoImagem.trim() });
-          } catch (e) {
-            console.log("Erro ao atualizar descrição da imagem:", e);
+        } else {
+          if (imagemId && imagemId !== 21) {
+            try {
+              await atualizarImagemNoBanco(imagemId, { 
+                descricao: descricaoImagem.trim(),
+                proporcao: proporcao 
+              });
+            } catch (e) {
+              console.log("Erro ao atualizar dados da imagem:", e);
+            }
           }
         }
       }
@@ -239,7 +252,9 @@ export function useGerenciarEventos() {
         local: local.trim() || null,
         curso_id: cursoTratado,
         horasAAC: horasAAC ? Number(horasAAC) : 0,
-        imagem_id: imagemId, // 👈 Será o ID da imagem enviada ou o ID 1 (padrão)
+        imagem_id: imagemId, 
+        usuario_id: usuarioAtual?.id || null,
+        link_transmissao: linkTransmissao.trim() || null, 
       };
 
       if (eventoEditando) {
@@ -311,14 +326,9 @@ export function useGerenciarEventos() {
         tipo: 'danger',
         onConfirm: () => {
           setConfirmacao(prev => ({ ...prev, visible: false }));
-          
-          // 1. Limpa o estado local para habilitar o botão de "Selecionar imagem"
           setImagem(null);
           setDescricaoImagem('');
-          
-          // 2. Remove temporariamente o vínculo da imagem no objeto de edição para sabermos que foi desassociada
           setEventoEditando(prev => ({ ...prev, imagem_id: null, imagem: null }));
-          
           setToast({ visible: true, titulo: 'Imagem Removida', mensagem: 'Pode selecionar uma nova imagem ou salvar para usar a padrão.' });
         }
       });
@@ -347,9 +357,11 @@ export function useGerenciarEventos() {
     local, setLocal,
     horasAAC, setHorasAAC,
     imagem, setImagem,
+    proporcao, setProporcao,
     descricaoImagem, setDescricaoImagem,
     dataApenas, setDataApenas,
     horaApenas, setHoraApenas,
+    linkTransmissao, setLinkTransmissao,
     feedback,
     toast, setToast,
     confirmacao, setConfirmacao,
@@ -359,6 +371,7 @@ export function useGerenciarEventos() {
     salvarEvento,
     alternarStatus,
     excluirEvento,
-    carregando, solicitarRemocaoImagem
+    carregando, 
+    solicitarRemocaoImagem
   };
 }

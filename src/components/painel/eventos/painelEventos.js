@@ -7,7 +7,7 @@ import GerenciarListaEventos from "../eventos/gerenciarListaEventos";
 import ModalGerenciarEvento from "../eventos/modalGerenciarEvento";
 import CustomIcon from "../../CustomIcon";
 
-export default function PainelEventosTela() {
+export default function PainelEventosTela({usuarioAtual}) {
   const {
     eventos,
     eventosFiltrados,
@@ -36,6 +36,7 @@ export default function PainelEventosTela() {
     descricaoImagem,
     setDescricaoImagem,
     dataApenas, setDataApenas, horaApenas, setHoraApenas,
+    proporcao, setProporcao,linkTransmissao, setLinkTransmissao,
     feedback,
     toast,
     setToast,
@@ -47,7 +48,7 @@ export default function PainelEventosTela() {
     salvarEvento,
     excluirEvento,
     carregando, solicitarRemocaoImagem, agora
-  } = useGerenciarEventos();
+  } = useGerenciarEventos(usuarioAtual);
 
   // 📊 Conta quantos eventos estão com status falso (Encerrado) no banco
   const quantidadeEncerrados = eventos.filter((evento) => evento.status === false).length;
@@ -109,6 +110,10 @@ export default function PainelEventosTela() {
         horaApenas={horaApenas}
         setHoraApenas={setHoraApenas}
         setDescricaoImagem={setDescricaoImagem}
+        proporcao={proporcao}
+        setProporcao={setProporcao}
+        linkTransmissao = {linkTransmissao}
+        setLinkTransmissao = {setLinkTransmissao}
         feedback={feedback}
         selecionarImagem={selecionarImagem}
         solicitarRemocaoImagem={solicitarRemocaoImagem}

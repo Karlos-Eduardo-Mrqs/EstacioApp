@@ -88,6 +88,7 @@ export default function ModalGerenciarPublicacao({
                 <FeedbackBox
                     tipo={feedback?.tipo}
                     mensagem={feedback?.mensagem}
+                    onClose={() => setFeedback({ tipo: feedback.tipo, mensagem: feedback.mensagem })}
                 />
 
                 <Campo

@@ -12,9 +12,9 @@ export default function PainelMenu({
   usuarioAtual,
   solicitarLogout,
 }) {
-  // Renderizador dos botões de navegação partilhados entre Desktop e Mobile
   const renderBotoesNav = () => (
     <>
+      {/* 👤 Apenas Gerência: Gestão de Coordenadores / Utilizadores */}
       {!ehCoordenador && (
         <TouchableOpacity
           style={[styles.botaoNav, abaAtiva === "utilizadores" && styles.botaoNavAtivo]}
@@ -30,19 +30,35 @@ export default function PainelMenu({
         </TouchableOpacity>
       )}
 
+      {/* 📰 Publicações (Disponível para Gerência e Coordenador) */}
       <TouchableOpacity
-        style={[styles.botaoNav, (abaAtiva === "eventos" || abaAtiva === "coordenacao") && styles.botaoNavAtivo]}
-        onPress={() => selecionarAba(ehCoordenador ? "coordenacao" : "eventos")}
+        style={[styles.botaoNav, abaAtiva === "publicacoes" && styles.botaoNavAtivo]}
+        onPress={() => selecionarAba("publicacoes")}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.iconeNav}><CustomIcon name="document-text-outline" size={18} color="#fff"/></Text>
+        {(isDesktop || drawerOpen) && (
+          <Text style={[styles.textoBotaoNav, abaAtiva === "publicacoes" && styles.textoBotaoNavAtivo]}>
+            Publicações
+          </Text>
+        )}
+      </TouchableOpacity>
+
+      {/* 📅 Eventos (Ambos acessam) */}
+      <TouchableOpacity
+        style={[styles.botaoNav, abaAtiva === "eventos" && styles.botaoNavAtivo]}
+        onPress={() => selecionarAba("eventos")}
         activeOpacity={0.8}
       >
         <Text style={styles.iconeNav}><CustomIcon name="calendar" size={18} color="#fff"/></Text>
         {(isDesktop || drawerOpen) && (
-          <Text style={[styles.textoBotaoNav, (abaAtiva === "eventos" || abaAtiva === "coordenacao") && styles.textoBotaoNavAtivo]}>
+          <Text style={[styles.textoBotaoNav, abaAtiva === "eventos" && styles.textoBotaoNavAtivo]}>
             Eventos
           </Text>
         )}
       </TouchableOpacity>
 
+      {/* 📢 Notificação Global (Ambos acessam) */}
       <TouchableOpacity
         style={[styles.botaoNav, abaAtiva === "notificacao" && styles.botaoNavAtivo]}
         onPress={() => selecionarAba("notificacao")}
@@ -56,6 +72,7 @@ export default function PainelMenu({
         )}
       </TouchableOpacity>
 
+      {/* 🤝 Parcerias (Apenas Gerência) */}
       {!ehCoordenador && (
         <TouchableOpacity
           style={[styles.botaoNav, abaAtiva === "parcerias" && styles.botaoNavAtivo]}
@@ -71,39 +88,36 @@ export default function PainelMenu({
         </TouchableOpacity>
       )}
 
-      {!ehCoordenador && (
-        <TouchableOpacity
-          style={[styles.botaoNav, abaAtiva === "servicos" && styles.botaoNavAtivo]}
-          onPress={() => selecionarAba("servicos")}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.iconeNav}><CustomIcon name="business-outline" size={18} color="#fff" /></Text>
-          {(isDesktop || drawerOpen) && (
-            <Text style={[styles.textoBotaoNav, abaAtiva === "servicos" && styles.textoBotaoNavAtivo]}>
-              Serviços
-            </Text>
-          )}
-        </TouchableOpacity>
-      )}
+      {/* 🏢 Serviços (Ambos acessam) */}
+      <TouchableOpacity
+        style={[styles.botaoNav, abaAtiva === "servicos" && styles.botaoNavAtivo]}
+        onPress={() => selecionarAba("servicos")}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.iconeNav}><CustomIcon name="business-outline" size={18} color="#fff" /></Text>
+        {(isDesktop || drawerOpen) && (
+          <Text style={[styles.textoBotaoNav, abaAtiva === "servicos" && styles.textoBotaoNavAtivo]}>
+            Serviços
+          </Text>
+        )}
+      </TouchableOpacity>
 
-      {!ehCoordenador && (
-        <TouchableOpacity
-          style={[styles.botaoNav, abaAtiva === "cursos" && styles.botaoNavAtivo]}
-          onPress={() => selecionarAba("cursos")}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.iconeNav}><CustomIcon name="book-outline" size={18} color="#fff" /></Text>
-          {(isDesktop || drawerOpen) && (
-            <Text style={[styles.textoBotaoNav, abaAtiva === "cursos" && styles.textoBotaoNavAtivo]}>
-              Cursos
-            </Text>
-          )}
-        </TouchableOpacity>
-      )}
+      {/* 📚 Cursos (Ambos acessam) */}
+      <TouchableOpacity
+        style={[styles.botaoNav, abaAtiva === "cursos" && styles.botaoNavAtivo]}
+        onPress={() => selecionarAba("cursos")}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.iconeNav}><CustomIcon name="book-outline" size={18} color="#fff" /></Text>
+        {(isDesktop || drawerOpen) && (
+          <Text style={[styles.textoBotaoNav, abaAtiva === "cursos" && styles.textoBotaoNavAtivo]}>
+            Cursos
+          </Text>
+        )}
+      </TouchableOpacity>
     </>
   );
 
-  // Se for Desktop, retorna a Sidebar fixa lateral
   if (isDesktop) {
     return (
       <View style={[styles.navContainer, styles.sidebarDesktop]}>
@@ -128,7 +142,6 @@ export default function PainelMenu({
     );
   }
 
-  // Se for Mobile, renderiza o Modal Drawer deslizante
   return (
     <Modal visible={drawerOpen} transparent={true} animationType="fade" onRequestClose={() => setDrawerOpen(false)}>
       <View style={{ flex: 1, flexDirection: "row", backgroundColor: "rgba(0,0,0,0.5)" }}>

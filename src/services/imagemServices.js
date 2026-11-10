@@ -1,3 +1,4 @@
+// src/services/imagemServices.js
 import { supabase } from '../../lib/supabase';
 
 export async function criarImagemNoBanco(novaImagem) {
@@ -7,7 +8,8 @@ export async function criarImagemNoBanco(novaImagem) {
             titulo: novaImagem.titulo,
             descricao: novaImagem.descricao,
             caminho_img: novaImagem.caminho_img,
-            caminho_img_original: novaImagem.caminho_img_original
+            // ❌ REMOVA ESTA LINHA: caminho_img_original: novaImagem.caminho_img_original,
+            proporcao: novaImagem.proporcao || '16:9' 
         }])
         .select()
         .single();
@@ -28,7 +30,6 @@ export async function atualizarImagemNoBanco(id, imagemAtualizada) {
   return data;
 }
 
-
 export async function fazerUploadParaSupabaseStorage(uriLocal) {
   try {
     const nomeArquivo = `capa_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
@@ -36,7 +37,6 @@ export async function fazerUploadParaSupabaseStorage(uriLocal) {
     const resposta = await fetch(uriLocal);
     const blob = await resposta.blob();
 
-    // 🎯 Usa o nome exato do bucket que está criado no seu painel ('imagensposts')
     const { data, error } = await supabase.storage
       .from('imagensposts') 
       .upload(nomeArquivo, blob, {
@@ -44,18 +44,18 @@ export async function fazerUploadParaSupabaseStorage(uriLocal) {
         upsert: true
       });
 
-        if (error) throw error;
+    if (error) throw error;
 
     const { data: urlPublica } = supabase.storage
-      .from('imagensposts') // 🎯 Garante que busca a URL pública do mesmo bucket
+      .from('imagensposts')
       .getPublicUrl(data.path);
 
-        return urlPublica.publicUrl;
+    return urlPublica.publicUrl;
 
-    } catch (error) {
-        console.error('Erro no upload para o Storage:', error);
-        throw error;
-    }
+  } catch (error) {
+    console.error('Erro no upload para o Storage:', error);
+    throw error;
+  }
 }
 
 export async function removerOuSubstituirImagemEvento(eventoEditando) {

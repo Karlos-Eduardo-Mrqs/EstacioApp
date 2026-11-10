@@ -80,7 +80,7 @@ export default function LoginScreen({ onClose, onLoginSuccess }) {
           <Text style={styles.title}>Painel Administrativo</Text>
           <Text style={styles.subtitle}>Acesso para coordenadores e gerência.</Text>
 
-          <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+          <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: feedback.tipo, mensagem: feedback.mensagem })} />
 
           <Text style={styles.label}>E-mail</Text>
           <TextInput

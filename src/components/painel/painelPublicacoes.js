@@ -164,7 +164,7 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         </View>
 
         {erro && (
-            <FeedbackBox tipo="erro" mensagem={erro} />
+            <FeedbackBox tipo="erro" mensagem={erro} onClose={() => setFeedback({ tipo: tipo, mensagem: mensagem })}/>
         )}
 
         {/* Carregamento */}

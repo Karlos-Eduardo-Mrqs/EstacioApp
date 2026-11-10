@@ -1,9 +1,17 @@
-import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
+import {
+    Image,
+    Modal,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { obterIconeDaWeb } from "../../../services/parceriaServices"; // 👈 Sobe duas pastas (painel -> components -> services)
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles"; // 👈 Sobe duas pastas (painel -> components -> styles)
+import BotaoFechar from "../../BotaoFechar"; // 👈 Sobe uma pasta (painel -> components)
 import CustomIcon from "../../CustomIcon";
 import FeedbackBox from "../../FeedPopup"; // 👈 Sobe uma pasta (painel -> components)
-import BotaoFechar from "../../botaoFechar"; // 👈 Sobe uma pasta (painel -> components)
 
 function Campo({ label, style, ...props }) {
   return (
@@ -74,7 +82,7 @@ export default function ModalGerenciarParceria({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} />
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: tipo, mensagem: mensagem })}/>
 
             <Campo
               label="Nome da Empresa / Parceiro *"

@@ -1,9 +1,15 @@
 import { useEffect } from "react";
-import { Modal, Text, View, TouchableOpacity } from "react-native";
+import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { popupStyles as styles } from "../styles/popupStyles";
-import BotaoFechar from "./botaoFechar";
+import BotaoFechar from "./BotaoFechar";
 
-export default function ToastPopup({ visible, titulo, mensagem, onClose, duracao = 6 }) {
+export default function ToastPopup({
+  visible,
+  titulo,
+  mensagem,
+  onClose,
+  duracao = 6,
+}) {
   useEffect(() => {
     if (visible) {
       const timer = setTimeout(() => {
@@ -33,7 +39,9 @@ export default function ToastPopup({ visible, titulo, mensagem, onClose, duracao
             </TouchableOpacity>
           </View>
           <Text style={styles.mensagem}>{mensagem}</Text>
-          <Text style={styles.timerTexto}>⏱️ Esta mensagem sumirá em {duracao}s</Text>
+          <Text style={styles.timerTexto}>
+            ⏱️ Esta mensagem sumirá em {duracao}s
+          </Text>
         </View>
       </View>
     </Modal>

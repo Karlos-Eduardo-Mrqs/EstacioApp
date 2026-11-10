@@ -1,10 +1,22 @@
 import { supabase } from '../../lib/supabase';
 
-export async function buscarEventosDoBanco() {
-  const { data, error } = await supabase
+export async function buscarEventosDoBanco(usuarioAtual = null) {
+  let query = supabase
     .from('evento')
     .select('*, curso(nome), imagem(*)')
     .order('data', { ascending: true });
+
+  // 🔒 Se o usuário for Coordenador, filtra apenas pelos eventos criados por ele
+  if (usuarioAtual) {
+    const perfilStr = usuarioAtual.perfil ? usuarioAtual.perfil.trim().toLowerCase() : "";
+    const ehCoordenador = perfilStr.includes("coordenador");
+
+    if (ehCoordenador && usuarioAtual.id) {
+      query = query.eq('usuario_id', usuarioAtual.id);
+    }
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data ?? [];

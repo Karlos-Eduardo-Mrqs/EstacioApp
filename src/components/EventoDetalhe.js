@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
-import {Image,Modal,ScrollView,Text,TouchableOpacity,View,Platform} from "react-native";
+import {Image,Modal,ScrollView,Text,TouchableOpacity,View} from "react-native";
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 import { formatarDataApenas } from "../utils/dataUtils";
 import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
-import BotaoFechar from "./botaoFechar";
+import BotaoFechar from "./BotaoFechar";
 import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
 const imagemExemploPadrao = require("../../assets/image.png");
@@ -143,6 +143,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
                 <FeedbackBox
                   tipo={feedback.tipo}
                   mensagem={feedback.mensagem}
+                  onClose={() => setFeedback({ tipo: "", mensagem: "" })} // 👈 Corrigido para limpar o feedback corretamente
                 />
 
                 <Text style={localStyles.modalTituloClean}>{evento.titulo}</Text>

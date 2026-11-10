@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
-import { ScrollView, Modal, View, Text, TouchableOpacity, FlatList, Platform } from "react-native";
-import { buscarCursosDoBanco } from "../../../services/cursoServices"; 
-import { criarAvisoGlobalNoBanco, buscarTodosAvisosAtivosDoBanco } from "../../../services/notificacaoService";
-import { buscarEventosDoBanco } from "../../../services/eventoServices"; 
-import { notificacaoGlobalstyles as styles } from "../../../styles/painel/notificacaoGlobalTabStyles"; 
-import { modalLocalStyles } from "../../../styles/painel/notificacaoGlobalTabStyles";
-import FormularioNotificacao from "../notificacoes/formNotificacao";
+import {
+    FlatList,
+    Modal,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
+import { buscarCursosDoBanco } from "../../../services/cursoServices";
+import { buscarEventosDoBanco } from "../../../services/eventoServices";
+import {
+    buscarTodosAvisosAtivosDoBanco,
+    criarAvisoGlobalNoBanco,
+} from "../../../services/notificacaoService";
+import { modalLocalStyles, notificacaoGlobalstyles as styles } from "../../../styles/painel/notificacaoGlobalTabStyles";
 import ToastPopup from "../../Popup";
-import BotaoFechar from "../../botaoFechar";
+import FormularioNotificacao from "../notificacoes/formNotificacao";
 
 export default function NotificacaoGlobalTab() {
   const [cursos, setCursos] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [carregando, setCarregando] = useState(false);
-  
+
   // 👁️ Estados para gerir o Modal de Visualização de Avisos
   const [modalVisualizarVisivel, setModalVisualizarVisivel] = useState(false);
   const [avisosEnviados, setAvisosEnviados] = useState([]);
@@ -63,8 +71,8 @@ export default function NotificacaoGlobalTab() {
       await criarAvisoGlobalNoBanco({
         titulo: titulo,
         mensagem: mensagem,
-        curso_id: tipoDestino === 'curso' ? cursoId : null,
-        evento_id: tipoDestino === 'evento' ? eventoId : null,
+        curso_id: tipoDestino === "curso" ? cursoId : null,
+        evento_id: tipoDestino === "evento" ? eventoId : null,
         duracaoHoras: 24,
       });
 
@@ -91,26 +99,34 @@ export default function NotificacaoGlobalTab() {
     try {
       setCarregandoAvisos(true);
       setModalVisualizarVisivel(true);
-      
+
       // Chama a função correta do service que já criamos
-      const lista = await buscarTodosAvisosAtivosDoBanco(); 
-      
+      const lista = await buscarTodosAvisosAtivosDoBanco();
+
       // Cruza com os cursos e eventos já carregados na tela para garantir o nome exato
-      const listaMapeada = (lista || []).map(aviso => {
+      const listaMapeada = (lista || []).map((aviso) => {
         let cursoEncontrado = null;
         let eventoEncontrado = null;
 
         if (aviso.curso_id) {
-          cursoEncontrado = cursos.find(c => Number(c.id) === Number(aviso.curso_id));
+          cursoEncontrado = cursos.find(
+            (c) => Number(c.id) === Number(aviso.curso_id),
+          );
         }
         if (aviso.evento_id) {
-          eventoEncontrado = eventos.find(e => Number(e.id) === Number(aviso.evento_id));
+          eventoEncontrado = eventos.find(
+            (e) => Number(e.id) === Number(aviso.evento_id),
+          );
         }
 
         return {
           ...aviso,
-          nomeDestinatarioCurso: cursoEncontrado ? cursoEncontrado.titulo : null,
-          nomeDestinatarioEvento: eventoEncontrado ? eventoEncontrado.titulo : null,
+          nomeDestinatarioCurso: cursoEncontrado
+            ? cursoEncontrado.titulo
+            : null,
+          nomeDestinatarioEvento: eventoEncontrado
+            ? eventoEncontrado.titulo
+            : null,
         };
       });
 
@@ -141,44 +157,79 @@ export default function NotificacaoGlobalTab() {
       />
 
       {/* 👁️ Modal de Listagem dos Avisos Ativos */}
-      <Modal visible={modalVisualizarVisivel} transparent animationType="fade" onRequestClose={() => setModalVisualizarVisivel(false)}>
+      <Modal
+        visible={modalVisualizarVisivel}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisualizarVisivel(false)}
+      >
         <View style={modalLocalStyles.overlay}>
           <View style={modalLocalStyles.modalContainer}>
             <View style={modalLocalStyles.headerModal}>
-              <Text style={modalLocalStyles.tituloModal}>Avisos Ativos no Mural</Text>
+              <Text style={modalLocalStyles.tituloModal}>
+                Avisos Ativos no Mural
+              </Text>
             </View>
 
             {carregandoAvisos ? (
-              <Text style={modalLocalStyles.textoMensagem}>A carregar avisos...</Text>
+              <Text style={modalLocalStyles.textoMensagem}>
+                A carregar avisos...
+              </Text>
             ) : avisosEnviados.length === 0 ? (
-              <Text style={modalLocalStyles.textoMensagem}>Nenhum aviso ativo no momento.</Text>
+              <Text style={modalLocalStyles.textoMensagem}>
+                Nenhum aviso ativo no momento.
+              </Text>
             ) : (
               <FlatList
                 data={avisosEnviados}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => {
-                  let destinoTexto = '🌍 Global (Todos)';
-                  let corBadge = '#EAB308'; // Amarelo
+                  let destinoTexto = "🌍 Global (Todos)";
+                  let corBadge = "#EAB308"; // Amarelo
 
                   if (item.curso_id) {
-                    const nomeCursoExibicao = item.nomeDestinatarioCurso || `Curso #${item.curso_id}`;
+                    const nomeCursoExibicao =
+                      item.nomeDestinatarioCurso || `Curso #${item.curso_id}`;
                     destinoTexto = `📚 ${nomeCursoExibicao}`;
-                    corBadge = '#2563EB'; // Azul
+                    corBadge = "#2563EB"; // Azul
                   } else if (item.evento_id) {
-                    const nomeEventoExibicao = item.nomeDestinatarioEvento || `Evento #${item.evento_id}`;
+                    const nomeEventoExibicao =
+                      item.nomeDestinatarioEvento ||
+                      `Evento #${item.evento_id}`;
                     destinoTexto = `📅 ${nomeEventoExibicao}`;
-                    corBadge = '#9333EA'; // Roxo
+                    corBadge = "#9333EA"; // Roxo
                   }
 
                   return (
                     <View style={modalLocalStyles.cardAviso}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                        <Text style={modalLocalStyles.cardTitulo}>{item.titulo}</Text>
-                        <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#FFFFFF', backgroundColor: corBadge, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 6,
+                        }}
+                      >
+                        <Text style={modalLocalStyles.cardTitulo}>
+                          {item.titulo}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            fontWeight: "bold",
+                            color: "#FFFFFF",
+                            backgroundColor: corBadge,
+                            paddingHorizontal: 6,
+                            paddingVertical: 2,
+                            borderRadius: 4,
+                          }}
+                        >
                           {destinoTexto}
                         </Text>
                       </View>
-                      <Text style={modalLocalStyles.cardTexto}>{item.mensagem}</Text>
+                      <Text style={modalLocalStyles.cardTexto}>
+                        {item.mensagem}
+                      </Text>
                       <Text style={modalLocalStyles.cardRodape}>
                         Expira em: {new Date(item.expira_em).toLocaleString()}
                       </Text>
@@ -189,8 +240,8 @@ export default function NotificacaoGlobalTab() {
               />
             )}
 
-            <TouchableOpacity 
-              style={modalLocalStyles.botaoFechar} 
+            <TouchableOpacity
+              style={modalLocalStyles.botaoFechar}
               onPress={() => setModalVisualizarVisivel(false)}
             >
               <Text style={modalLocalStyles.textoBotaoFechar}>Fechar</Text>

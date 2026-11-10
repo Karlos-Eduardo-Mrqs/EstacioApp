@@ -1,7 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import {
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import { painelServicosstyles as styles } from "../../../styles/painel/painelServicosStyles";
-import CustomIcon from "../../CustomIcon";
-import BotaoFechar from "../../botaoFechar";
 
 export default function GerenciarListaServicos({
   servicos = [],
@@ -17,7 +21,9 @@ export default function GerenciarListaServicos({
       <View style={styles.listaHeader}>
         <View style={{ flex: 1 }}>
           <Text style={styles.tituloLista}>Serviços cadastrados</Text>
-          <Text style={styles.quantidade}>Gerencie os serviços disponíveis.</Text>
+          <Text style={styles.quantidade}>
+            Gerencie os serviços disponíveis.
+          </Text>
         </View>
         <TouchableOpacity
           style={styles.botaoAdicionar}
@@ -43,7 +49,10 @@ export default function GerenciarListaServicos({
         {servicos.length} serviço(s) encontrado(s)
       </Text>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listaServicos}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listaServicos}
+      >
         {servicos.length > 0 ? (
           servicos.map((item) => (
             <View key={item.id} style={styles.card}>
@@ -55,9 +64,7 @@ export default function GerenciarListaServicos({
                   {item.nome}
                 </Text>
                 <View style={styles.cardCurso}>
-                  <Text style={styles.cardCursoTexto}>
-                    Curso: {item.curso}
-                  </Text>
+                  <Text style={styles.cardCursoTexto}>Curso: {item.curso}</Text>
                 </View>
               </View>
 
@@ -76,7 +83,10 @@ export default function GerenciarListaServicos({
                   <Text style={styles.iconeExcluir}>▤</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.botaoDetalhes} onPress={() => onDetalhes(item)}>
+                <TouchableOpacity
+                  style={styles.botaoDetalhes}
+                  onPress={() => onDetalhes(item)}
+                >
                   <Text style={styles.detalhesTexto}>Detalhes</Text>
                 </TouchableOpacity>
               </View>
@@ -84,7 +94,9 @@ export default function GerenciarListaServicos({
           ))
         ) : (
           <View style={styles.semResultados}>
-            <Text style={styles.semResultadosTexto}>Nenhum serviço encontrado.</Text>
+            <Text style={styles.semResultadosTexto}>
+              Nenhum serviço encontrado.
+            </Text>
           </View>
         )}
       </ScrollView>

@@ -156,7 +156,11 @@ export default function GerenciarListaEventos({
                         }
                       }
                     }
-
+                    {evento.link_transmissao && (
+                      <Text style={{ fontSize: 12, color: "#2563EB", fontWeight: "500", marginTop: 4 }}>
+                        🔗 Evento com link online disponível
+                      </Text>
+                    )}
                     return (
                       <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                         <View style={{
@@ -204,5 +208,6 @@ export default function GerenciarListaEventos({
         )}
       </ScrollView>
     </View>
+    
   );
 }

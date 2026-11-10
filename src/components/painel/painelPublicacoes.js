@@ -152,7 +152,7 @@ export default function PainelPublicacoes({ usuarioAtual }) {
                     gap: 7
                 }}
                 >
-                <CustomIcon name="plus" size={17} color="#FFFFFF" />
+                <CustomIcon name="add" size={17} color="#FFFFFF" />
                     <Text style={{
                         color: '#FFFFFF',
                         fontWeight: 'bold',
@@ -181,7 +181,7 @@ export default function PainelPublicacoes({ usuarioAtual }) {
             borderWidth: 1,
             borderColor: '#E2E8F0'
             }}>
-            <CustomIcon name="file-text" size={35} color="#94A3B8" />
+            <CustomIcon name="document-text-outline" size={35} color="#94A3B8" />
 
             <Text style={{
                 fontSize: 16,
@@ -380,7 +380,7 @@ export default function PainelPublicacoes({ usuarioAtual }) {
                         gap: 6
                         }}
                     >
-                        <CustomIcon name="trash-2" size={14} color="#DC4545" />
+                        <CustomIcon name="trash" size={14} color="#DC4545" />
                         <Text style={{
                         color: '#DC4545',
                         fontWeight: 'bold',

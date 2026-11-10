@@ -21,9 +21,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   console.log('CURSO ID DO USUÁRIO:', usuarioAtual?.curso_id);
   
   // Define a aba inicial com base no perfil do utilizador
-  const [abaAtiva, setAbaAtiva] = useState(
-    ehCoordenador ? "coordenacao" : "utilizadores",
-  );
+  const [abaAtiva, setAbaAtiva] = useState(ehCoordenador ? "coordenacao" : "utilizadores");
   const [drawerOpen, setDrawerOpen] = useState(false); // Estado para controlar o Drawer mobile
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === "web" && width >= 768;

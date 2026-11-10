@@ -53,7 +53,6 @@ export const modalCursosStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: CoresInstitucionais.bordaSuave,
     elevation: 2,
-    
   },
   tituloBlocoSecao: {
     fontSize: 12,
@@ -182,6 +181,7 @@ export const modalCursosStyles = StyleSheet.create({
     fontWeight: "bold",
   },
 
+  // ── ESTILOS DA SEÇÃO DE PUBLICAÇÕES ──
   listaPublicacoes: {
     flexDirection: "row",
     gap: 12,
@@ -198,13 +198,13 @@ export const modalCursosStyles = StyleSheet.create({
 
   imagemPublicacao: {
     width: "100%",
-    aspectRatio: 4 / 5,
+    height: "100%",
     backgroundColor: "#e5e5e5",
   },
 
   imagemPublicacaoVazia: {
     width: "100%",
-    height: 150,
+    height: 140,
     backgroundColor: "#eeeeee",
     justifyContent: "center",
     alignItems: "center",
@@ -212,44 +212,51 @@ export const modalCursosStyles = StyleSheet.create({
 
   conteudoPublicacao: {
     padding: 10,
-    minHeight: 125,
+    minHeight: 110,
+    justifyContent: "space-between",
   },
 
-  // tituloPublicacao: {
-  //   fontSize: 12,
-  //   fontWeight: "bold",
-  //   color: CoresInstitucionais.azulPrincipal,
-  //   marginBottom: 8,
-  // },
-
-  // descricaoPublicacao: {
-  //   fontSize: 11,
-  //   color: CoresInstitucionais.textoCinza,
-  //   lineHeight: 16,
-  // },
-
-  // btnExpandirPublicacao: {
-  //   fontSize: 12,
-  //   fontWeight: "bold",
-  //   color: CoresInstitucionais.azulSecundario,
-  //   marginTop: 8,
-  // },
   tituloPublicacao: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
     color: CoresInstitucionais.azulPrincipal,
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
   descricaoPublicacao: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#666666",
-    lineHeight: 18,
+    lineHeight: 16,
   },
 
   btnExpandirPublicacao: {
     color: "#0754A6",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
+    marginTop: 6,
+  },
+
+  // ── ESTILOS DO MODAL DE IMAGEM EM TELA CHEIA ──
+  overlayImagem: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  btnFecharImagem: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    padding: 8,
+    borderRadius: 20,
+  },
+
+  imagemOriginal: {
+    width: "100%",
+    height: "85%",
   },
 });

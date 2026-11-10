@@ -1,23 +1,24 @@
+// src/components/painel/painelNavegacao.js
 import { useState } from "react";
 import { Platform, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { painelNavegacaostyles as styles } from "../../styles/painel/painelNavegacaostyles";
 import ConfirmPopup from "../ConfirmPopup";
 import AuthGuard from "../mural/guardaAutenticacao";
-import GerenciarUsuarios from "./painelGerencia";
+import PainelGerenciaAcademica from "./painelGerencia"; 
 import GerenciarEventos from "./eventos/painelEventos";
 import NotificacaoGlobalTab from "../painel/notificacoes/notificacaoGlobalTab";
+import PainelCursos from "./cursos/painelCursos";
 import PainelServicos from "./servicos/painelServicos";
 import ParceriaTab from "./parcerias/parceriaTab";
-import PainelCursos from "./cursos/painelCursos";
-import PainelPublicacoes from "./painelPublicacoes";
+import PainelPublicacoes from "./publicacoes/painelPublicacoes";
+import GerenciarUsuarios from "./usuarios/painelGerenciarUsuarios";
 import PainelMenu from "./menu";
-
 
 export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
   const perfilStr = usuarioAtual?.perfil ? usuarioAtual.perfil.trim().toLowerCase() : "";
   const ehCoordenador = perfilStr.includes("coordenador");
   
-  // Define a aba inicial padrão ("eventos" para coordenador, "utilizadores" para gerência)
+  // Se for coordenador começa em eventos, senão começa em utilizadores/gerencia
   const [abaAtiva, setAbaAtiva] = useState(ehCoordenador ? "eventos" : "utilizadores");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { width } = useWindowDimensions();
@@ -58,7 +59,6 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
     >
       <View style={[styles.containerPrincipal, { flexDirection: isDesktop ? "row" : "column" }]}>
         
-        {/* Header Mobile com Botão Hambúrguer */}
         {!isDesktop && (
           <View style={{
             height: 60,
@@ -68,10 +68,6 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
             justifyContent: "space-between",
             paddingHorizontal: 16,
             elevation: 4,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 2,
           }}>
             <TouchableOpacity onPress={() => setDrawerOpen(true)} style={{ padding: 8 }}>
               <Text style={{ fontSize: 24, color: "#fff" }}>☰</Text>
@@ -83,7 +79,6 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           </View>
         )}
 
-        {/* Menu Lateral / Drawer */}
         <PainelMenu
           ehCoordenador={ehCoordenador}
           abaAtiva={abaAtiva}
@@ -95,10 +90,14 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           solicitarLogout={solicitarLogout}
         />
 
-        {/* Conteúdo Dinâmico Central - Reaproveitando as mesmas telas */}
+        {/* Conteúdo Dinâmico Central corrigido para mapear todas as abas */}
         <View style={{ flex: 1 }}>
           {abaAtiva === "utilizadores" && !ehCoordenador && (
             <GerenciarUsuarios usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />
+          )}
+
+          {abaAtiva === "publicacoes" && (
+            <PainelPublicacoes usuarioAtual={usuarioAtual} />
           )}
 
           {abaAtiva === "eventos" && (
@@ -106,19 +105,15 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           )}
           
           {abaAtiva === "notificacao" && <NotificacaoGlobalTab />}
-          
+
           {abaAtiva === "parcerias" && !ehCoordenador && <ParceriaTab />}
-          
-          {abaAtiva === "cursos" && (
-            <PainelCursos usuarioAtual={usuarioAtual} />
-          )}
-          
+
           {abaAtiva === "servicos" && (
             <PainelServicos usuarioAtual={usuarioAtual} />
           )}
 
-          {abaAtiva === "publicacoes" && (
-            <PainelPublicacoes usuarioAtual={usuarioAtual} />
+          {abaAtiva === "cursos" && (
+            <PainelCursos usuarioAtual={usuarioAtual} />
           )}
         </View>
       

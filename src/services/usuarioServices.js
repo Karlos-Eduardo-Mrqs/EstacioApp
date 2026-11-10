@@ -1,3 +1,4 @@
+// src/services/usuarioServices.js
 import { supabase } from '../../lib/supabase';
 
 export async function fazerLoginNoBanco(email, senha) {
@@ -13,7 +14,23 @@ export async function fazerLoginNoBanco(email, senha) {
   if (error) throw new Error('Erro ao tentar ligar ao servidor.');
   if (!data) throw new Error('E-mail ou senha incorretos.');
 
+  // 🔒 Bloqueia o acesso se o utilizador estiver desativado (ativo = false)
+  if (data.ativo === false) {
+    throw new Error('E-mail ou senha incorretos.');
+  }
+
   return data;
+}
+
+// 🟢 Adicione esta função caso ela não exista neste ficheiro
+export async function buscarCursosDoBanco() {
+  const { data, error } = await supabase
+    .from('curso') // ou o nome correto da sua tabela de cursos
+    .select('*')
+    .order('nome', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
 }
 
 export async function buscarUsuariosDoBanco() {

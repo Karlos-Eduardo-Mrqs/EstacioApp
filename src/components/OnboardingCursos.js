@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import Stepper, { Step } from './Stepper';
 import {Onboardingstyles as styles} from "../styles/OnboardingCursosStyles";
-import BotaoFechar from './botaoFechar'; // 👈 Importa o seu botão de fechar corporativo se preferir
+import BotaoFechar from './BotaoFechar'; // 👈 Importa o seu botão de fechar corporativo se preferir
 
 export default function OnboardingCursos({ 
   cursosDisponiveis = [], 

@@ -1,12 +1,52 @@
-import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,useWindowDimensions,Platform} from "react-native";
+import { useState, useEffect } from "react";
+import { Linking, Modal, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, Platform, Image, ActivityIndicator } from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
 import CustomIcon from "../CustomIcon"; 
-import BotaoFechar from "../botaoFechar";
+import BotaoFechar from "../BotaoFechar";
+import ModalVisualizarImagem from "../ModalVisualizarImagemCheia";
+import { buscarPublicacoesDoCurso } from "../../services/publicacaoServices";
+import { obterAspectRatioNumerico } from "../../constants/proporcoesConstantes";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
-  // Deteção correta do ecrã para alternar o ícone de fechar
   const { width } = useWindowDimensions();
-  const isDesktop = Platform.OS === 'web' && width >= 768;
+  const larguraCardPublicacao = width < 600 ? 260 : 300;
+
+  // Estados locais para gerenciar as publicações e o zoom de imagem no modal
+  const [publicacoes, setPublicacoes] = useState([]);
+  const [carregandoPublicacoes, setCarregandoPublicacoes] = useState(false);
+  const [publicacoesExpandidas, setPublicacoesExpandidas] = useState([]);
+  const [imagemSelecionada, setImagemSelecionada] = useState(null);
+
+  useEffect(() => {
+    if (curso?.id) {
+      carregarPublicacoesDoCurso(curso.id);
+    } else {
+      setPublicacoes([]);
+    }
+  }, [curso]);
+
+  async function carregarPublicacoesDoCurso(cursoId) {
+    try {
+      setCarregandoPublicacoes(true);
+      const dados = await buscarPublicacoesDoCurso(cursoId);
+      setPublicacoes(dados || []);
+    } catch (err) {
+      console.error("Erro ao carregar publicações do curso:", err);
+      setPublicacoes([]);
+    } finally {
+      setCarregandoPublicacoes(false);
+    }
+  }
+
+  function alternarDescricao(id) {
+    setPublicacoesExpandidas((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }
+
+  function precisaExpandir(texto) {
+    return texto && texto.length > 120;
+  }
 
   if (!curso) return null;
 
@@ -44,7 +84,6 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 {curso.descricao || "Nenhuma descrição detalhada informada para este curso até o momento. Consulte o site oficial para mais informações sobre a matriz curricular e ementa."}
               </Text>
 
-              {/* Informações de Tipo e Modalidade com Design Melhorado */}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
                 <Text style={modalStyles.textoModalidade}>
                   📌 <Text style={{ fontWeight: "bold" }}>Modalidade:</Text> {curso.modalidade || 'Graduação'}
@@ -56,7 +95,6 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 )}
               </View>
 
-              {/* Botão do Site Oficial */}
               {curso.link ? (
                 <TouchableOpacity
                   style={[modalStyles.btnSiteOficial, { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }]}
@@ -136,13 +174,13 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               <Text style={modalStyles.tituloBlocoSecao}>
                 PUBLICAÇÕES DO CURSO
               </Text>
-
               <View style={modalStyles.linhaAmarela} />
 
               {carregandoPublicacoes ? (
                 <ActivityIndicator
                   size="small"
-                  color={CoresInstitucionais.azulPrincipal}
+                  color="#173EA5"
+                  style={{ marginVertical: 20 }}
                 />
               ) : publicacoes.length > 0 ? (
                 <ScrollView
@@ -152,10 +190,9 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   contentContainerStyle={modalStyles.listaPublicacoes}
                 >
                   {publicacoes.map((publicacao) => {
-                    const descricaoExpandida =
-                      publicacoesExpandidas === publicacao.id;
-
-                    const imagem = publicacao.imagem?.caminho_img;
+                    const imagemObj = publicacao.imagem;
+                    const imagemUrl = typeof imagemObj === 'object' ? imagemObj?.caminho_img : imagemObj;
+                    const proporcaoCard = imagemObj?.proporcao || '16:9';
 
                     return (
                       <View
@@ -165,17 +202,14 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                           { width: larguraCardPublicacao },
                         ]}
                       >
-                        {imagem ? (
+                        {imagemUrl ? (
                           <TouchableOpacity
                             activeOpacity={0.9}
-                            onPress={() =>
-                              setImagemSelecionada(
-                                publicacao.imagem?.caminho_img_original || imagem
-                              )
-                            }
+                            onPress={() => setImagemSelecionada(imagemUrl)}
+                            style={{ width: "100%", aspectRatio: obterAspectRatioNumerico(proporcaoCard), backgroundColor: "#E2E8F0" }}
                           >
                             <Image
-                              source={{ uri: imagem }}
+                              source={{ uri: imagemUrl }}
                               style={modalStyles.imagemPublicacao}
                               resizeMode="cover"
                             />
@@ -183,7 +217,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                         ) : (
                           <View style={modalStyles.imagemPublicacaoVazia}>
                             <CustomIcon
-                              name="image"
+                              name="image-outline"
                               size={30}
                               color="#999"
                             />
@@ -191,14 +225,10 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                         )}
 
                         <View style={modalStyles.conteudoPublicacao}>
-                          {/* Título */}
-                          <Text
-                            style={modalStyles.tituloPublicacao}
-                          >
+                          <Text style={modalStyles.tituloPublicacao}>
                             {publicacao.titulo}
                           </Text>
 
-                          {/* Descrição */}
                           <Text
                             numberOfLines={
                               publicacoesExpandidas.includes(publicacao.id) ? undefined : 3
@@ -326,34 +356,13 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
           </ScrollView>
           
-          {/* MODAL DE VISUALIZAÇÃO DA IMAGEM */}
-          <Modal
+          {/* Utilizando o componente reutilizável de imagem em tela cheia */}
+          <ModalVisualizarImagem
             visible={!!imagemSelecionada}
-            transparent={true}
-            animationType="fade"
-            onRequestClose={() => setImagemSelecionada(null)}
-          >
-            <View style={modalStyles.overlayImagem}>
-              <TouchableOpacity
-                style={modalStyles.btnFecharImagem}
-                onPress={() => setImagemSelecionada(null)}
-              >
-                <CustomIcon
-                  name="close"
-                  size={26}
-                  color={CoresInstitucionais.brancoPuro}
-                />
-              </TouchableOpacity>
+            imageUrl={imagemSelecionada}
+            onClose={() => setImagemSelecionada(null)}
+          />
 
-              {imagemSelecionada && (
-                <Image
-                  source={{ uri: imagemSelecionada }}
-                  style={modalStyles.imagemOriginal}
-                  resizeMode="contain"
-                />
-              )}
-            </View>
-          </Modal>
         </View>
       </View>
     </Modal>

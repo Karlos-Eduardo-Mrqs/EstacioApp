@@ -1,6 +1,6 @@
 import { Modal, Pressable, View, Text, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { modalServicosStyles as styles } from '../../styles/mural/modalServicosStyles';
-import BotaoFechar from '../botaoFechar';
+import BotaoFechar from '../BotaoFechar';
 import CustomIcon from '../CustomIcon';
 
 export default function ModalDetalhesServico({ servico, visible, onClose }) {

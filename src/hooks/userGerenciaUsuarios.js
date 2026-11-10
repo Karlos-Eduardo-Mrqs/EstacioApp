@@ -1,13 +1,21 @@
+// src/hooks/useGerenciaUsuarios.js
 import { useEffect, useMemo, useState } from 'react';
-import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioDoBanco, buscarCursosDoBanco } from '../services/apiServices';
+import { 
+  buscarUsuariosDoBanco, 
+  criarUsuarioNoBanco, 
+  removerUsuarioNoBanco, 
+  buscarCursosDoBanco, 
+  atualizarUsuarioNoBanco 
+} from '../services/usuarioServices';
 
 export function useGerenciarUsuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [pesquisa, setPesquisa] = useState('');
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
 
-  // Estados dos Modais e Formulário
   const [modalCadastro, setModalCadastro] = useState(false);
+  const [usuarioEditando, setUsuarioEditando] = useState(null);
+  
   const [confirmPopup, setConfirmPopup] = useState({
     visible: false,
     titulo: '',
@@ -20,6 +28,7 @@ export function useGerenciarUsuarios() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [matricula, setMatricula] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [cursos, setCursos] = useState([]);
   const [cursoId, setCursoId] = useState(null);
   const [perfil, setPerfil] = useState('Coordenador');
@@ -58,8 +67,10 @@ export function useGerenciarUsuarios() {
     setEmail('');
     setSenha('');
     setMatricula('');
+    setTelefone('');
     setCursoId(null);
     setPerfil('Coordenador');
+    setUsuarioEditando(null);
   };
 
   const fecharCadastro = () => {
@@ -67,13 +78,25 @@ export function useGerenciarUsuarios() {
     limparFormulario();
   };
 
-  const criarUsuario = async () => {
+  const abrirEdicaoUsuario = (usuario) => {
+    setUsuarioEditando(usuario);
+    setNome(usuario.nome || '');
+    setEmail(usuario.email || '');
+    setSenha('');
+    setMatricula(usuario.matricula || '');
+    setTelefone(usuario.telefone || '');
+    setPerfil(usuario.perfil || 'Coordenador');
+    setCursoId(usuario.curso_id || null);
+    setModalCadastro(true);
+  };
+
+  const salvarUsuario = async () => {
     setFeedback({ tipo: '', mensagem: '' });
     const nomeLimpo = nome.trim();
     const emailLimpo = email.trim().toLowerCase();
 
-    if (!nomeLimpo || !emailLimpo || !senha.trim()) {
-      setFeedback({ tipo: 'erro', mensagem: 'Preencha o nome, o e-mail e a senha temporária.' });
+    if (!nomeLimpo || !emailLimpo) {
+      setFeedback({ tipo: 'erro', mensagem: 'Preencha o nome e o e-mail.' });
       return;
     }
 
@@ -92,31 +115,82 @@ export function useGerenciarUsuarios() {
     }
 
     try {
-      const novoRegistro = {
-        nome: nomeLimpo,
-        email: emailLimpo,
-        senha: senha.trim(),
-        perfil,
-        matricula: `MAT_${Math.floor(Math.random() * 90000 + 10000)}`,
-        curso_id:
-        perfil === 'Coordenador' ? cursoId : null,
-      };
+      if (usuarioEditando) {
+        const dadosAtualizados = {
+          nome: nomeLimpo,
+          email: emailLimpo,
+          perfil,
+          matricula: matricula.trim() || usuarioEditando.matricula,
+          telefone: telefone.trim() || null,
+          curso_id: perfil === 'Coordenador' ? cursoId : null,
+        };
 
-      const criado = await criarUsuarioNoBanco(novoRegistro);
-      setUsuarios(prev => [{ ...criado, ativo: true }, ...prev]);
-      fecharCadastro();
-      setFeedback({ tipo: 'sucesso', mensagem: 'Utilizador criado e gravado no banco com sucesso!' });
+        if (senha.trim()) {
+          dadosAtualizados.senha = senha.trim();
+        }
+
+        const atualizado = await atualizarUsuarioNoBanco(usuarioEditando.id, dadosAtualizados);
+        
+        setUsuarios(prev =>
+          prev.map(u => (u.id === usuarioEditando.id ? { ...u, ...atualizado } : u))
+        );
+        fecharCadastro();
+        setFeedback({ tipo: 'sucesso', mensagem: 'Utilizador atualizado com sucesso!' });
+      } else {
+        if (!senha.trim()) {
+          setFeedback({ tipo: 'erro', mensagem: 'Informe uma senha temporária para o novo utilizador.' });
+          return;
+        }
+
+        const novoRegistro = {
+          nome: nomeLimpo,
+          email: emailLimpo,
+          senha: senha.trim(),
+          perfil,
+          matricula: matricula.trim() || `MAT_${Math.floor(Math.random() * 90000 + 10000)}`,
+          telefone: telefone.trim() || null,
+          curso_id: perfil === 'Coordenador' ? cursoId : null,
+          ativo: true,
+        };
+
+        const criado = await criarUsuarioNoBanco(novoRegistro);
+        setUsuarios(prev => [{ ...criado, ativo: true }, ...prev]);
+        fecharCadastro();
+        setFeedback({ tipo: 'sucesso', mensagem: 'Utilizador criado e gravado no banco com sucesso!' });
+      }
     } catch (error) {
-      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível criar o utilizador no Supabase.' });
+      setFeedback({ tipo: 'erro', mensagem: 'Não foi possível salvar o utilizador no banco.' });
     }
   };
 
-  const alternarStatus = id => {
-    setUsuarios(prev =>
-      prev.map(usuario =>
-        usuario.id === id ? { ...usuario, ativo: !usuario.ativo } : usuario
-      )
-    );
+  // 🔒 Solicita confirmação antes de alterar o status
+  const solicitarAlternarStatus = (id) => {
+    const usuarioAlvo = usuarios.find(u => u.id === id);
+    if (!usuarioAlvo) return;
+
+    const novoStatus = !usuarioAlvo.ativo;
+    const acaoTexto = novoStatus ? "ativar" : "desativar";
+
+    setConfirmPopup({
+      visible: true,
+      titulo: `${novoStatus ? "Ativar" : "Desativar"} utilizador`,
+      mensagem: `Deseja realmente ${acaoTexto} o acesso de ${usuarioAlvo.nome}?`,
+      tipo: novoStatus ? "success" : "danger",
+      onConfirm: async () => {
+        setConfirmPopup(prev => ({ ...prev, visible: false }));
+        try {
+          await atualizarUsuarioNoBanco(id, { ativo: novoStatus });
+          setUsuarios(prev =>
+            prev.map(usuario =>
+              usuario.id === id ? { ...usuario, ativo: novoStatus } : usuario
+            )
+          );
+          setFeedback({ tipo: 'sucesso', mensagem: `Utilizador ${usuarioAlvo.nome} foi ${novoStatus ? 'ativado' : 'desativado'}.` });
+        } catch (error) {
+          setFeedback({ tipo: 'erro', mensagem: 'Não foi possível alterar o status do utilizador.' });
+        }
+      }
+    });
   };
 
   const solicitarRemocao = id => {
@@ -131,7 +205,7 @@ export function useGerenciarUsuarios() {
       onConfirm: async () => {
         setConfirmPopup(prev => ({ ...prev, visible: false }));
         try {
-          await removerUsuarioDoBanco(id);
+          await removerUsuarioNoBanco(id);
           setUsuarios(prev => prev.filter(item => item.id !== id));
           setFeedback({ tipo: 'sucesso', mensagem: `Utilizador ${usuario.nome} removido com sucesso.` });
         } catch (error) {
@@ -147,7 +221,6 @@ export function useGerenciarUsuarios() {
       setCursos(dados);
     } catch (error) {
       console.error('Erro ao carregar cursos:', error);
-
       setFeedback({
         tipo: 'erro',
         mensagem: 'Não foi possível carregar os cursos do banco.',
@@ -161,8 +234,11 @@ export function useGerenciarUsuarios() {
     pesquisa,
     setPesquisa,
     feedback,
+    setFeedback,
     modalCadastro,
     setModalCadastro,
+    usuarioEditando,
+    abrirEdicaoUsuario,
     confirmPopup,
     setConfirmPopup,
     nome,
@@ -175,14 +251,14 @@ export function useGerenciarUsuarios() {
     setPerfil,
     matricula,
     setMatricula,
+    telefone,
+    setTelefone,
     cursos,
     cursoId,
     setCursoId,
-
-
     fecharCadastro,
-    criarUsuario,
-    alternarStatus,
+    criarUsuario: salvarUsuario,
+    solicitarAlternarStatus,
     solicitarRemocao,
     limparFormulario
   };

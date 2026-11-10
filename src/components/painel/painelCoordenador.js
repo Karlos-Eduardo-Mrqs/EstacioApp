@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { painelStyles as styles } from '../../styles/painel/painelStyles';
 import ConfirmPopup from '../ConfirmPopup';
 import FeedbackBox from '../FeedPopup';
-import PainelPublicacoes from './painelPublicacoes';
+
+import PainelPublicacoes from './publicacoes/painelPublicacoes';
 import GerenciarEventos from './eventos/painelEventos';
 import PainelCursos from './cursos/painelCursos';
 import PainelServicos from './servicos/painelServicos';
@@ -28,9 +29,8 @@ export default function PainelCoordenador({ usuarioAtual, onClose, onLogout }) {
         <Text style={styles.subtituloPagina}>
           Bem-vindo(a), {usuarioAtual?.nome}. Gestão exclusiva para o curso vinculado.
         </Text>
-        <FeedbackBox tipo="sucesso" mensagem={`Sessão associada ao Curso ID: ${usuarioAtual?.curso_id || 'Não vinculado'}`} onClose={() => setFeedback({ tipo: tipo, mensagem: mensagem })} />
 
-        {/* SUB-ABAS DO COORDENADOR (Publicações, Eventos, Cursos, Serviços) */}
+        {/* SUB-ABAS DO COORDENADOR */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
@@ -64,7 +64,7 @@ export default function PainelCoordenador({ usuarioAtual, onClose, onLogout }) {
         </ScrollView>
       </View>
 
-      {/* CONTEÚDO DA SUB-ABA SELECIONADA */}
+      {/* CONTEÚDO DA SUB-ABA SELECIONADA (Repassando o usuarioAtual para todas) */}
       <View style={{ flex: 1 }}>
         {abaCoordenador === 'publicacoes' && <PainelPublicacoes usuarioAtual={usuarioAtual} />}
         {abaCoordenador === 'eventos' && <GerenciarEventos usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />}

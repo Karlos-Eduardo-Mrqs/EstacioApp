@@ -105,22 +105,6 @@ export default function GerenciarListaParcerias({
         )}
       </View>
 
-      <TextInput
-        style={{
-          borderWidth: 1,
-          borderColor: "#d1d5db",
-          borderRadius: 8,
-          padding: 10,
-          marginBottom: 16,
-          fontSize: 14,
-          backgroundColor: "#FAFAFA",
-        }}
-        placeholder="Pesquisar parceria por título ou empresa..."
-        placeholderTextColor="#94A3B8"
-        value={pesquisa}
-        onChangeText={setPesquisa}
-      />
-
       <ScrollView showsVerticalScrollIndicator={false}>
         {parceriasProcessadas.length > 0 ? (
           parceriasProcessadas.map((parceria) => {

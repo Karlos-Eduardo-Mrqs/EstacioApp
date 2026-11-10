@@ -1,211 +1,94 @@
-import {FlatList,Text,TextInput,TouchableOpacity,View} from "react-native";
-import { useGerenciarUsuarios } from "../../hooks/userGerenciaUsuarios";
-import { painelStyles as styles } from "../../styles/painel/painelStyles";
-import ConfirmPopup from "../ConfirmPopup";
-import FeedbackBox from "../FeedPopup";
-import PainelCadastro from "./painelCadastro";
+// src/components/painel/painelGerenciaAcademica.js
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { painelStyles as styles } from '../../styles/painel/painelStyles';
+import ConfirmPopup from '../ConfirmPopup';
+import FeedbackBox from '../FeedPopup';
+import GerenciarUsuarios from './usuarios/painelGerenciarUsuarios';
+import PainelPublicacoes from './publicacoes/painelPublicacoes';
+import GerenciarEventos from './eventos/painelEventos';
+import PainelCursos from './cursos/painelCursos';
+import PainelServicos from './servicos/painelServicos';
+import ParceriaTab from './parcerias/parceriaTab';
 
-export default function GerenciarUsuarios() {
-  const {
-    usuariosFiltrados,
-    usuarios,
-    pesquisa,
-    setPesquisa,
-    feedback,
-    modalCadastro,
-    setModalCadastro,
-    confirmPopup,
-    setConfirmPopup,
-    nome,
-    setNome,
-    email,
-    setEmail,
-    senha,
-    setSenha,
-    perfil,
-    setPerfil,
-    matricula,
-    setMatricula,
-    cursos = [],
-    cursoId,
-    setCursoId,
-    fecharCadastro,
-    criarUsuario,
-    alternarStatus,
-    solicitarRemocao,
-  } = useGerenciarUsuarios();
+export default function PainelGerenciaAcademica({ usuarioAtual, onClose, onLogout }) {
+  const [abaGerencia, setAbaGerencia] = useState('utilizadores');
 
-  const renderUsuario = ({ item }) => (
-    <View style={styles.usuarioCard}>
-      <View style={styles.usuarioInfo}>
-        <Text style={styles.usuarioNome} numberOfLines={1}>
-          {item.nome}
-        </Text>
-        <Text style={styles.usuarioEmail} numberOfLines={1}>
-          {item.email}
-        </Text>
-      </View>
-
-      <View style={styles.detalhesUsuario}>
-        <View style={styles.perfilBadge}>
-          <Text style={styles.perfilTexto} numberOfLines={1}>
-            {item.perfil}
-          </Text>
-        </View>
-
-        <View
-          style={[
-            styles.statusBadge,
-            item.ativo ? styles.statusAtivo : styles.statusInativo,
-          ]}
-        >
-          <View
-            style={[
-              styles.statusBolinha,
-              item.ativo ? styles.bolinhaAtiva : styles.bolinhaInativa,
-            ]}
-          />
-          <Text
-            style={[
-              styles.statusTexto,
-              item.ativo ? styles.textoAtivo : styles.textoInativo,
-            ]}
-          >
-            {item.ativo ? "Ativo" : "Inativo"}
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.acoes}>
-        <TouchableOpacity
-          style={[
-            styles.botaoCadeado,
-            item.ativo ? styles.cadeadoAberto : styles.cadeadoFechado,
-          ]}
-          onPress={() => alternarStatus(item.id)}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.iconeCadeado}>{item.ativo ? "🔓" : "🔒"}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.botaoRemover}
-          onPress={() => solicitarRemocao(item.id)}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.iconeLixeira}>🗑</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  const [confirmPopup, setConfirmPopup] = useState({
+    visible: false,
+    titulo: '',
+    mensagem: '',
+    onConfirm: null,
+    tipo: 'danger',
+  });
 
   return (
-    <View
-      style={{
-        flex: 1,
-        width: "100%",
-        height: "100%",
-        backgroundColor: "#f4f5f7",
-      }}
-    >
-      <FlatList
-        data={usuariosFiltrados}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={renderUsuario}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.container}
-        ListHeaderComponent={
-          <View>
-            <Text style={styles.tituloPagina}>
-              Gerenciamento de utilizadores
-            </Text>
-            <Text style={styles.subtituloPagina}>
-              Cadastre, ative, desative ou remova utilizadores do sistema.
-            </Text>
+    <View style={{ flex: 1, width: '100%', height: '100%', backgroundColor: '#f4f5f7' }}>
+      
+      {/* CABEÇALHO DO PAINEL DA GERÊNCIA */}
+      <View style={{ padding: 16, backgroundColor: '#FFFFFF', borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+        <Text style={styles.tituloPagina}>Gestão Acadêmica</Text>
+        <Text style={styles.subtituloPagina}>
+          Painel administrativo global, bem-vindo(a), {usuarioAtual?.nome}.
+        </Text>
 
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: feedback.tipo, mensagem: feedback.mensagem })} />
+        {/* SUB-ABAS DA GERÊNCIA (Utilizadores, Publicações, Eventos, Cursos, Serviços, Parcerias) */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'utilizadores' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('utilizadores')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'utilizadores' && { color: '#FFF' }]}>Coordenadores</Text>
+            </TouchableOpacity>
 
-            <View style={styles.barraPesquisa}>
-              <View style={styles.pesquisaContainer}>
-                <Text style={styles.iconePesquisa}>⌕</Text>
-                <TextInput
-                  style={styles.inputPesquisa}
-                  placeholder="Pesquisar por nome ou e-mail..."
-                  placeholderTextColor="#94a3b8"
-                  value={pesquisa}
-                  onChangeText={setPesquisa}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  autoComplete="off"
-                  textContentType="none"
-                  importantForAutofill="no"
-                />
-                {pesquisa.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => setPesquisa("")}
-                    style={styles.limparPesquisa}
-                  >
-                    <Text style={styles.iconeLimpar}>×</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'publicacoes' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('publicacoes')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'publicacoes' && { color: '#FFF' }]}>Publicações</Text>
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.botaoAdicionar}
-                onPress={() => {
-                  setPesquisa('');
-                  setModalCadastro(true);
-                }}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.iconeAdicionar}>+</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'eventos' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('eventos')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'eventos' && { color: '#FFF' }]}>Eventos</Text>
+            </TouchableOpacity>
 
-            <View style={styles.cabecalhoLista}>
-              <Text style={styles.tituloLista}>Utilizadores cadastrados</Text>
-              <Text style={styles.contador}>
-                {usuariosFiltrados.length} de {usuarios.length}
-              </Text>
-            </View>
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'cursos' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('cursos')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'cursos' && { color: '#FFF' }]}>Cursos</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'servicos' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('servicos')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'servicos' && { color: '#FFF' }]}>Serviços</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaGerencia === 'parcerias' && { backgroundColor: '#173EA5' }]}
+              onPress={() => setAbaGerencia('parcerias')}
+            >
+              <Text style={[{ color: '#334155', fontWeight: 'bold', fontSize: 13 }, abaGerencia === 'parcerias' && { color: '#FFF' }]}>Parcerias</Text>
+            </TouchableOpacity>
           </View>
-        }
-        ListEmptyComponent={
-          <View style={styles.listaVazia}>
-            <Text style={styles.listaVaziaTitulo}>
-              {pesquisa
-                ? "Nenhum resultado encontrado"
-                : "Nenhum utilizador cadastrado"}
-            </Text>
-            <Text style={styles.listaVaziaTexto}>
-              {pesquisa
-                ? "Tente pesquisar por outro nome ou e-mail."
-                : "Toque no botão + para cadastrar o primeiro utilizador."}
-            </Text>
-          </View>
-        }
-      />
+        </ScrollView>
+      </View>
 
-      <PainelCadastro
-        visible={modalCadastro}
-        onClose={fecharCadastro}
-        nome={nome}
-        setNome={setNome}
-        matricula={matricula}
-        setMatricula={setMatricula}
-        email={email}
-        setEmail={setEmail}
-        senha={senha}
-        setSenha={setSenha}
-        perfil={perfil}
-        setPerfil={setPerfil}
-        cursos={cursos}
-        cursoId={cursoId}
-        setCursoId={setCursoId}
-        onCriar={criarUsuario}
-        styles={styles}
-      />
+      {/* CONTEÚDO DA SUB-ABA SELECIONADA */}
+      <View style={{ flex: 1 }}>
+        {abaGerencia === 'utilizadores' && <GerenciarUsuarios usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />}
+        {abaGerencia === 'publicacoes' && <PainelPublicacoes usuarioAtual={usuarioAtual} />}
+        {abaGerencia === 'eventos' && <GerenciarEventos usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />}
+        {abaGerencia === 'cursos' && <PainelCursos usuarioAtual={usuarioAtual} />}
+        {abaGerencia === 'servicos' && <PainelServicos usuarioAtual={usuarioAtual} />}
+        {abaGerencia === 'parcerias' && <ParceriaTab />}
+      </View>
 
       <ConfirmPopup
         visible={confirmPopup.visible}
@@ -213,9 +96,7 @@ export default function GerenciarUsuarios() {
         mensagem={confirmPopup.mensagem}
         tipo={confirmPopup.tipo}
         onConfirm={confirmPopup.onConfirm}
-        onCancel={() =>
-          setConfirmPopup((prev) => ({ ...prev, visible: false }))
-        }
+        onCancel={() => setConfirmPopup(prev => ({ ...prev, visible: false }))}
       />
     </View>
   );

@@ -1,11 +1,12 @@
-
+// src/components/painel/usuarios/modalGerenciarUsuarios.js
 import {KeyboardAvoidingView,Modal,Platform,ScrollView,Text,TextInput,TouchableOpacity,useWindowDimensions,View,} from 'react-native';
-import CustomIcon from "../../components/CustomIcon";
+import CustomIcon from "../../../components/CustomIcon"; 
 import { Picker } from '@react-native-picker/picker';
 
-export default function PainelCadastro({
+export default function PainelGerenciarUsuarios({
   visible,
   onClose,
+  usuarioEditando,
   nome,
   setNome,
   email,
@@ -16,6 +17,8 @@ export default function PainelCadastro({
   setPerfil,
   matricula,
   setMatricula,
+  telefone,
+  setTelefone,
   cursos = [],
   cursoId,
   setCursoId,
@@ -40,16 +43,18 @@ export default function PainelCadastro({
           {/* CABEÇALHO DO MODAL */}
           <View style={styles.modalCabecalho}>
             <View>
-              <Text style={styles.modalTitulo}>Novo utilizador</Text>
+              <Text style={styles.modalTitulo}>
+                {usuarioEditando ? "Editar utilizador" : "Novo utilizador"}
+              </Text>
               <Text style={styles.modalSubtitulo}>
-                Preencha os dados para cadastrar.
+                {usuarioEditando ? "Altere os dados necessários." : "Preencha os dados para cadastrar."}
               </Text>
             </View>
 
             <TouchableOpacity
               style={styles.botaoFechar}
               onPress={onClose}
-              accessibilityLabel="Fechar cadastro"
+              accessibilityLabel="Fechar modal"
             >
               <CustomIcon
                 name={isDesktop ? "close" : "arrow-back"}
@@ -86,7 +91,16 @@ export default function PainelCadastro({
               autoCorrect={false}
             />
 
-            {/* MATRÍCULA OPCIONAL */}
+            <Text style={styles.label}>Telefone (opcional)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="(00) 00000-0000"
+              placeholderTextColor="#9ca3af"
+              value={telefone}
+              onChangeText={setTelefone}
+              keyboardType="phone-pad"
+            />
+
             <Text style={styles.label}>Matrícula (opcional)</Text>
             <TextInput
               style={styles.input}
@@ -142,7 +156,6 @@ export default function PainelCadastro({
             {perfil === 'Coordenador' && (
               <>
                 <Text style={styles.label}>Curso *</Text>
-
                 <View
                   style={[
                     styles.input,
@@ -158,7 +171,6 @@ export default function PainelCadastro({
                       value={cursoId == null ? '' : String(cursoId)}
                       onChange={(event) => {
                         const valor = event.target.value;
-
                         setCursoId(valor === '' ? null : Number(valor));
                       }}
                       style={{
@@ -174,14 +186,12 @@ export default function PainelCadastro({
                         boxSizing: 'border-box',
                       }}
                     >
-                      <option value="">Selecione um curso</option>
-
+                      <option value="">
+                        {cursos.length === 0 ? "A carregar cursos..." : "Selecione um curso"}
+                      </option>
                       {cursos.map((item) => (
-                        <option
-                          key={item.id}
-                          value={String(item.id)}
-                        >
-                          {item.titulo}
+                        <option key={item.id} value={String(item.id)}>
+                          {item.titulo || item.nome}
                         </option>
                       ))}
                     </select>
@@ -193,25 +203,22 @@ export default function PainelCadastro({
                           setCursoId(null);
                           return;
                         }
-
                         const selecionado = cursos.find(
                           (item) => String(item.id) === String(valor)
                         );
-
                         setCursoId(selecionado ? selecionado.id : null);
                       }}
                       style={{ width: '100%' }}
                     >
-                      <Picker.Item
-                        label="Selecione um curso"
-                        value=""
+                      <Picker.Item 
+                        label={cursos.length === 0 ? "A carregar cursos..." : "Selecione um curso"} 
+                        value="" 
                       />
-
                       {cursos.map((item) => (
-                        <Picker.Item
-                          key={item.id}
-                          label={item.titulo}
-                          value={String(item.id)}
+                        <Picker.Item 
+                          key={item.id} 
+                          label={item.titulo || item.nome} 
+                          value={String(item.id)} 
                         />
                       ))}
                     </Picker>
@@ -220,12 +227,12 @@ export default function PainelCadastro({
               </>
             )}
 
-
-
-            <Text style={styles.label}>Senha temporária *</Text>
+            <Text style={styles.label}>
+              {usuarioEditando ? "Nova senha (deixe em branco para manter)" : "Senha temporária *"}
+            </Text>
             <TextInput
               style={styles.input}
-              placeholder="Informe uma senha temporária"
+              placeholder={usuarioEditando ? "Preencha apenas se quiser alterar" : "Informe uma senha temporária"}
               placeholderTextColor="#9ca3af"
               value={senha}
               onChangeText={setSenha}
@@ -240,7 +247,7 @@ export default function PainelCadastro({
               activeOpacity={0.8}
             >
               <Text style={styles.textoCriar}>
-                + Criar utilizador
+                {usuarioEditando ? "Salvar alterações" : "+ Criar utilizador"}
               </Text>
             </TouchableOpacity>
 

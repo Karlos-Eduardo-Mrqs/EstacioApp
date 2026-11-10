@@ -173,7 +173,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
         const imagemOtimizada = await ImageManipulator.manipulateAsync(
           uri,
           [acaoRedimensionar], 
-          { compress: 0.75, format: ImageManipulator.SaveFormat.JPEG }
+          { compress: 0.80, format: ImageManipulator.SaveFormat.JPEG }
         );
 
         setImagem(imagemOtimizada.uri);

@@ -3,8 +3,16 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { painelStyles as styles } from '../../styles/painel/painelStyles';
 import ConfirmPopup from '../ConfirmPopup';
 import FeedbackBox from '../FeedPopup';
+import PainelPublicacoes from './painelPublicacoes';
+
 
 export default function PainelCoordenador({ usuarioAtual}) {
+  //Teste curso_id do usuário atual
+  console.log('=== DEBUG COORDENADOR ===');
+  console.log('Usuário:', usuarioAtual);
+  console.log('Nome:', usuarioAtual?.nome);
+  console.log('Curso ID:', usuarioAtual?.curso_id);
+
   const [confirmPopup, setConfirmPopup] = useState({
     visible: false,
     titulo: '',
@@ -36,6 +44,8 @@ export default function PainelCoordenador({ usuarioAtual}) {
             • Acompanhar relatórios de interações dos alunos.
           </Text>
         </View>
+
+        <PainelPublicacoes usuarioAtual={usuarioAtual} />
 
       </ScrollView>
 

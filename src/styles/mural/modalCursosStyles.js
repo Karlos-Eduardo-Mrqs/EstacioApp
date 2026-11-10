@@ -181,4 +181,75 @@ export const modalCursosStyles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "bold",
   },
+
+  listaPublicacoes: {
+    flexDirection: "row",
+    gap: 12,
+    paddingBottom: 8,
+  },
+
+  publicacaoCard: {
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    borderRadius: 8,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.bordaSuaveAlternativa,
+  },
+
+  imagemPublicacao: {
+    width: "100%",
+    aspectRatio: 4 / 5,
+    backgroundColor: "#e5e5e5",
+  },
+
+  imagemPublicacaoVazia: {
+    width: "100%",
+    height: 150,
+    backgroundColor: "#eeeeee",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  conteudoPublicacao: {
+    padding: 10,
+    minHeight: 125,
+  },
+
+  // tituloPublicacao: {
+  //   fontSize: 12,
+  //   fontWeight: "bold",
+  //   color: CoresInstitucionais.azulPrincipal,
+  //   marginBottom: 8,
+  // },
+
+  // descricaoPublicacao: {
+  //   fontSize: 11,
+  //   color: CoresInstitucionais.textoCinza,
+  //   lineHeight: 16,
+  // },
+
+  // btnExpandirPublicacao: {
+  //   fontSize: 12,
+  //   fontWeight: "bold",
+  //   color: CoresInstitucionais.azulSecundario,
+  //   marginTop: 8,
+  // },
+  tituloPublicacao: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: CoresInstitucionais.azulPrincipal,
+    marginBottom: 8,
+  },
+
+  descricaoPublicacao: {
+    fontSize: 12,
+    color: "#666666",
+    lineHeight: 18,
+  },
+
+  btnExpandirPublicacao: {
+    color: "#0754A6",
+    fontSize: 12,
+    fontWeight: "600",
+  },
 });

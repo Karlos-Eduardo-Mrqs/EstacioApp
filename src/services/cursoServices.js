@@ -51,7 +51,7 @@ export async function buscarCursosDoBanco() {
 
 export async function buscarCursoPorId(cursoId) {
   if (!cursoId) return null;
-  
+
   const { data, error } = await supabase
     .from('curso')
     .select('*')

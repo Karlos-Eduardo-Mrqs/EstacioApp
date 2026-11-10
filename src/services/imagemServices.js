@@ -1,18 +1,19 @@
 import { supabase } from '../../lib/supabase';
 
 export async function criarImagemNoBanco(novaImagem) {
-  const { data, error } = await supabase
-    .from('imagem')
-    .insert([{
-      titulo: novaImagem.titulo,
-      descricao: novaImagem.descricao,
-      caminho_img: novaImagem.caminho_img
-    }])
-    .select()
-    .single();
+    const { data, error } = await supabase
+        .from('imagem')
+        .insert([{
+            titulo: novaImagem.titulo,
+            descricao: novaImagem.descricao,
+            caminho_img: novaImagem.caminho_img,
+            caminho_img_original: novaImagem.caminho_img_original
+        }])
+        .select()
+        .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
 }
 
 export async function atualizarImagemNoBanco(id, imagemAtualizada) {
@@ -27,49 +28,15 @@ export async function atualizarImagemNoBanco(id, imagemAtualizada) {
   return data;
 }
 
-export const padronizarProporcaoImagem = async (uriOriginal) => {
+
+export async function fazerUploadParaSupabaseStorage(uriLocal) {
   try {
-    const resultado = await ImageManipulator.manipulateAsync(
-      uriOriginal,
-      [
-        {
-          resize: {
-            width: 1200,
-            height: 675, // Força a proporção exata de banner 16:9
-          },
-        },
-      ],
-      { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
-    );
+    const nomeArquivo = `capa_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
     
-    return resultado.uri;
-  } catch (error) {
-    console.error("Erro ao padronizar imagem:", error);
-    return uriOriginal;
-  }
-};
-
-export async function fazerUploadParaSupabaseStorage(uriLocal, tituloEvento = '') {
-  try {
-    // 1. Padroniza a proporção antes do envio
-    const uriFormatada = await padronizarProporcaoImagem(uriLocal);
-
-    // 2. Formata o título para o nome do arquivo
-    const tituloLimpo = tituloEvento
-      ? tituloEvento
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/[^a-z0-9]/g, '_')
-          .replace(/_+/g, '_')
-          .substring(0, 30)
-      : 'capa';
-
-    const nomeArquivo = `${tituloLimpo}_${Date.now()}.jpg`;
-    
-    const resposta = await fetch(uriFormatada);
+    const resposta = await fetch(uriLocal);
     const blob = await resposta.blob();
 
+    // 🎯 Usa o nome exato do bucket que está criado no seu painel ('imagensposts')
     const { data, error } = await supabase.storage
       .from('imagensposts') 
       .upload(nomeArquivo, blob, {
@@ -77,17 +44,18 @@ export async function fazerUploadParaSupabaseStorage(uriLocal, tituloEvento = ''
         upsert: true
       });
 
-    if (error) throw error;
+        if (error) throw error;
 
     const { data: urlPublica } = supabase.storage
-      .from('imagensposts') 
+      .from('imagensposts') // 🎯 Garante que busca a URL pública do mesmo bucket
       .getPublicUrl(data.path);
 
-    return urlPublica.publicUrl;
-  } catch (error) {
-    console.error("Erro no upload para o Storage:", error);
-    throw error;
-  }
+        return urlPublica.publicUrl;
+
+    } catch (error) {
+        console.error('Erro no upload para o Storage:', error);
+        throw error;
+    }
 }
 
 export async function removerOuSubstituirImagemEvento(eventoEditando) {

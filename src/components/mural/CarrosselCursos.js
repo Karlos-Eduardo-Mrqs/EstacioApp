@@ -73,7 +73,6 @@ export default function CursosCarrossel({
             // 🛡️ Verifica se o curso atual está na lista de favoritos do usuário (por ID ou nome/título)
             const isFavorito =
               cursosFavoritosIds.includes(curso.id) ||
-              cursosFavoritosIds.includes(curso.titulo) ||
               cursosFavoritosIds.includes(curso.nome);
 
             return (
@@ -107,7 +106,7 @@ export default function CursosCarrossel({
                 </View>
 
                 <Text style={styles.cardTitle} numberOfLines={2}>
-                  {curso.titulo}
+                  {curso.nome}
                 </Text>
 
                 <Text style={styles.cardDescription} numberOfLines={3}>

@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Image,
-  ScrollView
+    ActivityIndicator,
+    Image,
+    Modal,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    useWindowDimensions,
+    View
 } from 'react-native';
 
 import { useGerenciarPublicacoes } from '../../hooks/useGerenciarPublicacoes';
-import ModalGerenciarPublicacao from './modalGerenciarPublicacoes';
 import ConfirmPopup from '../ConfirmPopup';
+import CustomIcon from '../CustomIcon';
 import FeedbackBox from '../FeedPopup';
-
+import ModalGerenciarPublicacao from './modalGerenciarPublicacoes';
 
 export default function PainelPublicacoes({ usuarioAtual }) {
     const {
@@ -20,6 +22,12 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         carregando,
         erro,
         modalPublicacao,
+
+        imagemOriginal,
+        editorAberto,
+        setEditorAberto,
+        confirmarRecorte,
+
         setModalPublicacao,
         publicacaoEditando,
         titulo,
@@ -36,7 +44,13 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         excluirPublicacao
     } = useGerenciarPublicacoes(usuarioAtual?.curso_id);
 
+    const { width: larguraTela } = useWindowDimensions();
+
+    const larguraCard = larguraTela < 600 ? '100%' : larguraTela < 1000 ? '48%' : '23%';
+
     const [publicacoesExpandidas, setPublicacoesExpandidas] = useState([]);
+    const [imagemOriginalSelecionada, setImagemOriginalSelecionada] = useState(null);
+    const [modalImagemOriginal, setModalImagemOriginal] = useState(false);
 
     function alternarDescricao(id) {
         setPublicacoesExpandidas(prev =>
@@ -72,6 +86,18 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         });
     }
 
+    function visualizarImagemOriginal(publicacao) {
+
+        const caminhoOriginal = publicacao.imagem?.caminho_img_original;
+
+        if (!caminhoOriginal) {
+            return;
+        }
+
+        setImagemOriginalSelecionada(caminhoOriginal);
+        setModalImagemOriginal(true);
+    }
+
     function precisaExpandir(descricao) {
         const linhas = descricao.split('\n');
 
@@ -80,99 +106,302 @@ export default function PainelPublicacoes({ usuarioAtual }) {
 
     return (
         <View style={{
-        marginTop: 20,
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 12
-        }}>
+            marginTop: 20,
+            padding: 20,
+            backgroundColor: '#F4F6F8',
+            borderRadius: 12
+            }}>
 
-        <Text style={{
-            fontSize: 18,
-            fontWeight: 'bold',
-            color: '#032551'
-        }}>
-            Publicações do curso
-        </Text>
+            {/* Cabeçalho */}
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 12,
+                marginBottom: 20
+            }}>
+                <View>
+                <Text style={{
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    color: '#032551'
+                }}>
+                    Publicações do curso
+                </Text>
 
-        <TouchableOpacity onPress={abrirNovaPublicacao}>
-            <Text>+ Nova publicação</Text>
-        </TouchableOpacity>
+                <Text style={{
+                    fontSize: 13,
+                    color: '#64748B',
+                    marginTop: 4
+                }}>
+                    Gerencie os avisos e comunicados do seu curso.
+                </Text>
+                </View>
+
+            <TouchableOpacity
+                onPress={abrirNovaPublicacao}
+                activeOpacity={0.85}
+                style={{
+                    backgroundColor: '#032551',
+                    paddingVertical: 11,
+                    paddingHorizontal: 18,
+                    borderRadius: 8,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 7
+                }}
+                >
+                <CustomIcon name="plus" size={17} color="#FFFFFF" />
+                    <Text style={{
+                        color: '#FFFFFF',
+                        fontWeight: 'bold',
+                        fontSize: 13
+                    }}>
+                        Nova publicação
+                    </Text>
+            </TouchableOpacity>
+        </View>
 
         {erro && (
             <FeedbackBox tipo="erro" mensagem={erro} />
         )}
 
+        {/* Carregamento */}
         {carregando ? (
-            <ActivityIndicator />
+            <ActivityIndicator size="large" color="#0754A6" />
         ) : publicacoes.length === 0 ? (
-            <Text>Nenhuma publicação cadastrada.</Text>
+
+            /* Estado vazio */
+            <View style={{
+            backgroundColor: '#FFFFFF',
+            padding: 35,
+            borderRadius: 10,
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0'
+            }}>
+            <CustomIcon name="file-text" size={35} color="#94A3B8" />
+
+            <Text style={{
+                fontSize: 16,
+                fontWeight: 'bold',
+                color: '#032551',
+                marginTop: 12
+            }}>
+                Nenhuma publicação ainda
+            </Text>
+
+            <Text style={{
+                fontSize: 13,
+                color: '#64748B',
+                marginTop: 5,
+                textAlign: 'center'
+            }}>
+                As publicações cadastradas para seu curso aparecerão aqui.
+            </Text>
+            </View>
+
         ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+
+            /* Grade de publicações */
+            <View style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-start',
+            gap: 14,
+            padding: 14,
+            flex: 1
+            }}>
             {publicacoes.map(publicacao => (
                 <View
                 key={publicacao.id}
                 style={{
-                    width: 220,
-                    marginRight: 12,
-                    padding: 10,
+                    width: larguraCard,
+                    height: 700,
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 12,
                     borderWidth: 1,
                     borderColor: '#E2E8F0',
-                    borderRadius: 10
+                    borderBottomWidth: 4,
+                    borderBottomColor: '#FFB900',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
                 >
-                {publicacao.imagem?.caminho_img && (
+
+                {/* Imagem da publicação */}
+                {publicacao.imagem?.caminho_img ? (
+                    <TouchableOpacity
+                    activeOpacity={0.9}
+                    onPress={() => visualizarImagemOriginal(publicacao)}
+                    >
                     <Image
-                    source={{ uri: publicacao.imagem.caminho_img }}
-                    style={{
+                        source={{ uri: publicacao.imagem.caminho_img }}
+                        style={{
                         width: '100%',
                         aspectRatio: 4 / 5,
-                        backgroundColor: '#F1F5F9',
-                        borderRadius: 8
-                    }}
-                    resizeMode="contain"
+                        backgroundColor: '#E2E8F0'
+                        }}
+                        resizeMode="cover"
                     />
-                )}
-
-                <Text style={{ fontWeight: 'bold', marginTop: 8 }}>
-                    {publicacao.titulo}
-                </Text>
-
-                {/* <Text numberOfLines={3}>
-                    {publicacao.descricao}
-                </Text> */}
-
-                <Text numberOfLines={
-                    publicacoesExpandidas.includes(publicacao.id) ? undefined: 3}> {publicacao.descricao}
-                </Text>
-
-                {precisaExpandir(publicacao.descricao) && (
-                <TouchableOpacity
-                    onPress={() => alternarDescricao(publicacao.id)}
-                >
-                    <Text style={{
-                        color: '#2563EB',
-                        fontWeight: '600',
-                        marginTop: 4
+                    </TouchableOpacity>
+                ) : (
+                    <View style={{
+                    width: '100%',
+                    aspectRatio: 4 / 5,
+                    backgroundColor: '#E8EEF5',
+                    justifyContent: 'center',
+                    alignItems: 'center'
                     }}>
-                        {publicacoesExpandidas.includes(publicacao.id) ? 'Ver menos' : 'Ver mais'}
-                    </Text>
-                </TouchableOpacity>
+                    <CustomIcon name="image" size={35} color="#94A3B8" />
+                    </View>
                 )}
 
-                <TouchableOpacity
-                    onPress={() => abrirEdicaoPublicacao(publicacao)}
+                {/* Conteúdo */}
+                <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{
+                        padding: 14,
+                        flexGrow: 1,
+                        justifyContent: 'space-between'
+                    }}
+                    showsVerticalScrollIndicator={true}
                 >
-                    <Text>Editar</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() => solicitarExclusao(publicacao)}
-                >
-                    <Text>Excluir</Text>
-                </TouchableOpacity>
+                    {/* Identificação do curso */}
+                    <View style={{
+                    alignSelf: 'flex-start',
+                    backgroundColor: '#E2F1FF',
+                    paddingHorizontal: 9,
+                    paddingVertical: 5,
+                    borderRadius: 5,
+                    marginBottom: 10
+                    }}>
+                    <Text style={{
+                        fontSize: 10,
+                        fontWeight: 'bold',
+                        color: '#0754A6'
+                    }}>
+                        {publicacao.curso?.nome || 'Curso'}
+                    </Text>
+                    </View>
+
+                    {/* Título */}
+                    <Text style={{
+                        fontSize: 14,
+                        fontWeight: '700',
+                        color: '#032551',
+                        marginBottom: 8
+                    }}>
+                    {publicacao.titulo}
+                    </Text>
+
+                    {/* Descrição */}
+                    <Text
+                    numberOfLines={
+                        publicacoesExpandidas.includes(publicacao.id) ? undefined : 3
+                    }
+                    style={{
+                        fontSize: 12,
+                        color: '#666666',
+                        lineHeight: 18
+                    }}
+                    >
+                    {publicacao.descricao}
+                    </Text>
+
+                    {precisaExpandir(publicacao.descricao) && (
+                    <TouchableOpacity
+                        onPress={() => alternarDescricao(publicacao.id)}
+                        style={{ marginTop: 6 }}
+                    >
+                        <Text style={{
+                            color: '#0754A6',
+                            fontSize: 12,
+                            fontWeight: '600'
+                        }}>
+                        {publicacoesExpandidas.includes(publicacao.id)
+                            ? 'Ver menos'
+                            : 'Ver mais'}
+                        </Text>
+                    </TouchableOpacity>
+                    )}
+
+                    {/* Divisor */}
+                    <View style={{
+                    height: 1,
+                    backgroundColor: '#E2E8F0',
+                    marginVertical: 12
+                    }} />
+
+                    {/* Ações */}
+                    <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    marginTop: 16                    }}>
+                    <TouchableOpacity
+                        onPress={() => abrirEdicaoPublicacao(publicacao)}
+                        activeOpacity={0.8}
+                        style={{
+                        flex: 1,
+                        backgroundColor: '#E2F1FF',
+                        paddingVertical: 9,
+                        borderRadius: 6,
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 6
+                        }}
+                    >
+                        <CustomIcon name="pencil" size={14} color="#0754A6" />
+                        <Text style={{
+                        color: '#0754A6',
+                        fontWeight: 'bold',
+                        fontSize: 12
+                        }}>
+                        Editar
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={() => solicitarExclusao(publicacao)}
+                        activeOpacity={0.8}
+                        style={{
+                        backgroundColor: '#FEECEC',
+                        paddingVertical: 9,
+                        paddingHorizontal: 13,
+                        borderRadius: 6,
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 6
+                        }}
+                    >
+                        <CustomIcon name="trash-2" size={14} color="#DC4545" />
+                        <Text style={{
+                        color: '#DC4545',
+                        fontWeight: 'bold',
+                        fontSize: 12
+                        }}>
+                        Excluir
+                        </Text>
+                    </TouchableOpacity>
+                    </View>
+
+                </ScrollView>
+
                 </View>
+                
             ))}
-            </ScrollView>
+                {/* Destaque amarelo inferior */}
+                <View style={{
+                    height: 4,
+                    backgroundColor: '#FFBF18'
+                }} />
+            </View>
         )}
 
         <ModalGerenciarPublicacao
@@ -183,12 +412,20 @@ export default function PainelPublicacoes({ usuarioAtual }) {
             setTitulo={setTitulo}
             descricao={descricao}
             setDescricao={setDescricao}
+
             imagem={imagem}
+            imagemOriginal={imagemOriginal}
+            editorAberto={editorAberto}
+            setEditorAberto={setEditorAberto}
+            confirmarRecorte={confirmarRecorte}
+
             selecionarImagem={selecionarImagem}
             removerImagem={removerImagem}
             salvarPublicacao={salvarPublicacao}
+
             carregando={carregando}
             carregandoImagem={carregandoImagem}
+
             feedback={{
                 tipo: 'erro',
                 mensagem: erro
@@ -201,10 +438,57 @@ export default function PainelPublicacoes({ usuarioAtual }) {
             mensagem={confirmPopup.mensagem}
             tipo={confirmPopup.tipo}
             onConfirm={confirmPopup.onConfirm}
-            onClose={() =>
+            onCancel={() =>
             setConfirmPopup(prev => ({ ...prev, visible: false }))
             }
         />
+
+        <Modal
+            visible={modalImagemOriginal}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setModalImagemOriginal(false)}
+        >
+            <View style={{
+                flex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 20
+            }}>
+
+                <TouchableOpacity
+                    onPress={() => setModalImagemOriginal(false)}
+                    style={{
+                        position: 'absolute',
+                        top: 40,
+                        right: 20,
+                        zIndex: 2,
+                        padding: 10
+                    }}
+                >
+                    <Text style={{
+                        color: '#fff',
+                        fontSize: 28,
+                        fontWeight: 'bold'
+                    }}>
+                        ×
+                    </Text>
+                </TouchableOpacity>
+
+                {imagemOriginalSelecionada && (
+                    <Image
+                        source={{ uri: imagemOriginalSelecionada }}
+                        style={{
+                            width: '100%',
+                            height: '80%'
+                        }}
+                        resizeMode="contain"
+                    />
+                )}
+
+            </View>
+        </Modal>
 
         </View>
     );

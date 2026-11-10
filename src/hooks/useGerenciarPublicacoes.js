@@ -29,57 +29,77 @@ export function useGerenciarPublicacoes(cursoId) {
     const [imagem, setImagem] = useState(null);
     const [carregandoImagem, setCarregandoImagem] = useState(false);
 
+    const [imagemOriginal, setImagemOriginal] = useState(null);
+    const [editorAberto, setEditorAberto] = useState(false);
+
     async function selecionarImagem() {
         try {
             setCarregandoImagem(true);
 
             const resultado = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images'],
-            allowsEditing: false,
-            quality: 1
+                mediaTypes: ['images'],
+                allowsEditing: false,
+                quality: 1
             });
 
             if (!resultado.canceled && resultado.assets?.length) {
-            const asset = resultado.assets[0];
+                const asset = resultado.assets[0];
 
-            // Define a maior dimensão como limite
-            const maiorDimensao = Math.max(asset.width, asset.height);
+                setImagemOriginal({
+                    uri: asset.uri,
+                    width: asset.width,
+                    height: asset.height
+                });
 
-            const fatorReducao = Math.min(1350 / maiorDimensao, 1);
-
-            const novaLargura = Math.round(asset.width * fatorReducao);
-            const novaAltura = Math.round(asset.height * fatorReducao);
-
-            const imagemOtimizada = await ImageManipulator.manipulateAsync(
-                asset.uri,
-                [
-                {
-                    resize: {
-                    width: novaLargura,
-                    height: novaAltura
-                    }
-                }
-                ],
-                {
-                compress: 0.8,
-                format: ImageManipulator.SaveFormat.JPEG
-                }
-            );
-
-            setImagem(imagemOtimizada.uri);
+                setEditorAberto(true);
             }
 
         } catch (error) {
             console.error('Erro ao selecionar imagem:', error);
-            setErro('Não foi possível selecionar ou otimizar a imagem.');
-
+            setErro('Não foi possível selecionar a imagem.');
         } finally {
             setCarregandoImagem(false);
         }
     }
 
+    async function confirmarRecorte(recorte) {
+        try {
+            if (!imagemOriginal?.uri) {
+                throw new Error('Imagem original não encontrada.');
+            }
+
+            setCarregandoImagem(true);
+            setErro(null);
+
+            const resultado = await ImageManipulator.manipulateAsync(
+                imagemOriginal.uri,
+                [
+                    {
+                        crop: recorte
+                    }
+                ],
+                {
+                    compress: 0.9,
+                    format: ImageManipulator.SaveFormat.JPEG
+                }
+            );
+
+            setImagem(resultado.uri);
+            setEditorAberto(false);
+
+        } catch (error) {
+            console.error('Erro ao recortar imagem:', error);
+            setErro('Não foi possível recortar a imagem.');
+        } finally {
+            setCarregandoImagem(false);
+        }
+    }
+
+
     function removerImagem() {
         setImagem(null);
+        setImagemOriginal(null);
+        setEditorAberto(false);
     }
 
     function abrirNovaPublicacao() {
@@ -89,6 +109,8 @@ export function useGerenciarPublicacoes(cursoId) {
         setImagem(null); 
         setErro(null);
         setModalPublicacao(true);
+        setImagemOriginal(null);
+        setEditorAberto(false);
     }
 
     function abrirEdicaoPublicacao(publicacao) {
@@ -99,7 +121,17 @@ export function useGerenciarPublicacoes(cursoId) {
 
         setImagem(publicacao.imagem?.caminho_img || null);
 
-        setErro(null);
+        setImagemOriginal(
+            publicacao.imagem?.caminho_img_original
+                ? {
+                    uri: publicacao.imagem.caminho_img_original,
+                    width: null,
+                    height: null
+                }
+                : null
+        );
+
+        setEditorAberto(false);
         setModalPublicacao(true);
     }
 
@@ -126,6 +158,7 @@ export function useGerenciarPublicacoes(cursoId) {
     }
     }
 
+    
     async function salvarPublicacao() {
         if (!titulo.trim() || !descricao.trim() || !imagem || !cursoId) {
             setErro('Preencha o título, a descrição e selecione uma imagem.');
@@ -138,39 +171,51 @@ export function useGerenciarPublicacoes(cursoId) {
 
             let imagemId = publicacaoEditando?.imagem_id || null;
 
-            // Verifica se a imagem selecionada é um arquivo local
+            // Verifica se o recorte é um arquivo local
             const imagemLocal =
-            imagem.startsWith('file://') ||
-            imagem.startsWith('content://') ||
-            imagem.startsWith('blob:');
+                imagem.startsWith('file://') ||
+                imagem.startsWith('content://') ||
+                imagem.startsWith('blob:');
 
-            // Se for uma imagem nova, faz o upload e cadastra na tabela imagem
+            // Se houver uma nova imagem, envia as duas versões
             if (imagemLocal) {
-            const urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem);
+                if (!imagemOriginal?.uri) {
+                    throw new Error('Imagem original não encontrada.');
+                }
 
-            const novaImagem = await criarImagemNoBanco({
-                titulo: `Publicação: ${titulo.trim()}`,
-                descricao: descricao.trim(),
-                caminho_img: urlDefinitiva
-            });
+                // Upload da imagem recortada
+                const urlRecortada = await fazerUploadParaSupabaseStorage(imagem);
 
-            imagemId = novaImagem.id;
+                // Upload da imagem original
+                const urlOriginal = await fazerUploadParaSupabaseStorage(
+                    imagemOriginal.uri
+                );
+
+                // Cadastra os dois caminhos no banco
+                const novaImagem = await criarImagemNoBanco({
+                    titulo: `Publicação: ${titulo.trim()}`,
+                    descricao: descricao.trim(),
+                    caminho_img: urlRecortada,
+                    caminho_img_original: urlOriginal
+                });
+
+                imagemId = novaImagem.id;
             }
 
             const payloadPublicacao = {
-            titulo: titulo.trim(),
-            descricao: descricao.trim(),
-            curso_id: Number(cursoId),
-            imagem_id: imagemId
+                titulo: titulo.trim(),
+                descricao: descricao.trim(),
+                curso_id: Number(cursoId),
+                imagem_id: imagemId
             };
 
             if (publicacaoEditando) {
-            await atualizarPublicacaoNoBanco(
-                publicacaoEditando.id,
-                payloadPublicacao
-            );
+                await atualizarPublicacaoNoBanco(
+                    publicacaoEditando.id,
+                    payloadPublicacao
+                );
             } else {
-            await criarPublicacaoNoBanco(payloadPublicacao);
+                await criarPublicacaoNoBanco(payloadPublicacao);
             }
 
             setModalPublicacao(false);
@@ -178,6 +223,8 @@ export function useGerenciarPublicacoes(cursoId) {
             setTitulo('');
             setDescricao('');
             setImagem(null);
+            setImagemOriginal(null);
+            setEditorAberto(false);
 
             await carregarPublicacoes();
 
@@ -188,6 +235,7 @@ export function useGerenciarPublicacoes(cursoId) {
             setCarregando(false);
         }
     }
+
 
     const carregarPublicacoes = useCallback(async () => {
     if (!cursoId) return;
@@ -229,13 +277,20 @@ export function useGerenciarPublicacoes(cursoId) {
     imagem,
     setImagem,
     removerImagem,
+    confirmarRecorte,
 
     carregandoImagem,
     selecionarImagem,
     salvarPublicacao,
+    salvarPublicacao,
 
     abrirNovaPublicacao,
     abrirEdicaoPublicacao,
-    excluirPublicacao
+    excluirPublicacao,
+
+    imagemOriginal,
+    setImagemOriginal,
+    editorAberto,
+    setEditorAberto
     };
 }

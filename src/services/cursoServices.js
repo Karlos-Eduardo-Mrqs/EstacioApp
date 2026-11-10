@@ -20,7 +20,7 @@ export async function buscarCursosDoBanco() {
 
 export async function buscarCursoPorId(cursoId) {
   if (!cursoId) return null;
-  
+
   const { data, error } = await supabase
     .from('curso')
     .select('*')
@@ -32,6 +32,5 @@ export async function buscarCursoPorId(cursoId) {
     return null;
   }
 
-  // Retorna o título, nome ou fallback caso venha vazio
   return data ? (data.titulo || data.nome || `Curso #${cursoId}`) : null;
 }

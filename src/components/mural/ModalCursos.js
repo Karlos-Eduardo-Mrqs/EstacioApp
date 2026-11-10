@@ -1,3 +1,4 @@
+// src/components/mural/ModalCursos.js
 import { useState, useEffect } from "react";
 import { Linking, Modal, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, Platform, Image, ActivityIndicator } from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
@@ -58,10 +59,10 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
           {/* CABEÇALHO DO MODAL */}
           <View style={modalStyles.cabecalhoModal}>
             <View style={{ flex: 1, marginRight: 10 }}>
-              <Text style={modalStyles.subtituloModalHeader}>
+              <Text style={[modalStyles.subtituloModalHeader, { letterSpacing: 0.5, fontWeight: '700', fontSize: 11 }]}>
                 {curso.tipo ? `${curso.tipo} • ` : ''}{curso.modalidade || 'Graduação'}
               </Text>
-              <Text style={modalStyles.tituloModal} numberOfLines={2}>
+              <Text style={[modalStyles.tituloModal, { letterSpacing: -0.3, fontSize: 18, marginTop: 2 }]} numberOfLines={2}>
                 {curso.nome || curso.titulo}
               </Text>
             </View>
@@ -73,41 +74,42 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
           <ScrollView
             showsVerticalScrollIndicator={false}
             style={modalStyles.corpoModalScroll}
+            contentContainerStyle={{ paddingBottom: 24 }}
           >
             
             {/* BLOCO 1: APRESENTAÇÃO */}
             <View style={modalStyles.blocoSecao}>
-              <Text style={modalStyles.tituloBlocoSecao}>APRESENTAÇÃO</Text>
+              <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>APRESENTAÇÃO</Text>
               <View style={modalStyles.linhaAmarela} />
               
-              <Text style={modalStyles.textoApresentacao}>
+              <Text style={[modalStyles.textoApresentacao, { lineHeight: 20, color: '#334155', fontSize: 13.5 }]}>
                 {curso.descricao || "Nenhuma descrição detalhada informada para este curso até o momento. Consulte o site oficial para mais informações sobre a matriz curricular e ementa."}
               </Text>
 
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 }}>
-                <Text style={modalStyles.textoModalidade}>
-                  📌 <Text style={{ fontWeight: "bold" }}>Modalidade:</Text> {curso.modalidade || 'Graduação'}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 14, backgroundColor: '#F8FAFC', padding: 12, borderRadius: 8, borderWidth: 1, borderColor: '#E2E8F0' }}>
+                <Text style={[modalStyles.textoModalidade, { fontSize: 12, color: '#475569' }]}>
+                  📌 <Text style={{ fontWeight: "700", color: '#1E293B' }}>Modalidade:</Text> {curso.modalidade || 'Graduação'}
                 </Text>
                 {curso.tipo && (
-                  <Text style={modalStyles.textoModalidade}>
-                    🎓 <Text style={{ fontWeight: "bold" }}>Ensino:</Text> {curso.tipo}
+                  <Text style={[modalStyles.textoModalidade, { fontSize: 12, color: '#475569' }]}>
+                    🎓 <Text style={{ fontWeight: "700", color: '#1E293B' }}>Ensino:</Text> {curso.tipo}
                   </Text>
                 )}
               </View>
 
               {curso.link ? (
                 <TouchableOpacity
-                  style={[modalStyles.btnSiteOficial, { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8 }]}
+                  style={[modalStyles.btnSiteOficial, { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 16, borderRadius: 8, paddingVertical: 12 }]}
                   onPress={() => Linking.openURL(curso.link)}
                   activeOpacity={0.85}
                 >
                   <CustomIcon name="globe-outline" size={18} color="#FFFFFF" />
-                  <Text style={modalStyles.textoBtnSite}>
+                  <Text style={[modalStyles.textoBtnSite, { fontWeight: '700', fontSize: 13 }]}>
                     + Informações (Site Oficial)
                   </Text>
                 </TouchableOpacity>
               ) : (
-                <Text style={{ fontSize: 12, color: "#888", fontStyle: "italic", marginTop: 10 }}>
+                <Text style={{ fontSize: 12, color: "#64748B", fontStyle: "italic", marginTop: 12 }}>
                   ℹ️ Site oficial indisponível no momento.
                 </Text>
               )}
@@ -115,29 +117,29 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
             {/* BLOCO 2: EVENTOS E AVISOS DO CURSO */}
             <View style={modalStyles.blocoSecao}>
-              <Text style={modalStyles.tituloBlocoSecao}>
+              <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>
                 EVENTOS E AVISOS DO CURSO
               </Text>
               <View style={modalStyles.linhaAmarela} />
 
               {curso.eventosPrincipais && curso.eventosPrincipais.length > 0 ? (
                 curso.eventosPrincipais.map((ev, index) => (
-                  <View key={index} style={modalStyles.eventoCardModal}>
+                  <View key={index} style={[modalStyles.eventoCardModal, { borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#E2E8F0' }]}>
                     <Text style={modalStyles.tagEventoModal}>
                       {ev.tipo || "Evento"}
                     </Text>
                     <Text
-                      style={modalStyles.tituloEventoModal}
+                      style={[modalStyles.tituloEventoModal, { fontWeight: '700', fontSize: 14, color: '#032551' }]}
                       numberOfLines={2}
                     >
                       {ev.titulo}
                     </Text>
-                    <Text style={modalStyles.dataEventoModal}>
+                    <Text style={[modalStyles.dataEventoModal, { color: '#64748B', fontSize: 12, marginTop: 4 }]}>
                       📅 {ev.data} {ev.local ? `| 📍 ${ev.local}` : ""}
                     </Text>
 
                     <TouchableOpacity
-                      style={modalStyles.btnDetalhesModal}
+                      style={[modalStyles.btnDetalhesModal, { borderRadius: 6, paddingVertical: 8, marginTop: 10 }]}
                       onPress={() => {
                         onClose();
                         onSelectEvento({
@@ -156,14 +158,14 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                       }}
                       activeOpacity={0.8}
                     >
-                      <Text style={modalStyles.textoBtnDetalhesModal}>
+                      <Text style={[modalStyles.textoBtnDetalhesModal, { fontWeight: '600', fontSize: 12 }]}>
                         + Detalhes
                       </Text>
                     </TouchableOpacity>
                   </View>
                 ))
               ) : (
-                <Text style={modalStyles.textoVazio}>
+                <Text style={[modalStyles.textoVazio, { color: '#64748B', fontSize: 13, fontStyle: 'italic' }]}>
                   Nenhum evento ou aviso publicado para este curso no momento.
                 </Text>
               )}
@@ -171,7 +173,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
            {/* BLOCO 3: PUBLICAÇÕES DO CURSO */}
             <View style={modalStyles.blocoSecao}>
-              <Text style={modalStyles.tituloBlocoSecao}>
+              <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>
                 PUBLICAÇÕES DO CURSO
               </Text>
               <View style={modalStyles.linhaAmarela} />
@@ -199,7 +201,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                         key={publicacao.id}
                         style={[
                           modalStyles.publicacaoCard,
-                          { width: larguraCardPublicacao },
+                          { width: larguraCardPublicacao, borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: '#E2E8F0' },
                         ]}
                       >
                         {imagemUrl ? (
@@ -224,8 +226,8 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                           </View>
                         )}
 
-                        <View style={modalStyles.conteudoPublicacao}>
-                          <Text style={modalStyles.tituloPublicacao}>
+                        <View style={[modalStyles.conteudoPublicacao, { padding: 12 }]}>
+                          <Text style={[modalStyles.tituloPublicacao, { fontWeight: '700', color: '#032551', fontSize: 13.5 }]}>
                             {publicacao.titulo}
                           </Text>
 
@@ -233,7 +235,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                             numberOfLines={
                               publicacoesExpandidas.includes(publicacao.id) ? undefined : 3
                             }
-                            style={modalStyles.descricaoPublicacao}
+                            style={[modalStyles.descricaoPublicacao, { color: '#475569', fontSize: 12, lineHeight: 18, marginTop: 4 }]}
                           >
                             {publicacao.descricao}
                           </Text>
@@ -243,7 +245,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                               onPress={() => alternarDescricao(publicacao.id)}
                               style={{ marginTop: 6 }}
                             >
-                              <Text style={modalStyles.btnExpandirPublicacao}>
+                              <Text style={[modalStyles.btnExpandirPublicacao, { fontWeight: '600', fontSize: 11 }]}>
                                 {publicacoesExpandidas.includes(publicacao.id)
                                   ? "Ver menos"
                                   : "Ver mais"}
@@ -256,7 +258,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   })}
                 </ScrollView>
               ) : (
-                <Text style={modalStyles.textoVazio}>
+                <Text style={[modalStyles.textoVazio, { color: '#64748B', fontSize: 13, fontStyle: 'italic' }]}>
                   Nenhuma publicação disponível para este curso.
                 </Text>
               )}
@@ -264,7 +266,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
             {/* BLOCO 4: FALE COM A COORDENAÇÃO */}
             <View style={modalStyles.blocoSecao}>
-              <Text style={modalStyles.tituloBlocoSecao}>
+              <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>
                 FALE COM A COORDENAÇÃO
               </Text>
               <View style={modalStyles.linhaAmarela} />
@@ -275,35 +277,33 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     key={index}
                     style={[
                       modalStyles.cardCoordenacao,
+                      { padding: 14, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' },
                       index > 0 && {
                         marginTop: 15,
-                        paddingTop: 15,
-                        borderTopWidth: 1,
-                        borderTopColor: "#eee",
                       },
                     ]}
                   >
                     <View style={modalStyles.topoCoordenacao}>
-                      <View style={modalStyles.avatarCoordenacao}>
+                      <View style={[modalStyles.avatarCoordenacao, { backgroundColor: '#032551' }]}>
                         <CustomIcon name="person-outline" size={18} color="#FFFFFF" />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={modalStyles.nomeCoordenacao}>
+                        <Text style={[modalStyles.nomeCoordenacao, { fontWeight: '700', color: '#032551', fontSize: 14 }]}>
                           {coord.nome}
                         </Text>
-                        <Text style={modalStyles.descricaoCoordenacao}>
+                        <Text style={[modalStyles.descricaoCoordenacao, { color: '#64748B', fontSize: 11.5 }]}>
                           Coordenação de {curso.nome || curso.titulo}
                         </Text>
                       </View>
                     </View>
 
-                    <View style={{ marginTop: 8, gap: 6 }}>
+                    <View style={{ marginTop: 10, gap: 6, borderTopWidth: 1, borderTopColor: '#F1F5F9', paddingTop: 10 }}>
                       <TouchableOpacity
                         onPress={() => Linking.openURL(`mailto:${coord.email}`)}
                         style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
                       >
                         <CustomIcon name="mail-outline" size={14} color="#054ca9" />
-                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "bold" }}>
+                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "600" }}>
                           {coord.email}
                         </Text>
                       </TouchableOpacity>
@@ -312,7 +312,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                         style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
                       >
                         <CustomIcon name="phone-portrait-outline" size={14} color="#054ca9" />
-                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "bold" }}>
+                        <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "600" }}>
                           {coord.telefone}
                         </Text>
                       </TouchableOpacity>
@@ -320,23 +320,23 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   </View>
                 ))
               ) : (
-                <View style={modalStyles.cardCoordenacao}>
+                <View style={[modalStyles.cardCoordenacao, { padding: 16, borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' }]}>
                   <View style={modalStyles.topoCoordenacao}>
-                    <View style={modalStyles.avatarCoordenacao}>
+                    <View style={[modalStyles.avatarCoordenacao, { backgroundColor: '#032551' }]}>
                       <CustomIcon name="school-outline" size={18} color="#FFFFFF" />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={modalStyles.nomeCoordenacao}>
+                      <Text style={[modalStyles.nomeCoordenacao, { fontWeight: '700', color: '#032551', fontSize: 14 }]}>
                         Coordenação Acadêmica
                       </Text>
-                      <Text style={modalStyles.descricaoCoordenacao}>
+                      <Text style={[modalStyles.descricaoCoordenacao, { color: '#64748B', fontSize: 11.5 }]}>
                         Precisa de suporte ou esclarecer dúvidas sobre a matriz curricular?
                       </Text>
                     </View>
                   </View>
 
                   <TouchableOpacity
-                    style={[modalStyles.btnContato, { marginTop: 10 }]}
+                    style={[modalStyles.btnContato, { marginTop: 14, borderRadius: 8, paddingVertical: 12 }]}
                     onPress={() =>
                       Linking.openURL(
                         "mailto:coordenacao@estacio.br?subject=Dúvida sobre o curso " +
@@ -345,8 +345,8 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     }
                     activeOpacity={0.8}
                   >
-                    <CustomIcon name="send-outline" size={14} color="#FFFFFF" />
-                    <Text style={modalStyles.textoBtnContato}>
+                    <CustomIcon name="send-outline" size={15} color="#FFFFFF" />
+                    <Text style={[modalStyles.textoBtnContato, { fontWeight: '700', fontSize: 13 }]}>
                       Enviar E-mail para Coordenação
                     </Text>
                   </TouchableOpacity>

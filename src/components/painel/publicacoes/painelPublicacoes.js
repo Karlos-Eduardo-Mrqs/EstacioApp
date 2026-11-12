@@ -67,22 +67,22 @@ export default function PainelPublicacoes({ usuarioAtual }) {
   }
 
   // Verificação flexível do perfil (ignora acentos e maiúsculas/minúsculas)
-  const perfilNormalizado = usuarioAtual?.perfil
-    ? usuarioAtual.perfil.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    : '';
-  const ehGerencia = perfilNormalizado.includes('gerencia') || perfilNormalizado.includes('admin');
+  // 🔍 VERIFICAÇÃO FLEXÍVEL DO PERFIL
+  const perfilNormalizado = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const ehGerencia = perfilNormalizado.includes("gerencia") || perfilNormalizado.includes("admin");
 
-  // Separação entre publicações da Gerência e dos Coordenadores
-  const publicacoesDaGerencia = ehGerencia
-    ? publicacoes.filter((pub) => Number(pub.usuario_id) === Number(usuarioAtual?.id) || !pub.curso_id)
-    : publicacoes.filter(
-        (pub) =>
-          Number(pub.usuario_id) === Number(usuarioAtual?.id) ||
-          Number(pub.curso_id) === Number(usuarioAtual?.curso_id)
-      );
+  // SEPARAÇÃO RIGOROSA:
+  // Se for Gerência, separa os seus posts/geral dos posts de outros coordenadores
+  const publicacoesDaGerencia = ehGerencia 
+    ? publicacoes.filter(pub => Number(pub.usuario_id) === Number(usuarioAtual?.id) || !pub.curso_id)
+    : [];
 
-  const publicacoesDosCoordenadores = ehGerencia
-    ? publicacoes.filter((pub) => Number(pub.usuario_id) !== Number(usuarioAtual?.id) && pub.curso_id)
+  const publicacoesDosCoordenadores = ehGerencia 
+    ? publicacoes.filter(pub => Number(pub.usuario_id) !== Number(usuarioAtual?.id) && pub.curso_id)
+    : [];
+
+  const publicacoesDoCoordenadorLogado = !ehGerencia
+    ? publicacoes.filter(pub => Number(pub.usuario_id) === Number(usuarioAtual?.id))
     : [];
 
   // Função auxiliar de renderização do card
@@ -375,8 +375,12 @@ export default function PainelPublicacoes({ usuarioAtual }) {
 
           {/* Lista padrão quando o acesso for de Coordenador */}
           {!ehGerencia && (
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
-              {publicacoesDaGerencia.map(renderizarCardPublicacao)}
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
+              {publicacoesDoCoordenadorLogado.length === 0 ? (
+                <Text style={{ fontSize: 13, color: '#64748B', fontStyle: 'italic' }}>Nenhuma publicação criada por você ainda.</Text>
+              ) : (
+                publicacoesDoCoordenadorLogado.map(renderizarCardPublicacao)
+              )}
             </View>
           )}
         </ScrollView>

@@ -52,7 +52,8 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
       const ehCoord = perfilNorm.includes("coordenador");
 
       if (ehCoord) {
-        query = query.or(`usuario_id.eq.${usuarioAtual.id},curso_id.eq.${usuarioAtual.curso_id}`);
+        // Coordenador vê estritamente apenas os posts criados por ele próprio
+        query = query.eq('usuario_id', usuarioAtual.id);
       } else if (cursoIdFiltro) {
         query = query.eq('curso_id', cursoIdFiltro);
       }

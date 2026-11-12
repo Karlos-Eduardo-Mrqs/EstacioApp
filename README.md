@@ -1,56 +1,69 @@
-# Welcome to your Expo app 👋
+# 🎓 Portal Acadêmico & Mural Institucional (Estácio)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+[![React Native](https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.com)
+[![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Firebase Hosting](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 
-## Get started
+Sistema multiplataforma (Web e Mobile) desenvolvido para otimizar a comunicação institucional, gestão de eventos, comunicados e serviços acadêmicos entre a Gerência Acadêmica, Coordenadores e Estudantes.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🚀 Acesse a Aplicação
 
-2. Start the app
+Experimente a versão em produção hospedada no Firebase Hosting:
 
-   ```bash
-   npx expo start
-   ```
+👉 **[https://estacioapp-17a0d.web.app/](https://estacioapp-17a0d.web.app/)**
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠️ Tecnologias Utilizadas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+* **Frontend:** React Native, Expo, React Native Web, Tailwind / Estilizações Personalizadas.
+* **Gerenciamento de Estado & Hooks:** Hooks customizados para lógica de negócio isolada.
+* **Backend & Banco de Dados:** Supabase (PostgreSQL, Storage para mídias e autenticação relacional).
+* **Deploy & Hospedagem:** Firebase Hosting.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## ⚙️ Funcionalidades Principais
+
+* **Controle de Acesso Baseado em Perfis (RBAC):**
+  * *Gerência Acadêmica / Admin:* Visibilidade global do mural, criação de comunicados institucionais e gestão completa de cursos e serviços.
+  
+  * *Coordenadores:* Acesso restrito e focado na gestão do seu próprio curso, publicações autorais e controle de serviços locais.
+  
+  * *Estudantes:* Visualização de eventos, integração com o calendário de notificações e busca inteligente por cursos.
+
+* **Mural de Publicações e Eventos:** Sistema dinâmico com suporte a imagens otimizadas, proporções customizáveis e redirecionamento de links externos (Google Meet / Links Úteis).
+
+* **Busca Inteligente:** Filtros dinâmicos por título, descrição e nome de cursos nas abas de busca e painéis administrativos.
+
+---
+
+## 📦 Como Executar o Projeto Localmente
+
+Siga os passos abaixo para clonar e rodar o projeto na sua máquina:
+
+1. **Clone o repositório:** [https://github.com/Karlos-Eduardo-Mrqs/EstacioApp.git](https://github.com/Karlos-Eduardo-Mrqs/EstacioApp.git)
+
+2. Instale as dependências:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+3. Inicie o projeto limpando o cache do Metro Bundler:
 
-### Other setup steps
+```Bash
+npx expo start --clear
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## 👨‍💻 Desenvolvedores
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| 👤 Nome | 💼 Função |
+|------|------|
+| [**Carlos Eduardo**](https://github.com/Karlos-Eduardo-Mrqs) | FullStack, Arquitetura, UI/UX & Principal Desenvolvedor do Mural |
+| [**Lucas Andrade**](https://github.com/Lucas-deAndrade21) | FullStack, Organização do Banco de Dados & Desenvolvedor da Coordenação |
+| [**Victor Leon**](https://github.com/VictorLMMartello) | Back-end, Criptografias & Organização do Banco de Dados |
+| [**Vinicius Velasco**](https://github.com/vVelasco30) | Full-stack & Principal Desenvolvedor da Gerência Acadêmica |

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { supabase } from "../../lib/supabase"; // 👈 Ajuste o caminho se necessário
+import { Image, Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native"; // 👈 Importado Linking
+import { supabase } from "../../lib/supabase"; 
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 import { formatarDataApenas } from "../utils/dataUtils";
@@ -23,7 +23,6 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
     tipo: "info",
   });
 
-  // Caso o componente seja aberto fora do BuscaTab sem receber a prop, busca o ID 21
   useEffect(() => {
     if (imagemPadraoUrl) {
       setFallbackUrl(imagemPadraoUrl);
@@ -42,12 +41,28 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
 
   if (!evento) return null;
 
+  // 🔗 Extração segura do link do evento (verifica link_transmissao ou link)
+  const linkEvento = evento.link_transmissao || evento.link;
+
+  const handleAcessarLink = async () => {
+    if (!linkEvento) return;
+    try {
+      const supported = await Linking.canOpenURL(linkEvento);
+      if (supported) {
+        await Linking.openURL(linkEvento);
+      } else {
+        setFeedback({ tipo: "erro", mensagem: "Não foi possível abrir este link." });
+      }
+    } catch (error) {
+      setFeedback({ tipo: "erro", mensagem: "Erro ao tentar abrir o link." });
+    }
+  };
+
   // 🔗 Ação de Compartilhar
   const handleCompartilharClick = () => {
     setConfirmConfig({
       titulo: "📥 Permitir Download",
-      mensagem:
-        "Deseja permitir o download da imagem deste evento no seu dispositivo?",
+      mensagem: "Deseja permitir o download da imagem deste evento no seu dispositivo?",
       tipo: "info",
       onConfirm: async () => {
         setConfirmVisible(false);
@@ -66,8 +81,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
   const handleNotificarClick = () => {
     setConfirmConfig({
       titulo: "🔔 Salvar Notificação",
-      mensagem:
-        "Deseja guardar este evento nas suas notificações e agendar o lembrete?",
+      mensagem: "Deseja guardar este evento nas suas notificações e agendar o lembrete?",
       tipo: "info",
       onConfirm: async () => {
         setConfirmVisible(false);
@@ -101,7 +115,6 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
   const urlFinal = urlImagemCapa || fallbackUrl;
   const imagemFonte = urlFinal ? { uri: urlFinal } : null;
 
-  // 🛡️ Tratamento seguro para extrair o local do evento
   let localExibido = "Estácio Nova América";
   if (evento?.local) {
     localExibido =
@@ -120,7 +133,6 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
         : evento.curso;
   }
 
-  // 📅 Converte a data
   const dataFormatada = formatarDataApenas(
     evento.inicio || evento.dia || evento.dataEvento,
   );
@@ -159,7 +171,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                 <FeedbackBox
                   tipo={feedback.tipo}
                   mensagem={feedback.mensagem}
-                  onClose={() => setFeedback({ tipo: "", mensagem: "" })} // 👈 Corrigido para limpar o feedback corretamente
+                  onClose={() => setFeedback({ tipo: "", mensagem: "" })}
                 />
 
                 <Text style={localStyles.modalTituloClean}>{evento.titulo}</Text>
@@ -201,24 +213,31 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                 {/* SOBRE O EVENTO */}
                 <Text style={localStyles.modalSecaoLabelClean}>SOBRE O EVENTO:</Text>
                 <Text style={localStyles.modalDescricaoClean}>
-                  {evento.descricao ||
-                    "Informações detalhadas sobre o evento acadêmico."}
+                  {evento.descricao || "Informações detalhadas sobre o evento acadêmico."}
                 </Text>
               </View>
             </ScrollView>
 
             {/* RODAPÉ COM AÇÕES */}
             <View style={localStyles.actionButtonsRowClean}>
+              {/* 🌐 BOTÃO CONDICIONAL DE ACESSAR LINK (Aparece se houver link cadastrado) */}
+              {linkEvento ? (
+                <TouchableOpacity
+                  style={[localStyles.btnNotificarClean, { backgroundColor: "#059669" }]} // Estilo verde diferenciado para destaque do link
+                  onPress={handleAcessarLink}
+                  activeOpacity={0.8}
+                >
+                  <CustomIcon name="globe-outline" size={17} color="#ffffff" />
+                  <Text style={localStyles.btnNotificarTextoClean}>Acessar link</Text>
+                </TouchableOpacity>
+              ) : null}
+
               <TouchableOpacity
                 style={localStyles.btnNotificarClean}
                 onPress={handleNotificarClick}
                 activeOpacity={0.8}
               >
-                <CustomIcon
-                  name="notifications-outline"
-                  size={17}
-                  color="#ffffff"
-                />
+                <CustomIcon name="notifications-outline" size={17} color="#ffffff" />
                 <Text style={localStyles.btnNotificarTextoClean}>Notificar</Text>
               </TouchableOpacity>
 

@@ -90,6 +90,7 @@ export default function PainelCursos({ usuarioAtual }) {
         visible={modalCurso}
         onClose={() => setModalCurso(false)}
         cursoEditando={cursoEditando}
+        usuarioAtual={usuarioAtual}
         nome={nome} setNome={setNome}
         descricao={descricao} setDescricao={setDescricao}
         link={link} setLink={setLink}
@@ -98,7 +99,7 @@ export default function PainelCursos({ usuarioAtual }) {
         modalidade={modalidade} setModalidade={setModalidade}
         coordenadorId={coordenadorId}
         setCoordenadorId={setCoordenadorId}
-        coordenadoresDisponiveis={coordenadoresDisponiveis} // 👈 Mantém apenas a lista para exibição
+        coordenadoresDisponiveis={coordenadoresDisponiveis}
         feedback={feedback}
         salvarCurso={salvarCurso}
       />

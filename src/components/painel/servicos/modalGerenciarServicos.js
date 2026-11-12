@@ -28,6 +28,7 @@ export default function ModalGerenciarServico({
   setLinksUteis,
   aviso,
   setAviso,
+  coordenadorId,
   coordenadoresDisponiveis = [],
   cursosDisponiveis = [],
   salvarServico,

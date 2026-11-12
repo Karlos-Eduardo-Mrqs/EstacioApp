@@ -8,7 +8,7 @@ import {
 import { buscarCoordenadoresDoBanco } from '../services/cursoServices';
 import { supabase } from '../../lib/supabase';
 
-export function useGerenciarServicos() {
+export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioAtual adicionado
   const [servicos, setServicos] = useState([]);
   const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]);
   const [cursosDisponiveis, setCursosDisponiveis] = useState([]);
@@ -24,13 +24,30 @@ export function useGerenciarServicos() {
   const [nome, setNome] = useState('');
   const [coordenadorId, setCoordenadorId] = useState('');
   const [cursoId, setCursoId] = useState('');
-  const [descricao, setDescricao] = useState(''); // 👈 Corrigido de setDescdescricao para setDescricao
+  const [descricao, setDescricao] = useState('');
   const [dias, setDias] = useState('');
   const [linksUteis, setLinksUteis] = useState('');
   const [aviso, setAviso] = useState('');
 
   const [toast, setToast] = useState({ visible: false, nome: '', mensagem: '' });
   const [confirmacao, setConfirmacao] = useState({ visible: false, nome: '', mensagem: '', onConfirm: null, tipo: 'danger' });
+
+  const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const ehCoord = perfilNorm.includes("coordenador");
+
+  // ✅ Declaração única unificando o filtro de permissão e de pesquisa
+  const servicosFiltrados = servicos.filter((item) => {
+    if (ehCoord) {
+      return Number(item.coordenador_id || item.coordenadorId) === Number(usuarioAtual?.id) || 
+             Number(item.curso_id || item.cursoId) === Number(usuarioAtual?.curso_id);
+    }
+    const termo = pesquisa.toLowerCase();
+    return (
+      item.nome?.toLowerCase().includes(termo) ||
+      item.responsavel?.toLowerCase().includes(termo) ||
+      item.curso?.toLowerCase().includes(termo)
+    );
+  });
 
   useEffect(() => {
     carregarDados();
@@ -49,7 +66,6 @@ export function useGerenciarServicos() {
       setCoordenadoresDisponiveis(dadosCoords || []);
       setCursosDisponiveis(dadosCursos || []);
     } catch (error) {
-      console.log('Erro ao carregar dados de serviços:', error);
       setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível carregar os dados.' });
     } finally {
       setCarregando(false);
@@ -60,7 +76,7 @@ export function useGerenciarServicos() {
     setNome('');
     setCoordenadorId('');
     setCursoId('');
-    setDescricao(''); // 👈 Atualizado aqui também
+    setDescricao('');
     setDias('');
     setLinksUteis('');
     setAviso('');
@@ -82,7 +98,7 @@ export function useGerenciarServicos() {
     setNome(item.nome || '');
     setCoordenadorId(item.coordenador_id || '');
     setCursoId(item.curso_id || '');
-    setDescricao(item.descricao || ''); // 👈 Atualizado aqui também
+    setDescricao(item.descricao || '');
     setDias(item.dias || '');
     setLinksUteis(item.linksUteis || '');
     setAviso(item.aviso || '');
@@ -121,7 +137,6 @@ export function useGerenciarServicos() {
       limparFormulario();
       carregarDados();
     } catch (error) {
-      console.log('Erro ao salvar serviço:', error);
       setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível salvar o serviço no banco.' });
     }
   };
@@ -139,7 +154,6 @@ export function useGerenciarServicos() {
           setServicoSelecionado(null);
           setToast({ visible: true, nome: 'Sucesso', mensagem: 'Serviço removido com sucesso.' });
         } catch (error) {
-          console.log('Erro ao excluir:', error);
           setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível excluir o serviço.' });
         } finally {
           setConfirmacao(prev => ({ ...prev, visible: false }));
@@ -148,25 +162,16 @@ export function useGerenciarServicos() {
     });
   };
 
-  const servicosFiltrados = servicos.filter(item => {
-    const termo = pesquisa.toLowerCase();
-    return (
-      item.nome.toLowerCase().includes(termo) ||
-      item.responsavel.toLowerCase().includes(termo) ||
-      item.curso.toLowerCase().includes(termo)
-    );
-  });
-
   const quantidadeCoordenadores = new Set(
-    servicos.map(item => item.responsavel.trim().toLowerCase()).filter(Boolean)
+    servicosFiltrados.map(item => item.responsavel?.trim().toLowerCase()).filter(Boolean)
   ).size;
 
   return {
-    servicos,
+    servicos: servicosFiltrados,
     servicosFiltrados,
     pesquisa, setPesquisa,
     carregando,
-    quantidadeServicos: servicos.length,
+    quantidadeServicos: servicosFiltrados.length,
     quantidadeCoordenadores,
     modalFormulario, setModalFormulario,
     servicoEditando,
@@ -174,7 +179,7 @@ export function useGerenciarServicos() {
     nome, setNome,
     coordenadorId, setCoordenadorId,
     cursoId, setCursoId,
-    descricao, setDescricao, // 👈 Retorna o setDescricao correto para o componente
+    descricao, setDescricao,
     dias, setDias,
     linksUteis, setLinksUteis,
     aviso, setAviso,

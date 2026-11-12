@@ -54,9 +54,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
       
       setEventos(dadosEventos || []);
       setCursos(dadosCursos || []);
-      if (dadosCursos && dadosCursos.length > 0 && !cursoId) {
-        setCursoId(dadosCursos[0].id);
-      }
+      // 🛑 Removido o bloco que sobrescrevia o cursoId automaticamente aqui para não conflitar com a edição
     } catch (error) {
       console.log('Erro ao carregar dados:', error);
       setToast({ visible: true, titulo: 'Erro', mensagem: 'Não foi possível carregar os dados do servidor.' });
@@ -79,7 +77,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
     setPalestrante('');
     setLocal('');
     setHorasAAC('');
-    setCursoId(cursos.length > 0 ? cursos[0].id : '');
+    setCursoId(''); 
     setDescricao('');
     setImagem(null);
     setProporcao('16:9');
@@ -124,17 +122,24 @@ export function useGerenciarEventos(usuarioAtual = null) {
       setHoraApenas('00:00:00');
     }
 
+    // 🔍 TRATAMENTO PRECISO DO CURSO NA EDIÇÃO:
+    // Se o evento veio com curso_id null, undefined, vazio ou "NULL", definimos explicitamente "NULL" para marcar "Todos".
+    const idCursoBanco = evento.curso_id;
+    if (idCursoBanco === null || idCursoBanco === undefined || idCursoBanco === "" || idCursoBanco === "NULL") {
+      setCursoId("NULL");
+    } else {
+      setCursoId(idCursoBanco);
+    }
+
     setPalestrante(evento.palestrante || '');
     setLocal(evento.local || '');
     setHorasAAC(evento.horasAAC ? String(evento.horasAAC) : '');
-    setCursoId(evento.curso_id || evento.cursoId || '');
     setDescricao(evento.descricao || '');
     setProporcao(evento.imagem?.proporcao || '16:9');
     setLinkTransmissao(evento.link_transmissao || evento.linkTransmissao || '');
     const urlImagem = evento.imagem?.caminho_img || evento.imagem || null;
     setImagem(urlImagem);
     setDescricaoImagem(evento.imagem?.descricao || evento.descricaoImagem || '');
-    
     setModalEvento(true);
   };
 
@@ -198,17 +203,15 @@ export function useGerenciarEventos(usuarioAtual = null) {
     const dataIso = converterParaISO(dataHoraCompleta);
 
     if (!dataIso) {
-      setFeedback({ tipo: 'erro', mensagem: 'Formato de data ou hora inválido.' });
+      setFeedback({ tipo: 'erro', mensagem: 'Data inválida. Não é permitido agendar eventos com anos no passado (ex: 2024).' });
       return;
     }
 
     try {
-      let imagemId = eventoEditando?.imagem_id || null;
+      let imagemId = eventoEditando?.imagem_id || 21;
       let urlDefinitiva = null;
 
-      if (!imagem) {
-        imagemId = 21; 
-      } else {
+      if (imagem) {
         const ehLocalTemp = imagem.startsWith('file://') || imagem.startsWith('blob:') || imagem.startsWith('content://');
 
         if (ehLocalTemp) {
@@ -228,21 +231,15 @@ export function useGerenciarEventos(usuarioAtual = null) {
             const imagemCriada = await criarImagemNoBanco(novaImagemPayload);
             imagemId = imagemCriada.id;
           }
-        } else {
-          if (imagemId && imagemId !== 21) {
-            try {
-              await atualizarImagemNoBanco(imagemId, { 
-                descricao: descricaoImagem.trim(),
-                proporcao: proporcao 
-              });
-            } catch (e) {
-              console.log("Erro ao atualizar dados da imagem:", e);
-            }
-          }
         }
       }
 
-      const cursoTratado = cursoId && cursoId !== "NULL" ? Number(cursoId) : null;
+      
+      // 🔄 Regra automática de status baseada na data atualizada
+      const dataEventoMs = new Date(dataIso).getTime();
+      const statusAutomatico = dataEventoMs >= Date.now();
+
+      const cursoTratado = (cursoId && cursoId !== "NULL" && cursoId !== "") ? Number(cursoId) : null;
 
       const payloadEvento = {
         titulo: titulo.trim(),
@@ -250,23 +247,34 @@ export function useGerenciarEventos(usuarioAtual = null) {
         data: dataIso,
         palestrante: palestrante.trim() || null,
         local: local.trim() || null,
-        curso_id: cursoTratado,
+        curso_id: cursoTratado, // Ficará null no banco quando for "Todos"
         horasAAC: horasAAC ? Number(horasAAC) : 0,
         imagem_id: imagemId, 
         usuario_id: usuarioAtual?.id || null,
-        link_transmissao: linkTransmissao.trim() || null, 
+        link_transmissao: linkTransmissao.trim() || null,
+        status: statusAutomatico,
       };
 
       if (eventoEditando) {
-        await atualizarEventoNoBanco(eventoEditando.id, payloadEvento);
+        const eventoAtualizadoBanco = await atualizarEventoNoBanco(eventoEditando.id, payloadEvento);
+        
+        setEventos(prev => prev.map(ev => ev.id === eventoEditando.id ? { ...ev, ...payloadEvento, ...(eventoAtualizadoBanco || {}) } : ev));
+        
         setToast({ visible: true, titulo: 'Sucesso', mensagem: 'O evento foi atualizado com sucesso!' });
       } else {
-        await criarEventoNoBanco(payloadEvento);
+        const novoEventoCriado = await criarEventoNoBanco(payloadEvento);
+        
+        if (novoEventoCriado) {
+          setEventos(prev => [novoEventoCriado, ...prev]);
+        } else {
+          carregarDadosIniciais(); // Fallback de segurança caso a API não retorne o objeto completo
+        }
+
         setToast({ visible: true, titulo: 'Sucesso', mensagem: 'O novo evento foi cadastrado com sucesso!' });
       }
 
       setModalEvento(false);
-      carregarDadosIniciais();
+      setFeedback({ tipo: '', mensagem: '' });
     } catch (error) {
       console.log('Erro ao salvar evento:', error);
       setFeedback({ tipo: 'erro', mensagem: 'Não foi possível salvar o evento no banco de dados.' });

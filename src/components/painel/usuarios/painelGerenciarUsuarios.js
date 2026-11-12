@@ -70,7 +70,7 @@ export default function GerenciarUsuarios() {
 
             {item.telefone ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                <CustomIcon name="call-outline" size={13} color="#64748B" />
+                <CustomIcon name="phone-portrait-outline" size={13} color="#64748B" />
                 <Text style={{ fontSize: 12, color: '#64748B' }} numberOfLines={1}>
                   {item.telefone}
                 </Text>
@@ -137,7 +137,7 @@ export default function GerenciarUsuarios() {
             <TouchableOpacity
               style={[
                 { padding: 7, borderRadius: 6, justifyContent: 'center', alignItems: 'center' },
-                item.ativo ? { backgroundColor: '#FEF3C7' } : { backgroundColor: '#D1FAE5' }
+                item.ativo ? { backgroundColor: '#D1FAE5' } : { backgroundColor: '#FEF3C7' }
               ]}
               onPress={() => solicitarAlternarStatus(item.id)}
               activeOpacity={0.7}
@@ -145,7 +145,7 @@ export default function GerenciarUsuarios() {
               <CustomIcon 
                 name={item.ativo ? "lock-open-outline" : "lock-closed-outline"} 
                 size={15} 
-                color={item.ativo ? "#D97706" : "#059669"} 
+                color={item.ativo ? "#059669" : "#D97706"} 
               />
             </TouchableOpacity>
 
@@ -186,10 +186,10 @@ export default function GerenciarUsuarios() {
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <View>
                 <Text style={{ fontSize: 20, fontWeight: "bold", color: "#032551" }}>
-                  Gerenciamento de utilizadores
+                  Gerenciamento de Usuarios
                 </Text>
                 <Text style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>
-                  Cadastre, edite, ative, desative ou remova utilizadores do sistema.
+                  Cadastre, edite, ative, desative ou remova usuarios do sistema.
                 </Text>
               </View>
 
@@ -211,7 +211,7 @@ export default function GerenciarUsuarios() {
               >
                 <CustomIcon name="add" size={18} color="#FFFFFF" />
                 <Text style={{ color: "#FFFFFF", fontWeight: "bold", fontSize: 13 }}>
-                  Novo utilizador
+                  Novo usuario
                 </Text>
               </TouchableOpacity>
             </View>
@@ -243,7 +243,7 @@ export default function GerenciarUsuarios() {
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#334155' }}>Utilizadores cadastrados</Text>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#334155' }}> Usuarios cadastrados </Text>
               <Text style={{ fontSize: 12, color: '#64748B', fontWeight: '500' }}>
                 {usuariosFiltrados.length} de {usuarios.length}
               </Text>
@@ -254,10 +254,10 @@ export default function GerenciarUsuarios() {
           <View style={{ backgroundColor: '#FFFFFF', padding: 40, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', marginTop: 10 }}>
             <CustomIcon name="people-outline" size={36} color="#94A3B8" />
             <Text style={{ fontSize: 15, fontWeight: 'bold', color: '#032551', marginTop: 10 }}>
-              {pesquisa ? "Nenhum resultado encontrado" : "Nenhum utilizador cadastrado"}
+              {pesquisa ? "Nenhum resultado encontrado" : "Nenhum usuario cadastrado"}
             </Text>
             <Text style={{ fontSize: 12, color: '#64748B', marginTop: 4, textAlign: 'center' }}>
-              {pesquisa ? "Tente pesquisar por outro termo." : "Clique no botão 'Novo utilizador' para começar."}
+              {pesquisa ? "Tente pesquisar por outro termo." : "Clique no botão 'Novo usuario' para começar."}
             </Text>
           </View>
         }

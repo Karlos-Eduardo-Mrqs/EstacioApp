@@ -33,6 +33,7 @@ export default function PainelCoordenador({ usuarioAtual, onClose, onLogout }) {
         {/* SUB-ABAS DO COORDENADOR */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
           <View style={{ flexDirection: 'row', gap: 8 }}>
+            
             <TouchableOpacity
               style={[{ paddingVertical: 8, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#F1F5F9' }, abaCoordenador === 'publicacoes' && { backgroundColor: '#173EA5' }]}
               onPress={() => setAbaCoordenador('publicacoes')}

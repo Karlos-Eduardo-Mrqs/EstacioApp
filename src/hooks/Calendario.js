@@ -1,5 +1,3 @@
-// src/hooks/Calendario.js (ou onde o seu Calendario.js estiver guardado)
-
 export const nomesMeses = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril','Maio', 'Junho', 'Julho', 'Agosto','Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];

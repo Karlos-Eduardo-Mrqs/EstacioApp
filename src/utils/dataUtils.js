@@ -44,7 +44,9 @@ export function converterParaISO(texto) {
   const minuto = Number(digitos.slice(10, 12));
   const segundo = Number(digitos.slice(12, 14));
 
-  if (ano < 1000 || mes < 1 || mes > 12 || hora > 23 || minuto > 59 || segundo > 59) {
+  const anoAtual = new Date().getFullYear();
+
+  if (ano < anoAtual || mes < 1 || mes > 12 || hora > 23 || minuto > 59 || segundo > 59) {
     return null;
   }
 
@@ -58,13 +60,30 @@ export function converterParaISO(texto) {
 }
 
 export function formatarEntradaData(valor) {
-  const digitos = valor.replace(/\D/g, '').slice(0, 14);
-  if (digitos.length <= 2) return digitos;
-  if (digitos.length <= 4) return `${digitos.slice(0, 2)}/${digitos.slice(2)}`;
-  if (digitos.length <= 8) return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4)}`;
-  if (digitos.length <= 10) return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4, 8)} ${digitos.slice(8)}`;
-  if (digitos.length <= 12) return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4, 8)} ${digitos.slice(8, 10)}:${digitos.slice(10)}`;
-  return `${digitos.slice(0, 2)}/${digitos.slice(2, 4)}/${digitos.slice(4, 8)} ${digitos.slice(8, 10)}:${digitos.slice(10, 12)}:${digitos.slice(12)}`;
+  const digitos = valor.replace(/\D/g, '').slice(0, 8); // Limitamos a 8 dígitos DDMMAAAA para evitar confusão
+  let formatada = '';
+
+  if (digitos.length <= 2) {
+    formatada = digitos;
+  } else if (digitos.length <= 4) {
+    formatada = `${digitos.slice(0, 2)}/${digitos.slice(2)}`;
+  } else {
+    const dia = digitos.slice(0, 2);
+    const mes = digitos.slice(2, 4);
+    const ano = digitos.slice(4, 8);
+    
+    formatada = `${dia}/${mes}/${ano}`;
+
+    // 🛑 Validação opcional: Se o ano digitado já tiver 4 dígitos, impede anos inferiores ao atual (ex: 2026)
+    if (ano.length === 4) {
+      const anoAtual = new Date().getFullYear();
+      if (Number(ano) < anoAtual) {
+        // Se o ano for menor que o atual, corta o ano para o usuário corrigir
+        return `${dia}/${mes}/`; 
+      }
+    }
+  }
+  return formatada;
 }
 
 export function formatarDuracao(ms) {
@@ -90,4 +109,26 @@ export function obterTempoEvento(evento, agora) {
     return { texto: `Termina em ${formatarDuracao(termino - agora)}`, tipo: 'andamento' };
   }
   return { texto: 'Evento finalizado', tipo: 'finalizado' };
+}
+
+export function formatarEntradaTelefone(texto) {
+  // Remove tudo o que não for número
+  const digitos = texto.replace(/\D/g, "").substring(0, 13); // Limita a 13 dígitos (+ DDI + DDD + 9 dígitos)
+
+  let formatado = "";
+
+  if (digitos.length > 0) {
+    formatado = "+" + digitos.substring(0, 2); // Ex: +55
+  }
+  if (digitos.length > 2) {
+    formatado += " (" + digitos.substring(2, 4); // Ex: +55 (21
+  }
+  if (digitos.length > 4) {
+    formatado += ") " + digitos.substring(4, 9); // Ex: +55 (21) 99999
+  }
+  if (digitos.length > 9) {
+    formatado += "-" + digitos.substring(9, 13); // Ex: +55 (21) 99999-9999
+  }
+
+  return formatado;
 }

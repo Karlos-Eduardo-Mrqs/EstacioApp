@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
-import {Image,Modal,ScrollView,Text,TouchableOpacity,View} from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Image, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { supabase } from "../../lib/supabase"; // 👈 Ajuste o caminho se necessário
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 import { formatarDataApenas } from "../utils/dataUtils";
@@ -9,11 +10,10 @@ import FeedbackBox from "./FeedPopup";
 import BotaoFechar from "./BotaoFechar";
 import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
-const imagemExemploPadrao = require("../../assets/image.png");
-
-export default function EventoDetalhe({ evento, onClose, onNotificar }) {
+export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadraoUrl }) {
   const viewRef = useRef();
   const [feedback, setFeedback] = useState({ tipo: "", mensagem: "" });
+  const [fallbackUrl, setFallbackUrl] = useState(imagemPadraoUrl || null);
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({
@@ -22,6 +22,23 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
     onConfirm: () => {},
     tipo: "info",
   });
+
+  // Caso o componente seja aberto fora do BuscaTab sem receber a prop, busca o ID 21
+  useEffect(() => {
+    if (imagemPadraoUrl) {
+      setFallbackUrl(imagemPadraoUrl);
+      return;
+    }
+    async function carregarFallback() {
+      const { data } = await supabase
+        .from("imagem")
+        .select("caminho_img")
+        .eq("id", 21)
+        .single();
+      if (data?.caminho_img) setFallbackUrl(data.caminho_img);
+    }
+    carregarFallback();
+  }, [imagemPadraoUrl]);
 
   if (!evento) return null;
 
@@ -81,9 +98,8 @@ export default function EventoDetalhe({ evento, onClose, onNotificar }) {
       ? evento.imagem?.caminho_img
       : evento?.imagem;
 
-  const imagemFonte = urlImagemCapa
-    ? { uri: urlImagemCapa }
-    : imagemExemploPadrao;
+  const urlFinal = urlImagemCapa || fallbackUrl;
+  const imagemFonte = urlFinal ? { uri: urlFinal } : null;
 
   // 🛡️ Tratamento seguro para extrair o local do evento
   let localExibido = "Estácio Nova América";

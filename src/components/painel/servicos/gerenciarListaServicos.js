@@ -1,11 +1,6 @@
-import {
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
 import { painelServicosstyles as styles } from "../../../styles/painel/painelServicosStyles";
+import CustomIcon from "../../CustomIcon"; // 👈 Importa o CustomIcon
 
 export default function GerenciarListaServicos({
   servicos = [],
@@ -25,17 +20,21 @@ export default function GerenciarListaServicos({
             Gerencie os serviços disponíveis.
           </Text>
         </View>
-        <TouchableOpacity
-          style={styles.botaoAdicionar}
-          onPress={onNovoServico}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.botaoAdicionarTexto}>+</Text>
-        </TouchableOpacity>
+        
+        {/* Só exibe o botão de adicionar se onNovoServico for passado (Gerência) */}
+        {onNovoServico && (
+          <TouchableOpacity
+            style={styles.botaoAdicionar}
+            onPress={onNovoServico}
+            activeOpacity={0.8}
+          >
+            <CustomIcon name="add" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.pesquisaContainer}>
-        <Text style={styles.iconePesquisa}>⌕</Text>
+        <CustomIcon name="search-outline" size={18} color="#999" style={{ marginRight: 6 }} />
         <TextInput
           style={styles.inputPesquisa}
           placeholder="Pesquisar por serviço, coordenador ou curso..."
@@ -69,25 +68,29 @@ export default function GerenciarListaServicos({
               </View>
 
               <View style={styles.cardAcoes}>
-                <TouchableOpacity
-                  style={styles.botaoEditar}
-                  onPress={() => onEditar(item)}
-                >
-                  <Text style={styles.iconeAcao}>✎</Text>
-                </TouchableOpacity>
+                {onEditar && (
+                  <TouchableOpacity
+                    style={styles.botaoEditar}
+                    onPress={() => onEditar(item)}
+                  >
+                    <CustomIcon name="pencil-outline" size={16} color="#1d4ed8" />
+                  </TouchableOpacity>
+                )}
 
-                <TouchableOpacity
-                  style={styles.botaoExcluir}
-                  onPress={() => onExcluir(item.id)}
-                >
-                  <Text style={styles.iconeExcluir}>▤</Text>
-                </TouchableOpacity>
+                {/* Só exibe o botão de excluir se onExcluir for permitido */}
+                {onExcluir && (
+                  <TouchableOpacity
+                    style={styles.botaoExcluir}
+                    onPress={() => onExcluir(item.id)}
+                  >
+                    <CustomIcon name="trash-outline" size={16} color="#b91c1c" />
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={styles.botaoDetalhes}
                   onPress={() => onDetalhes(item)}
                 >
-                  <Text style={styles.detalhesTexto}>Detalhes</Text>
                 </TouchableOpacity>
               </View>
             </View>

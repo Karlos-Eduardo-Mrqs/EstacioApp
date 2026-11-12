@@ -7,7 +7,7 @@ import ToastPopup from '../../Popup';
 import ConfirmPopup from '../../ConfirmPopup';
 import CustomIcon from '../../CustomIcon';
 
-export default function PainelCursos() {
+export default function PainelCursos({ usuarioAtual }) {
   const {
     cursos,
     cursosFiltrados,
@@ -40,15 +40,27 @@ export default function PainelCursos() {
     abrirEdicaoCurso,
     salvarCurso,
     excluirCurso
-  } = useGerenciarCursos();
+  } = useGerenciarCursos(usuarioAtual);
 
+  const ehCoordenador = usuarioAtual?.perfil?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes('coordenador');
+
+  const cursosFiltradosPerfil = cursos.filter(curso => {
+    // Se for coordenador, filtra estritamente pelo curso vinculado a ele
+    if (ehCoordenador) {
+      return Number(curso.id) === Number(usuarioAtual?.curso_id);
+    }
+    // Se for gerência, aplica apenas o filtro de texto da barra de pesquisa
+    return curso.nome.toLowerCase().includes(busca.toLowerCase());
+  });
   return (
     <View style={styles.safeArea}>
       <StatusBar backgroundColor="#F4F5F7" barStyle="dark-content" />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <Text style={styles.tituloPagina}>Painel de Cursos</Text>
-        <Text style={styles.subtitulo}>Gerencie os cursos acadêmicos e ementas disponíveis.</Text>
+        <Text style={styles.subtitulo}>
+          {ehCoordenador ? "Gestão do seu curso vinculado." : "Gerencie os cursos acadêmicos e ementas disponíveis."}
+        </Text>
 
         <View style={styles.resumoContainer}>
           <View style={[styles.resumoCard, { flex: 1 }]}>
@@ -66,8 +78,10 @@ export default function PainelCursos() {
             busca={busca}
             setBusca={setBusca}
             onEditar={(curso) => abrirEdicaoCurso(curso)}
-            onExcluir={(curso) => excluirCurso(curso)}
-            onNovoCurso={abrirNovoCurso}
+            // Se for coordenador, passamos null no onExcluir para ele não poder apagar cursos
+            onExcluir={ehCoordenador ? null : (curso) => excluirCurso(curso)}
+            // Se for coordenador, passamos null no onNovoCurso para sumir o botão de "+"
+            onNovoCurso={ehCoordenador ? null : abrirNovoCurso}
           />
         )}
       </ScrollView>

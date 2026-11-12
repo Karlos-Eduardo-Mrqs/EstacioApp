@@ -12,7 +12,6 @@ Notifications.setNotificationHandler({
 });
 
 
-// Solicita uma persmissão de agendar/notificar evento
 export async function solicitarPermissaoEAgendarLembrete(evento) {
   try {
     if (Platform.OS === 'web') {
@@ -38,6 +37,7 @@ export async function solicitarPermissaoEAgendarLembrete(evento) {
       try {
         await Notification.requestPermission();
       } catch (e) {
+        setToast({ visible: true, titulo: "Aviso!", mensagem: "Falha ao ativar a permissão web, ative-a manualmente." });
         console.log("Aviso de permissão web:", e);
       }
 
@@ -131,7 +131,7 @@ async function guardarNotificacaoLocal(evento) {
 }
 
 // Envia/Cria um novo aviso (Global, para um Curso específico ou para um Evento específico)
-export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, evento_id, duracaoHoras = 24 }) {
+export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, evento_id, usuario_id, duracaoHoras = 24 }) {
   const dataExpiracao = new Date();
   dataExpiracao.setHours(dataExpiracao.getHours() + Number(duracaoHoras));
 
@@ -140,8 +140,9 @@ export async function criarAvisoGlobalNoBanco({ titulo, mensagem, curso_id, even
     .insert([{
       titulo: titulo.trim(),
       mensagem: mensagem.trim(),
-      curso_id: curso_id ? Number(curso_id) : null,     // Se preenchido, é focado no curso
-      evento_id: evento_id ? Number(evento_id) : null,   // Se preenchido, é focado no evento
+      curso_id: curso_id ? Number(curso_id) : null,
+      evento_id: evento_id ? Number(evento_id) : null,
+      usuario_id: usuario_id ? Number(usuario_id) : null,
       expira_em: dataExpiracao.toISOString(),
     }])
     .select()

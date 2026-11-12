@@ -8,7 +8,7 @@ import ToastPopup from '../../Popup';
 import ConfirmPopup from '../../ConfirmPopup';
 import CustomIcon from '../../CustomIcon';
 
-export default function PainelServicos() {
+export default function PainelServicos({ usuarioAtual }) {
   const {
     servicosFiltrados,
     pesquisa,
@@ -45,8 +45,8 @@ export default function PainelServicos() {
     abrirEdicao,
     salvarServico,
     confirmarExclusao,
-  } = useGerenciarServicos();
-
+  } = useGerenciarServicos(usuarioAtual);
+  const ehCoordenador = usuarioAtual?.perfil === 'Coordenador';
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A2540" barStyle="light-content" />
@@ -54,7 +54,9 @@ export default function PainelServicos() {
       <ScrollView contentContainerStyle={styles.conteudo} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.titulo}>Serviços Institucionais</Text>
-          <Text style={styles.subtitulo}>Gerencie os serviços e seus respectivos coordenadores.</Text>
+          <Text style={styles.subtitulo}>
+            {ehCoordenador ? "Gerencie o serviço vinculado ao seu perfil." : "Gerencie os serviços e seus respectivos coordenadores."}
+          </Text>
         </View>
 
         <View style={styles.indicadores}>
@@ -78,9 +80,10 @@ export default function PainelServicos() {
             pesquisa={pesquisa}
             setPesquisa={setPesquisa}
             onEditar={(item) => abrirEdicao(item)}
-            onExcluir={(id) => confirmarExclusao(id)}
+            onExcluir={ehCoordenador ? null : (id) => confirmarExclusao(id)}
             onDetalhes={(item) => setServicoSelecionado(item)}
-            onNovoServico={abrirCadastro}
+            // 👈 Se for coordenador, passa null para ocultar o botão de adicionar
+            onNovoServico={ehCoordenador ? null : abrirCadastro}
           />
         )}
       </ScrollView>
@@ -103,6 +106,7 @@ export default function PainelServicos() {
         setLinksUteis={setLinksUteis}
         aviso={aviso}
         setAviso={setAviso}
+        usuarioAtual={usuarioAtual} // 👈 Adicione esta linha para enviar o usuário logado ao modal
         coordenadoresDisponiveis={coordenadoresDisponiveis}
         cursosDisponiveis={cursosDisponiveis}
         salvarServico={salvarServico}

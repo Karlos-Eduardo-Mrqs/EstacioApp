@@ -1,4 +1,3 @@
-// src/hooks/useGerenciarPublicacoes.js
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,7 +7,7 @@ import { fazerUploadParaSupabaseStorage } from '../services/publicacaoServices';
 export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   const [publicacoes, setPublicacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  
+  const [busca, setBusca] = useState(''); // 👈 Novo estado para a busca de posts  
   const [modalPublicacao, setModalPublicacao] = useState(false);
   const [publicacaoEditando, setPublicacaoEditando] = useState(null);
 
@@ -49,19 +48,51 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
         `)
         .order('created_at', { ascending: false });
 
-      if (cursoIdFiltro) {
+      const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+      const ehCoord = perfilNorm.includes("coordenador");
+
+      if (ehCoord) {
+        query = query.or(`usuario_id.eq.${usuarioAtual.id},curso_id.eq.${usuarioAtual.curso_id}`);
+      } else if (cursoIdFiltro) {
         query = query.eq('curso_id', cursoIdFiltro);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      setPublicacoes(data || []);
+
+      const posts = data ?? [];
+      const { data: usuarios } = await supabase.from('usuario').select('id, nome');
+      const mapaUsuarios = {};
+      (usuarios || []).forEach(u => { mapaUsuarios[u.id] = u.nome; });
+
+      const postsComAutor = posts.map(pub => ({
+        ...pub,
+        usuario: {
+          id: pub.usuario_id,
+          nome: mapaUsuarios[pub.usuario_id] || `Coordenador(a) #${pub.usuario_id}`
+        }
+      }));
+
+      setPublicacoes(postsComAutor);
     } catch (err) {
       dispararToast('Erro', 'Não foi possível carregar as publicações.', 'erro');
     } finally {
       setCarregando(false);
     }
   }
+
+  useEffect(() => {
+    buscarPublicacoes();
+  }, [cursoIdFiltro]);
+
+  // 🔍 Filtro inteligente baseado na barra de pesquisa (título ou descrição)
+  const publicacoesFiltradas = publicacoes.filter(pub => {
+    const termo = busca.toLowerCase();
+    return (
+      pub.titulo?.toLowerCase().includes(termo) ||
+      pub.descricao?.toLowerCase().includes(termo)
+    );
+  });
 
   useEffect(() => {
     buscarPublicacoes();
@@ -294,7 +325,8 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   }
 
   return {
-    publicacoes,
+    publicacoes: publicacoesFiltradas, // 👈 Retorna a lista filtrada
+    publicacoesBrutas: publicacoes,
     carregando,
     modalPublicacao,
     setModalPublicacao,
@@ -315,5 +347,6 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     excluirPublicacao,
     toast,
     setToast,
+    busca, setBusca
   };
 }

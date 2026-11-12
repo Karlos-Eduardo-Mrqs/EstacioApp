@@ -3,15 +3,41 @@ import { supabase } from '../../lib/supabase';
 
 // Buscar publicações de um curso
 export async function buscarPublicacoesDoCurso(cursoId) {
-  const { data, error } = await supabase
+  let query = supabase
     .from('post')
-    .select('*, imagem(*), curso(nome)')
-    .eq('curso_id', cursoId)
+    .select(`*, imagem(*), curso(nome)`)
     .order('created_at', { ascending: false });
 
-  if (error) throw error;
+  if (cursoId) {
+    query = query.eq('curso_id', cursoId);
+  }
 
-  return data ?? [];
+  // Busca os posts e os usuários em paralelo para garantir a associação
+  const [resPosts, resUsuarios] = await Promise.all([
+    query,
+    supabase.from('usuario').select('id, nome') // Ajuste 'usuario' para o nome exato da sua tabela de usuários se necessário
+  ]);
+
+  if (resPosts.error) throw resPosts.error;
+
+  const posts = resPosts.data ?? [];
+  const usuarios = resUsuarios.data ?? [];
+
+  // Cria um mapa de usuários para busca rápida { [id]: nome }
+  const mapaUsuarios = {};
+  usuarios.forEach(u => {
+    mapaUsuarios[u.id] = u.nome;
+  });
+
+  // Injeta o objeto usuario com o nome em cada post com base no usuario_id
+  const postsComAutor = posts.map(pub => ({
+    ...pub,
+    usuario: {
+      id: pub.usuario_id,
+      nome: mapaUsuarios[pub.usuario_id] || `Coordenador(a) #${pub.usuario_id}`
+    }
+  }));
+  return postsComAutor;
 }
 
 // Criar publicação

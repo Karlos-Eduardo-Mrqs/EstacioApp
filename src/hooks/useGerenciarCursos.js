@@ -7,10 +7,10 @@ import {
   buscarCoordenadoresDoBanco
 } from '../services/cursoServices';
 
-export function useGerenciarCursos() {
+export function useGerenciarCursos(usuarioAtual) { // 👈 Parâmetro usuarioAtual adicionado
   const [cursos, setCursos] = useState([]);
   const [busca, setBusca] = useState('');
-  const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]); // 👈 Lista para o Select
+  const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]);
   const [carregando, setCarregando] = useState(false);
 
   const [modalCurso, setModalCurso] = useState(false);
@@ -22,12 +22,29 @@ export function useGerenciarCursos() {
   const [link, setLink] = useState('');
   const [icone, setIcone] = useState('book-outline');
   const [tipo, setTipo] = useState('Presencial'); 
-  const [coordenadorId, setCoordenadorId] = useState(''); // 👈 Estado do coordenador selecionado
-  const [modalidade, setModalidade] = useState('Graduação'); // 👈 Novo estado para modalidade
+  const [coordenadorId, setCoordenadorId] = useState('');
+  const [modalidade, setModalidade] = useState('Graduação');
 
   const [feedback, setFeedback] = useState({ tipo: '', mensagem: '' });
   const [toast, setToast] = useState({ visible: false, nome: '', mensagem: '' });
   const [confirmacao, setConfirmacao] = useState({ visible: false, nome: '', mensagem: '', onConfirm: null, tipo: 'danger' });
+
+  const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const ehCoord = perfilNorm.includes("coordenador");
+
+  // ✅ Declaração única unificando a regra de permissão e a barra de busca
+  const cursosFiltrados = cursos.filter((curso) => {
+    if (ehCoord) {
+      return Number(curso.id) === Number(usuarioAtual?.curso_id) || Number(curso.coordenador_id) === Number(usuarioAtual?.id);
+    }
+    const termo = busca.toLowerCase();
+    return (
+      curso.nome?.toLowerCase().includes(termo) ||
+      curso.descricao?.toLowerCase().includes(termo) ||
+      curso.tipo?.toLowerCase().includes(termo) ||
+      curso.modalidade?.toLowerCase().includes(termo)
+    );
+  });
 
   useEffect(() => {
     carregarCursos();
@@ -39,19 +56,11 @@ export function useGerenciarCursos() {
       const dados = await buscarCursosDoBanco();
       setCursos(dados || []);
     } catch (error) {
-      console.log('Erro ao carregar cursos:', error);
       setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível carregar os cursos.' });
     } finally {
       setCarregando(false);
     }
   }
-
-  const cursosFiltrados = cursos.filter((curso) =>
-    (curso.nome || curso.nome)?.toLowerCase().includes(busca.toLowerCase()) ||
-    curso.descricao?.toLowerCase().includes(busca.toLowerCase()) ||
-    curso.tipo?.toLowerCase().includes(busca.toLowerCase()) ||
-    curso.modalidade?.toLowerCase().includes(busca.toLowerCase())
-  );
 
   const abrirNovoCurso = async () => {
     setCursoEditando(null);
@@ -64,7 +73,6 @@ export function useGerenciarCursos() {
     setCoordenadorId('');
     setFeedback({ tipo: '', mensagem: '' });
     
-    // 🔍 Força a busca dos coordenadores ao abrir o modal para garantir que a lista não venha vazia
     const coords = await buscarCoordenadoresDoBanco();
     setCoordenadoresDisponiveis(coords || []);
 
@@ -82,7 +90,6 @@ export function useGerenciarCursos() {
     setCoordenadorId(curso.coordenador_id ? String(curso.coordenador_id) : '');
     setFeedback({ tipo: '', mensagem: '' });
 
-    // 🔍 Força a busca dos coordenadores ao abrir a edição
     const coords = await buscarCoordenadoresDoBanco();
     setCoordenadoresDisponiveis(coords || []);
 
@@ -103,7 +110,7 @@ export function useGerenciarCursos() {
         icone: icone || 'book-outline',
         tipo: tipo || 'Presencial',
         modalidade: modalidade || 'Graduação',
-        coordenador_id: coordenadorId ? Number(coordenadorId) : null, // 👈 Inclui no payload
+        coordenador_id: coordenadorId ? Number(coordenadorId) : null,
       };
 
       if (cursoEditando) {
@@ -115,9 +122,8 @@ export function useGerenciarCursos() {
       }
 
       setModalCurso(false);
-      carregarDados();
+      carregarCursos(); // 👈 Corrigido (estava carregarDados())
     } catch (error) {
-      console.log('Erro ao salvar curso:', error);
       setFeedback({ tipo: 'erro', mensagem: 'Não foi possível salvar o curso no banco de dados.' });
     }
   }
@@ -135,7 +141,6 @@ export function useGerenciarCursos() {
           setCursos(prev => prev.filter(c => c.id !== curso.id));
           setToast({ visible: true, nome: 'Excluído', mensagem: 'Curso removido com sucesso.' });
         } catch (error) {
-          console.error('Erro ao excluir curso:', error);
           setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível excluir o curso.' });
         }
       }
@@ -143,7 +148,7 @@ export function useGerenciarCursos() {
   }
 
   return {
-    cursos,
+    cursos: cursosFiltrados, // 👈 Garante que o contador numérico do topo mostre apenas os visíveis para ele
     cursosFiltrados,
     busca,
     setBusca,

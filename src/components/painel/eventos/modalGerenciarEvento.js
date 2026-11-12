@@ -94,8 +94,8 @@ export default function ModalGerenciarEvento({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: tipo, mensagem: mensagem })} />
-
+            
+            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: '', mensagem: '' })} />
             <Campo
               label="Título do evento *"
               value={titulo}
@@ -199,20 +199,32 @@ export default function ModalGerenciarEvento({
                 }}
               >
                 <Picker
-                  selectedValue={cursoId}
-                  onValueChange={(itemValue) => setCursoId(itemValue)}
-                  style={{
-                    height: 48,
-                    width: "100%",
-                    color: "#0F172A",
-                    backgroundColor: "transparent",
-                  }}
-                >
-                  <Picker.Item label="Selecione um curso..." value="" />
-                  <Picker.Item label="Todos" value="NULL" />
-                  {cursos.map((c) => (
-                    <Picker.Item key={c.id} label={c.titulo} value={c.id} />
-                  ))}
+                    selectedValue={
+                      cursoId === null || cursoId === undefined
+                        ? ""
+                        : String(cursoId)
+                    }
+                    onValueChange={(itemValue) => {
+                      if (itemValue === "") {
+                        setCursoId("");
+                      } else if (itemValue === "NULL") {
+                        setCursoId("NULL");
+                      } else {
+                        setCursoId(Number(itemValue));
+                      }
+                    }}
+                    style={{
+                      height: 48,
+                      width: "100%",
+                      color: "#0F172A",
+                      backgroundColor: "transparent",
+                    }}
+                  >
+                    <Picker.Item label="Selecione um curso..." value="" />
+                    <Picker.Item label="Todos" value="NULL" />
+                    {cursos.map((c) => (
+                      <Picker.Item key={c.id} label={c.titulo} value={String(c.id)} />
+                    ))}
                 </Picker>
               </View>
             </View>

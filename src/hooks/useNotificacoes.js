@@ -15,6 +15,7 @@ export function useNotificacoes(exibirPopup) {
         }
       } catch (e) {
         console.log("Erro ao carregar notificações", e);
+        setToast({ visible: true, titulo: "Erro!", mensagem: "Falha ao carregar notificações." });
       }
     }
     carregarNotificacoes();

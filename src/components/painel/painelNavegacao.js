@@ -104,8 +104,8 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
             <GerenciarEventos usuarioAtual={usuarioAtual} onClose={onClose} onLogout={onLogout} />
           )}
           
-          {abaAtiva === "notificacao" && <NotificacaoGlobalTab />}
-
+          {abaAtiva === "notificacao" && <NotificacaoGlobalTab usuarioAtual={usuarioAtual} />}
+          
           {abaAtiva === "parcerias" && !ehCoordenador && <ParceriaTab />}
 
           {abaAtiva === "servicos" && (

@@ -17,8 +17,7 @@ export default function ModalGerenciarServico({
   servicoEditando,
   nome,
   setNome,
-  coordenadorId,
-  setCoordenadorId,
+  usuarioAtual,
   cursoId,
   setCursoId,
   descricao,
@@ -35,6 +34,10 @@ export default function ModalGerenciarServico({
 }) {
   const [nomeLinkTemp, setNomeLinkTemp] = useState("");
   const [urlLinkTemp, setUrlLinkTemp] = useState("");
+
+  // 🔍 Verifica se o usuário logado é Coordenador
+  const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const ehCoordenador = perfilNorm.includes("coordenador");
 
   // Seleciona o coordenador e preenche o curso automaticamente (mantendo editável)
   const handleSelecaoCoordenador = (idSelecionado) => {
@@ -116,105 +119,107 @@ export default function ModalGerenciarServico({
               onChangeText={setNome}
             />
 
-            {/* COORDENADOR */}
-            <Text style={styles.label}>Coordenador responsável *</Text>
-            <View style={styles.seletorWrapperWeb}>
-              {Platform.OS === "web" ? (
-                <select
-                  value={coordenadorId}
-                  onChange={(e) => handleSelecaoCoordenador(e.target.value)}
-                  style={styles.selectEstilizadoWeb}
-                >
-                  <option value="">Selecione um coordenador</option>
-                  {coordenadoresDisponiveis.map((coord) => (
-                    <option key={coord.id} value={coord.id}>
-                      {coord.nome}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <ScrollView
-                  style={styles.listaCoordenadores}
-                  nestedScrollEnabled
-                >
-                  {coordenadoresDisponiveis.map((coord) => (
-                    <TouchableOpacity
-                      key={coord.id}
-                      style={[
-                        styles.opcaoCoordenador,
-                        {
-                          backgroundColor:
-                            String(coordenadorId) === String(coord.id)
-                              ? "#EFF6FF"
-                              : "transparent",
-                        },
-                      ]}
-                      onPress={() => handleSelecaoCoordenador(String(coord.id))}
+            {/* 👤 COORDENADOR RESPONSÁVEL (Aparece apenas se NÃO for coordenador) */}
+            {!ehCoordenador && (
+              <>
+                <Text style={styles.label}>Coordenador responsável *</Text>
+                <View style={styles.seletorWrapperWeb}>
+                  {Platform.OS === "web" ? (
+                    <select
+                      value={coordenadorId}
+                      onChange={(e) => handleSelecaoCoordenador(e.target.value)}
+                      style={styles.selectEstilizadoWeb}
                     >
-                      <Text style={styles.opcaoCoordenadorTexto}>
-                        {coord.nome}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
+                      <option value="">Selecione um coordenador</option>
+                      {coordenadoresDisponiveis.map((coord) => (
+                        <option key={coord.id} value={coord.id}>
+                          {coord.nome}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <ScrollView style={styles.listaCoordenadores} nestedScrollEnabled>
+                      {coordenadoresDisponiveis.map((coord) => (
+                        <TouchableOpacity
+                          key={coord.id}
+                          style={[
+                            styles.opcaoCoordenador,
+                            {
+                              backgroundColor:
+                                String(coordenadorId) === String(coord.id)
+                                  ? "#EFF6FF"
+                                  : "transparent",
+                            },
+                          ]}
+                          onPress={() => handleSelecaoCoordenador(String(coord.id))}
+                        >
+                          <Text style={styles.opcaoCoordenadorTexto}>
+                            {coord.nome}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
+              </>
+            )}
 
-            {/* CURSO VINCULADO (AUTOMÁTICO MAS EDITÁVEL) */}
-            <Text style={styles.label}>Curso vinculado</Text>
-            <View style={styles.seletorWrapperWeb}>
-              {Platform.OS === "web" ? (
-                <select
-                  value={cursoId}
-                  onChange={(e) => setCursoId(e.target.value)}
-                  style={styles.selectEstilizadoWeb}
-                >
-                  <option value="">Geral / Todos</option>
-                  {cursosDisponiveis.map((curso) => (
-                    <option key={curso.id} value={curso.id}>
-                      {curso.nome}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <ScrollView
-                  style={styles.listaCoordenadores}
-                  nestedScrollEnabled
-                >
-                  <TouchableOpacity
-                    style={[
-                      styles.opcaoCoordenador,
-                      { backgroundColor: !cursoId ? "#EFF6FF" : "transparent" },
-                    ]}
-                    onPress={() => setCursoId("")}
-                  >
-                    <Text style={styles.opcaoCoordenadorTexto}>
-                      Geral / Todos
-                    </Text>
-                  </TouchableOpacity>
-                  {cursosDisponiveis.map((curso) => (
-                    <TouchableOpacity
-                      key={curso.id}
-                      style={[
-                        styles.opcaoCoordenador,
-                        {
-                          backgroundColor:
-                            String(cursoId) === String(curso.id)
-                              ? "#EFF6FF"
-                              : "transparent",
-                        },
-                      ]}
-                      onPress={() => setCursoId(String(curso.id))}
+            {/* 🏫 CURSO VINCULADO (Aparece apenas se NÃO for coordenador) */}
+            {!ehCoordenador && (
+              <>
+                <Text style={styles.label}>Curso vinculado</Text>
+                <View style={styles.seletorWrapperWeb}>
+                  {Platform.OS === "web" ? (
+                    <select
+                      value={cursoId}
+                      onChange={(e) => setCursoId(e.target.value)}
+                      style={styles.selectEstilizadoWeb}
                     >
-                      <Text style={styles.opcaoCoordenadorTexto}>
-                        {curso.nome}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-
+                      <option value="">Geral / Todos</option>
+                      {cursosDisponiveis.map((curso) => (
+                        <option key={curso.id} value={curso.id}>
+                          {curso.nome}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <ScrollView style={styles.listaCoordenadores} nestedScrollEnabled>
+                      <TouchableOpacity
+                        style={[
+                          styles.opcaoCoordenador,
+                          { backgroundColor: !cursoId ? "#EFF6FF" : "transparent" },
+                        ]}
+                        onPress={() => setCursoId("")}
+                      >
+                        <Text style={styles.opcaoCoordenadorTexto}>
+                          Geral / Todos
+                        </Text>
+                      </TouchableOpacity>
+                      {cursosDisponiveis.map((curso) => (
+                        <TouchableOpacity
+                          key={curso.id}
+                          style={[
+                            styles.opcaoCoordenador,
+                            {
+                              backgroundColor:
+                                String(cursoId) === String(curso.id)
+                                  ? "#EFF6FF"
+                                  : "transparent",
+                            },
+                          ]}
+                          onPress={() => setCursoId(String(curso.id))}
+                        >
+                          <Text style={styles.opcaoCoordenadorTexto}>
+                            {curso.nome}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
+              </>
+            )}
+            
             {/* DESCRIÇÃO COM TRATAMENTO DE TEXTO */}
             <Text style={styles.label}>Descrição</Text>
             <TextInput

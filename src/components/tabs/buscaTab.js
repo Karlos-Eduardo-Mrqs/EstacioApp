@@ -4,15 +4,13 @@ import { useBuscaEventos } from "../../hooks/useBuscaTab";
 import { buscaTabstyles as styles } from "../../styles/detalhesStyles";
 import CustomIcon from "../CustomIcon";
 
-const imagemExemploPadrao = require("../../../assets/image.png");
-
 export default function BuscaTab({ eventosLista }) {
   const {
     pesquisa,
     setPesquisa,
     eventoModal,
     setEventoModal,
-    eventosFiltrados,
+    eventosFiltrados,imagemPadraoUrl
   } = useBuscaEventos(eventosLista);
 
   return (
@@ -42,13 +40,13 @@ export default function BuscaTab({ eventosLista }) {
         columnWrapperStyle={styles.gridRow}
         numColumns={3}
         renderItem={({ item }) => {
-          // 🛡️ Tratamento seguro para extrair a URL pública do objeto de imagem ou string
           const urlCapaCard = 
             typeof item?.imagem === 'object' ? item.imagem?.caminho_img : item?.imagem;
 
-          const imagemFonte = urlCapaCard ? { uri: urlCapaCard } : imagemExemploPadrao;
+          // Usa a capa do item ou a URL padrão vinda do banco
+          const urlFinal = urlCapaCard || imagemPadraoUrl;
+          const imagemFonte = urlFinal ? { uri: urlFinal } : null;
             
-          // 🛡️ Tratamento seguro para extrair o nome caso venha como objeto do Supabase
           let nomeTurma = "Estácio";
           if (item?.turma) {
             nomeTurma = typeof item.turma === 'object' ? (item.turma.nome || "Estácio") : item.turma;
@@ -89,6 +87,7 @@ export default function BuscaTab({ eventosLista }) {
       {eventoModal && (
         <DetalhesBusca
           evento={eventoModal}
+          imagemPadraoUrl={imagemPadraoUrl} // 👈 Passa a URL padrão para o modal
           onClose={() => setEventoModal(null)}
         />
       )}

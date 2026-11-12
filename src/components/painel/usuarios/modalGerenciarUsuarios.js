@@ -1,7 +1,7 @@
-// src/components/painel/usuarios/modalGerenciarUsuarios.js
 import {KeyboardAvoidingView,Modal,Platform,ScrollView,Text,TextInput,TouchableOpacity,useWindowDimensions,View,} from 'react-native';
 import CustomIcon from "../../../components/CustomIcon"; 
 import { Picker } from '@react-native-picker/picker';
+import { formatarEntradaTelefone } from '../../../utils/dataUtils';
 
 export default function PainelGerenciarUsuarios({
   visible,
@@ -44,7 +44,7 @@ export default function PainelGerenciarUsuarios({
           <View style={styles.modalCabecalho}>
             <View>
               <Text style={styles.modalTitulo}>
-                {usuarioEditando ? "Editar utilizador" : "Novo utilizador"}
+                {usuarioEditando ? "Editar usuario" : "Novo usuario"}
               </Text>
               <Text style={styles.modalSubtitulo}>
                 {usuarioEditando ? "Altere os dados necessários." : "Preencha os dados para cadastrar."}
@@ -91,14 +91,15 @@ export default function PainelGerenciarUsuarios({
               autoCorrect={false}
             />
 
-            <Text style={styles.label}>Telefone (opcional)</Text>
+            <Text style={styles.label}>Telefone *</Text>
             <TextInput
               style={styles.input}
               placeholder="(00) 00000-0000"
               placeholderTextColor="#9ca3af"
               value={telefone}
-              onChangeText={setTelefone}
+              onChangeText={(texto) => setTelefone(formatarEntradaTelefone(texto))}
               keyboardType="phone-pad"
+              maxLength={20}
             />
 
             <Text style={styles.label}>Matrícula (opcional)</Text>
@@ -112,7 +113,7 @@ export default function PainelGerenciarUsuarios({
               autoCorrect={false}
             />
 
-            <Text style={styles.label}>Tipo de perfil</Text>
+            <Text style={styles.label}>Tipo de perfil *</Text>
             <View style={styles.opcoesPerfil}>
               <TouchableOpacity
                 style={[
@@ -247,7 +248,7 @@ export default function PainelGerenciarUsuarios({
               activeOpacity={0.8}
             >
               <Text style={styles.textoCriar}>
-                {usuarioEditando ? "Salvar alterações" : "+ Criar utilizador"}
+                {usuarioEditando ? "Salvar alterações" : "+ Criar usuarios"}
               </Text>
             </TouchableOpacity>
 

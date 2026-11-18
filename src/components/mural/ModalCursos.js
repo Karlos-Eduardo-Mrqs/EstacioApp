@@ -132,18 +132,18 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               )}
             </View>
           
-          {/* ⚠️ BLOCO DE AVISOS ATIVOS DO CURSO (Clicável para abrir em Pop-up) */}
-            {avisosCurso.length > 0 && (
-              <View style={[modalStyles.blocoSecao, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A', borderWidth: 1, borderRadius: 10, padding: 14, marginBottom: 15 }]}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <CustomIcon name="information-circle-outline" size={20} color="#B45309" />
-                  <Text style={[modalStyles.tituloBlocoSecao, { color: '#B45309', marginBottom: 0 }]}>
-                    AVISOS E COMUNICADOS RECENTES
-                  </Text>
-                </View>
-                <View style={[modalStyles.linhaAmarela, { backgroundColor: '#F59E0B', marginBottom: 10 }]} />
-                
-                {avisosCurso.map((aviso, idx) => (
+            {/* ⚠️ BLOCO DE AVISOS ATIVOS DO CURSO (Sempre visível com estado vazio ou lista) */}
+            <View style={[modalStyles.blocoSecao, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A', borderWidth: 1, borderRadius: 10, padding: 14, marginBottom: 15 }]}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <CustomIcon name="information-circle-outline" size={20} color="#B45309" />
+                <Text style={[modalStyles.tituloBlocoSecao, { color: '#B45309', marginBottom: 0 }]}>
+                  AVISOS E COMUNICADOS RECENTES
+                </Text>
+              </View>
+              <View style={[modalStyles.linhaAmarela, { backgroundColor: '#F59E0B', marginBottom: 10 }]} />
+              
+              {avisosCurso.length > 0 ? (
+                avisosCurso.map((aviso, idx) => (
                   <TouchableOpacity
                     key={aviso.id || idx}
                     style={{
@@ -167,9 +167,13 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                       <Text style={{ fontSize: 11, fontWeight: '700', color: '#B45309' }}>Ler 👆</Text>
                     </View>
                   </TouchableOpacity>
-                ))}
-              </View>
-            )}
+                ))
+              ) : (
+                <Text style={{ fontSize: 12.5, color: '#92400E', fontStyle: 'italic', textAlign: 'center', paddingVertical: 4 }}>
+                  Não há avisos ou comunicados para este curso no momento.
+                </Text>
+              )}
+            </View>
 
            {/* BLOCO 3: PUBLICAÇÕES DO CURSO */}
             <View style={modalStyles.blocoSecao}>

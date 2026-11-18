@@ -87,10 +87,14 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
               </Text>
             </View>
 
-            {/* LINKS ÚTEIS */}
+            {/* 🔗 LINKS ÚTEIS (Padronizado como bloco completo igual aos anteriores) */}
             {servico.linksUteis ? (
-              <>
-                <Text style={[styles.secaoTitulo, { marginTop: 15 }]}>LINKS ÚTEIS</Text>
+              <View style={[styles.cardAviso, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0', borderLeftColor: '#059669', borderLeftWidth: 5, marginTop: 15 }]}>
+                <View style={styles.cardAvisoHeader}>
+                  <CustomIcon name="link-outline" size={20} color="#059669" />
+                  <Text style={[styles.cardAvisoTitulo, { color: '#065F46' }]}>LINKS ÚTEIS</Text>
+                </View>
+
                 {servico.linksUteis.split('\n').map((linha, idx) => {
                   if (!linha.trim()) return null;
                   const partes = linha.split(':');
@@ -100,14 +104,37 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
                   return (
                     <TouchableOpacity
                       key={idx}
-                      style={styles.botaoLinkUtil}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: '#FFFFFF',
+                        padding: 12,
+                        borderRadius: 8,
+                        marginTop: idx === 0 ? 8 : 8,
+                        borderWidth: 1,
+                        borderColor: '#A7F3D0',
+                      }}
                       onPress={() => abrirLink(urlLink)}
+                      activeOpacity={0.8}
                     >
-                      <Text style={styles.botaoLinkUtilTexto}>🔗 {nomeLink}</Text>
+                      <View style={[styles.cardHorarioIcone, { backgroundColor: '#D1FAE5', width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginRight: 12 }]}>
+                        <CustomIcon name="open-outline" size={18} color="#059669" />
+                      </View>
+                      
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#065F46' }}>
+                          {nomeLink}
+                        </Text>
+                        <Text style={{ fontSize: 11, color: '#047857', marginTop: 1 }}>
+                          Clique para acessar a página externa
+                        </Text>
+                      </View>
+
+                      <CustomIcon name="chevron-forward" size={16} color="#059669" />
                     </TouchableOpacity>
                   );
                 })}
-              </>
+              </View>
             ) : null}
 
             {/* FALE COM A COORDENAÇÃO */}

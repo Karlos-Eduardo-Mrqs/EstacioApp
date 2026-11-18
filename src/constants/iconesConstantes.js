@@ -125,6 +125,7 @@ export const globalIcons = {
   'chevron-up': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chevron-up.svg',
   'grid-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/grid-outline.svg',
   'lock-open-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/lock-open-outline.svg',
+  'link-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/link-outline.svg',
 };
 
 export const LISTA_ICONES_CURSOS = [

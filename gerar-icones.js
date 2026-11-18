@@ -40,7 +40,7 @@ const nomesDosIcones = [
  "airplane-outline",
  "flash-outline",
  "business-outline",
- "restaurant-outline","chevron-up","grid-outline","lock-open-outline"
+ "restaurant-outline","chevron-up","grid-outline","lock-open-outline","link-outline"
 ];
 
  async function iniciar() {

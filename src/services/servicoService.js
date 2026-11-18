@@ -24,17 +24,16 @@ export async function buscarServicosDoBanco() {
     throw error;
   }
 
-  return (data || []).map((item) => ({
+ return (data || []).map((item) => ({
     id: String(item.id),
     nome: item.nome || '',
     descricao: item.descricao || '',
     dias: item.dias || '',
     aviso: item.aviso || '',
-    linksUteis: item.links_uteis || '',
+    linksUteis: item.links_uteis || '', // 👈 Garante que o banco (links_uteis) vá para o modal como linksUteis
     status: item.status || 'Ativo',
     coordenador_id: item.coordenador_id ? String(item.coordenador_id) : '',
     curso_id: item.curso_id ? String(item.curso_id) : '',
-    // Dados formatados para exibição compatíveis com o design original
     responsavel: item.coordenador?.nome || 'A definir',
     email: item.coordenador?.email || 'A definir',
     telefone: item.coordenador?.telefone || 'A definir',

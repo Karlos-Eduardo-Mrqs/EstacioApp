@@ -46,7 +46,14 @@ export default function PainelServicos({ usuarioAtual }) {
     salvarServico,
     confirmarExclusao,
   } = useGerenciarServicos(usuarioAtual);
-  const ehCoordenador = usuarioAtual?.perfil === 'Coordenador';
+  
+  const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  const ehCoordenador = perfilNorm.includes("coordenador");
+
+  // 💡 Cálculo opcional para os indicadores específicos do Coordenador (ex: contar quantos links úteis ele tem preenchidos nos serviços dele)
+  const servicoDoCoordenador = servicosFiltrados[0]; // Como o coordenador vê o seu próprio serviço
+  const totalLinksCoordenador = servicoDoCoordenador?.linksUteis ? servicoDoCoordenador.linksUteis.split('\n').filter(Boolean).length : 0;
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor="#0A2540" barStyle="light-content" />
@@ -59,17 +66,31 @@ export default function PainelServicos({ usuarioAtual }) {
           </Text>
         </View>
 
+        {/* 📊 INDICADORES CONDICIONAIS (Gerência vs Coordenador) */}
         <View style={styles.indicadores}>
           <View style={[styles.indicadorCard, { flex: 1 }]}>
             <CustomIcon name="grid-outline" size={23} color="#2451A4" />
             <Text style={styles.indicadorNumero}>{quantidadeServicos}</Text>
-            <Text style={styles.indicadorLegenda}>Total de serviços</Text>
+            <Text style={styles.indicadorLegenda}>
+              {ehCoordenador ? "Serviço vinculado" : "Total de serviços"}
+            </Text>
           </View>
-          <View style={[styles.indicadorCard, { flex: 1 }]}>
-            <CustomIcon name="people-outline" size={23} color="#2451A4" />
-            <Text style={styles.indicadorNumero}>{quantidadeCoordenadores}</Text>
-            <Text style={styles.indicadorLegenda}>Coordenadores vinculados</Text>
-          </View>
+
+          {ehCoordenador ? (
+            // 👤 Indicadores exclusivos para o Coordenador
+            <View style={[styles.indicadorCard, { flex: 1 }]}>
+              <CustomIcon name="link-outline" size={23} color="#2451A4" />
+              <Text style={styles.indicadorNumero}>{totalLinksCoordenador}</Text>
+              <Text style={styles.indicadorLegenda}>Links úteis cadastrados</Text>
+            </View>
+          ) : (
+            // 🛡️ Indicadores exclusivos para a Gerência
+            <View style={[styles.indicadorCard, { flex: 1 }]}>
+              <CustomIcon name="people-outline" size={23} color="#2451A4" />
+              <Text style={styles.indicadorNumero}>{quantidadeCoordenadores}</Text>
+              <Text style={styles.indicadorLegenda}>Coordenadores vinculados</Text>
+            </View>
+          )}
         </View>
 
         {carregando ? (
@@ -82,7 +103,6 @@ export default function PainelServicos({ usuarioAtual }) {
             onEditar={(item) => abrirEdicao(item)}
             onExcluir={ehCoordenador ? null : (id) => confirmarExclusao(id)}
             onDetalhes={(item) => setServicoSelecionado(item)}
-            // 👈 Se for coordenador, passa null para ocultar o botão de adicionar
             onNovoServico={ehCoordenador ? null : abrirCadastro}
           />
         )}
@@ -106,7 +126,7 @@ export default function PainelServicos({ usuarioAtual }) {
         setLinksUteis={setLinksUteis}
         aviso={aviso}
         setAviso={setAviso}
-        usuarioAtual={usuarioAtual} // 👈 Adicione esta linha para enviar o usuário logado ao modal
+        usuarioAtual={usuarioAtual}
         coordenadoresDisponiveis={coordenadoresDisponiveis}
         cursosDisponiveis={cursosDisponiveis}
         salvarServico={salvarServico}

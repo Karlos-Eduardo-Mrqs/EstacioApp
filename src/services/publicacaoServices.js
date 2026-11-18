@@ -42,6 +42,40 @@ export async function buscarPublicacoesDoCurso(cursoId) {
   return postsComAutor;
 }
 
+export async function buscarPublicacoesDoCursoSimples(cursoId) {
+  let query = supabase
+    .from('post')
+    .select(`*, imagem(*), curso(nome)`)
+    .order('created_at', { ascending: false });
+
+  if (cursoId) {
+    query = query.eq('curso_id', cursoId);
+  }
+
+  const [resPosts, resUsuarios] = await Promise.all([
+    query,
+    supabase.from('usuario').select('id, nome')
+  ]);
+
+  if (resPosts.error) throw resPosts.error;
+
+  const posts = resPosts.data ?? [];
+  const usuarios = resUsuarios.data ?? [];
+
+  const mapaUsuarios = {};
+  usuarios.forEach(u => {
+    mapaUsuarios[u.id] = u.nome;
+  });
+
+  return posts.map(pub => ({
+    ...pub,
+    usuario: {
+      id: pub.usuario_id,
+      nome: mapaUsuarios[pub.usuario_id] || `Coordenador(a) #${pub.usuario_id}`
+    }
+  }));
+}
+
 // Criar publicação
 export async function criarPublicacaoNoBanco(novaPublicacao) {
   const { data, error } = await supabase

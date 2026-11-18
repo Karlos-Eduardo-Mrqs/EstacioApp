@@ -87,6 +87,7 @@ export default function ModalGerenciarPublicacao({
             />
 
             {/* 🏫 CURSO VINCULADO */}
+            {/* 🏫 CURSO VINCULADO */}
             <Text style={styles.label}>Curso vinculado *</Text>
             <View style={{ marginBottom: 16 }}>
               {Platform.OS === "web" ? (
@@ -104,7 +105,7 @@ export default function ModalGerenciarPublicacao({
                     color: '#0F172A'
                   }}
                 >
-                    <option value="">Geral / Todos (Visível para todos)</option>
+                    <option value="">Selecione o curso vinculado</option>
                     {cursosDisponiveis.map((curso) => (
                       <option key={curso.id} value={curso.id}>
                         {curso.nome}
@@ -115,15 +116,16 @@ export default function ModalGerenciarPublicacao({
                 <ScrollView style={{ maxHeight: 120, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8 }} nestedScrollEnabled>
                   {cursosDisponiveis.map((curso) => (
                     <TouchableOpacity
+                      key={curso.id}
                       style={{
                         padding: 10,
-                        backgroundColor: !cursoId ? '#EFF6FF' : 'transparent',
+                        backgroundColor: String(cursoId) === String(curso.id) ? '#EFF6FF' : 'transparent',
                         borderBottomWidth: 1,
                         borderBottomColor: '#F1F5F9'
                       }}
-                      onPress={() => setCursoId('')} // 👈 Zera o ID para mandar null
+                      onPress={() => setCursoId(String(curso.id))}
                     >
-                      <Text style={{ fontSize: 13, color: '#1E293B' }}>Geral / Todos</Text>
+                      <Text style={{ fontSize: 13, color: '#1E293B' }}>{curso.nome}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>

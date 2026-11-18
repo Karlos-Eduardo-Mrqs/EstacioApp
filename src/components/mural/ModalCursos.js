@@ -5,7 +5,7 @@ import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursos
 import CustomIcon from "../CustomIcon"; 
 import BotaoFechar from "../BotaoFechar";
 import ModalVisualizarImagem from "../ModalVisualizarImagemCheia";
-import { buscarPublicacoesDoCurso } from "../../services/publicacaoServices";
+import { buscarPublicacoesDoCursoSimples } from "../../services/publicacaoServices";
 import { obterAspectRatioNumerico } from "../../constants/proporcoesConstantes";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
@@ -29,7 +29,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
   async function carregarPublicacoesDoCurso(cursoId) {
     try {
       setCarregandoPublicacoes(true);
-      const dados = await buscarPublicacoesDoCurso(cursoId);
+      const dados = await buscarPublicacoesDoCursoSimples(cursoId); // 👈 Usa a nova função aqui
       setPublicacoes(dados || []);
     } catch (err) {
       console.error("Erro ao carregar publicações do curso:", err);

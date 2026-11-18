@@ -6,34 +6,51 @@ import CustomIcon from "../CustomIcon";
 import BotaoFechar from "../BotaoFechar";
 import ModalVisualizarImagem from "../ModalVisualizarImagemCheia";
 import { buscarPublicacoesDoCursoSimples } from "../../services/publicacaoServices";
+import { supabase } from "../../../lib/supabase"; // 👈 Importado para buscar os avisos do curso
 import { obterAspectRatioNumerico } from "../../constants/proporcoesConstantes";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
   const { width } = useWindowDimensions();
   const larguraCardPublicacao = width < 600 ? 260 : 300;
 
-  // Estados locais para gerenciar as publicações e o zoom de imagem no modal
+  // Estados locais para gerenciar publicações, avisos e zoom de imagem
   const [publicacoes, setPublicacoes] = useState([]);
+  const [avisosCurso, setAvisosCurso] = useState([]); // 👈 Novo estado para os avisos do curso
   const [carregandoPublicacoes, setCarregandoPublicacoes] = useState(false);
   const [publicacoesExpandidas, setPublicacoesExpandidas] = useState([]);
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
+  const [avisoSelecionado, setAvisoSelecionado] = useState(null); // 👈 Estado para abrir o pop-up de leitura do aviso
 
   useEffect(() => {
     if (curso?.id) {
-      carregarPublicacoesDoCurso(curso.id);
+      carregarDadosDoCurso(curso.id);
     } else {
       setPublicacoes([]);
+      setAvisosCurso([]);
     }
   }, [curso]);
 
-  async function carregarPublicacoesDoCurso(cursoId) {
+  async function carregarDadosDoCurso(cursoId) {
     try {
       setCarregandoPublicacoes(true);
-      const dados = await buscarPublicacoesDoCursoSimples(cursoId); // 👈 Usa a nova função aqui
-      setPublicacoes(dados || []);
+      
+      // 1. Busca publicações e avisos em paralelo para máxima eficiência
+      const [dadosPubs, resAvisos] = await Promise.all([
+        buscarPublicacoesDoCursoSimples(cursoId),
+        supabase
+          .from('aviso')
+          .select('*')
+          .or(`curso_id.eq.${cursoId},curso_id.is.null`)
+          .gt('expira_em', new Date().toISOString())
+          .order('created_at', { ascending: false })
+      ]);
+
+      setPublicacoes(dadosPubs || []);
+      setAvisosCurso(resAvisos.data || []);
     } catch (err) {
-      console.error("Erro ao carregar publicações do curso:", err);
+      console.error("Erro ao carregar dados do curso:", err);
       setPublicacoes([]);
+      setAvisosCurso([]);
     } finally {
       setCarregandoPublicacoes(false);
     }
@@ -76,7 +93,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
             style={modalStyles.corpoModalScroll}
             contentContainerStyle={{ paddingBottom: 24 }}
           >
-            
+
             {/* BLOCO 1: APRESENTAÇÃO */}
             <View style={modalStyles.blocoSecao}>
               <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>APRESENTAÇÃO</Text>
@@ -114,62 +131,45 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 </Text>
               )}
             </View>
-
-            {/* BLOCO 2: EVENTOS E AVISOS DO CURSO */}
-            <View style={modalStyles.blocoSecao}>
-              <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>
-                EVENTOS E AVISOS DO CURSO
-              </Text>
-              <View style={modalStyles.linhaAmarela} />
-
-              {curso.eventosPrincipais && curso.eventosPrincipais.length > 0 ? (
-                curso.eventosPrincipais.map((ev, index) => (
-                  <View key={index} style={[modalStyles.eventoCardModal, { borderRadius: 10, padding: 14, borderWidth: 1, borderColor: '#E2E8F0' }]}>
-                    <Text style={modalStyles.tagEventoModal}>
-                      {ev.tipo || "Evento"}
-                    </Text>
-                    <Text
-                      style={[modalStyles.tituloEventoModal, { fontWeight: '700', fontSize: 14, color: '#032551' }]}
-                      numberOfLines={2}
-                    >
-                      {ev.titulo}
-                    </Text>
-                    <Text style={[modalStyles.dataEventoModal, { color: '#64748B', fontSize: 12, marginTop: 4 }]}>
-                      📅 {ev.data} {ev.local ? `| 📍 ${ev.local}` : ""}
-                    </Text>
-
-                    <TouchableOpacity
-                      style={[modalStyles.btnDetalhesModal, { borderRadius: 6, paddingVertical: 8, marginTop: 10 }]}
-                      onPress={() => {
-                        onClose();
-                        onSelectEvento({
-                          id: `curso-ev-${index}`,
-                          titulo: ev.titulo,
-                          tipo: ev.tipo || "Evento",
-                          dia: ev.data,
-                          local: ev.local || curso.nome,
-                          turma: curso.nome,
-                          autor: `Coordenação de ${curso.nome}`,
-                          descricao:
-                            ev.descricao ||
-                            `Evento oficial vinculado ao curso de ${curso.nome}.`,
-                          horas_acc: 10,
-                        });
-                      }}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[modalStyles.textoBtnDetalhesModal, { fontWeight: '600', fontSize: 12 }]}>
-                        + Detalhes
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))
-              ) : (
-                <Text style={[modalStyles.textoVazio, { color: '#64748B', fontSize: 13, fontStyle: 'italic' }]}>
-                  Nenhum evento ou aviso publicado para este curso no momento.
-                </Text>
-              )}
-            </View>
+          
+          {/* ⚠️ BLOCO DE AVISOS ATIVOS DO CURSO (Clicável para abrir em Pop-up) */}
+            {avisosCurso.length > 0 && (
+              <View style={[modalStyles.blocoSecao, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A', borderWidth: 1, borderRadius: 10, padding: 14, marginBottom: 15 }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <CustomIcon name="information-circle-outline" size={20} color="#B45309" />
+                  <Text style={[modalStyles.tituloBlocoSecao, { color: '#B45309', marginBottom: 0 }]}>
+                    AVISOS E COMUNICADOS RECENTES
+                  </Text>
+                </View>
+                <View style={[modalStyles.linhaAmarela, { backgroundColor: '#F59E0B', marginBottom: 10 }]} />
+                
+                {avisosCurso.map((aviso, idx) => (
+                  <TouchableOpacity
+                    key={aviso.id || idx}
+                    style={{
+                      marginBottom: idx < avisosCurso.length - 1 ? 12 : 0,
+                      paddingBottom: idx < avisosCurso.length - 1 ? 12 : 0,
+                      borderBottomWidth: idx < avisosCurso.length - 1 ? 1 : 0,
+                      borderBottomColor: '#FEF3C7',
+                    }}
+                    onPress={() => setAvisoSelecionado(aviso)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <View style={{ flex: 1, marginRight: 8 }}>
+                        <Text style={{ fontWeight: '700', fontSize: 13.5, color: '#92400E', marginBottom: 3 }}>
+                          {aviso.titulo}
+                        </Text>
+                        <Text style={{ fontSize: 12.5, color: '#78350F', lineHeight: 18 }} numberOfLines={2}>
+                          {aviso.mensagem}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 11, fontWeight: '700', color: '#B45309' }}>Ler 👆</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
            {/* BLOCO 3: PUBLICAÇÕES DO CURSO */}
             <View style={modalStyles.blocoSecao}>
@@ -356,12 +356,51 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
           </ScrollView>
           
-          {/* Utilizando o componente reutilizável de imagem em tela cheia */}
+          {/* Modal de imagem em tela cheia */}
           <ModalVisualizarImagem
             visible={!!imagemSelecionada}
             imageUrl={imagemSelecionada}
             onClose={() => setImagemSelecionada(null)}
           />
+
+          {/* 🔍 POP-UP DE LEITURA DO AVISO SELECIONADO */}
+          <Modal
+            visible={!!avisoSelecionado}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setAvisoSelecionado(null)}
+          >
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+              <View style={{ backgroundColor: '#FFFFFF', width: '100%', maxWidth: 450, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', pb: 8 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#032551', flex: 1, marginRight: 10 }}>
+                    📢 {avisoSelecionado?.titulo}
+                  </Text>
+                  <TouchableOpacity onPress={() => setAvisoSelecionado(null)}>
+                    <CustomIcon name="close" size={22} color="#64748B" />
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView style={{ maxHeight: 250, marginBottom: 16 }} showsVerticalScrollIndicator={false}>
+                  <Text style={{ fontSize: 14, color: '#334155', lineHeight: 22 }}>
+                    {avisoSelecionado?.mensagem}
+                  </Text>
+                </ScrollView>
+
+                <Text style={{ fontSize: 11, color: '#94A3B8', marginBottom: 16, fontStyle: 'italic' }}>
+                  Expira em: {avisoSelecionado?.expira_em ? new Date(avisoSelecionado.expira_em).toLocaleString() : ''}
+                </Text>
+
+                <TouchableOpacity
+                  style={{ backgroundColor: '#032551', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
+                  onPress={() => setAvisoSelecionado(null)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 }}>Entendido</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
         </View>
       </View>

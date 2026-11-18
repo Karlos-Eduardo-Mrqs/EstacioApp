@@ -43,9 +43,7 @@ const nomesDosIcones = [
  "restaurant-outline","chevron-up","grid-outline","lock-open-outline"
 ];
 
- 
-
-async function iniciar() {
+ async function iniciar() {
   console.log('🔄 Gerando lista de mapeamento com os links diretos dos ícones...');
 
   let codigo = 'export const globalIcons = {\n';

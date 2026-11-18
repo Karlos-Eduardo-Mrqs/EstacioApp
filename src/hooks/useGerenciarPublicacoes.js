@@ -35,7 +35,6 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     try {
       setCarregando(true);
 
-      // 1. Busca os posts, usuários e os cursos em paralelo
       let query = supabase
         .from('post')
         .select(`
@@ -56,14 +55,11 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
       const ehCoord = perfilNorm.includes("coordenador");
 
       if (ehCoord) {
-        // Coordenador vê os posts dele OU posts gerais (curso_id is null)
-        query = query.or(`usuario_id.eq.${usuarioAtual.id},curso_id.is.null`);
+        query = query.eq('usuario_id', usuarioAtual.id);
       } else if (cursoIdFiltro) {
-        // Aluno/Outro vê posts do seu curso OU posts gerais (curso_id is null)
-        query = query.or(`curso_id.eq.${cursoIdFiltro},curso_id.is.null`);
+        query = query.eq('curso_id', cursoIdFiltro);
       }
 
-      // Executa a busca dos posts, dos usuários e da tabela de cursos simultaneamente
       const [resPosts, resUsuarios, resCursos] = await Promise.all([
         query,
         supabase.from('usuario').select('id, nome'),
@@ -75,7 +71,6 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
       const posts = resPosts.data ?? [];
       const usuarios = resUsuarios.data ?? [];
       
-      // ✅ Preenche a lista de cursos disponíveis para popular o Select
       setCursosDisponiveis(resCursos.data || []);
 
       const mapaUsuarios = {};
@@ -255,7 +250,7 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
       const dadosPublicacao = {
         titulo,
         descricao,
-        curso_id: cursoId ? Number(cursoId) : null, 
+        curso_id: Number(cursoId), 
         usuario_id: usuarioAtual?.id || null,
         imagem_id: imagemIdFinal,
       };

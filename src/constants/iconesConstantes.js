@@ -114,8 +114,6 @@ export const globalIcons = {
   'book-sharp': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/book-sharp.svg',
   'paw-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/paw-outline.svg',
   'flower-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/flower-outline.svg',
-  'paw-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/paw-outline.svg',
-  'flower-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/flower-outline.svg',
   'earth-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/earth-outline.svg',
   'car-sport-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/car-sport-outline.svg',
   'airplane-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/airplane-outline.svg',
@@ -126,6 +124,17 @@ export const globalIcons = {
   'grid-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/grid-outline.svg',
   'lock-open-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/lock-open-outline.svg',
   'link-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/link-outline.svg',
+  
+  // 🌟 NOVOS ÍCONES ADICIONADOS NA GLOBAL ICONS
+  'bulb': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/bulb.svg',
+  'accessibility-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/accessibility-outline.svg',
+  'extension-puzzle-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/extension-puzzle-outline.svg',
+  'git-branch-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/git-branch-outline.svg',
+  'bonfire-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/bonfire-outline.svg',
+  'headset-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/headset-outline.svg',
+  'rocket-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/rocket-outline.svg',
+  'finger-print-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/finger-print-outline.svg',
+  'planet-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/planet-outline.svg',
 };
 
 export const LISTA_ICONES_CURSOS = [
@@ -198,5 +207,14 @@ export const LISTA_ICONES_CURSOS = [
   // --- Optometria e Oftalmologia ---
   { nome: 'eye-outline', tags: ['oftalmologia', 'optometria', 'saude', 'visao'] },
 
-  
+  // --- 🌟 NOVOS ÍCONES ADICIONADOS NA LISTA DO MODAL ---
+  { nome: 'bulb', tags: ['cerebro', 'psicologia', 'pensamento', 'ideia', 'mente', 'cognicao'] },
+  { nome: 'accessibility-outline', tags: ['inclusao', 'acessibilidade', 'psicopedagogia', 'apoio', 'humano'] },
+  { nome: 'extension-puzzle-outline', tags: ['logica', 'jogos', 'pedagogia', 'resolucao', 'pecas', 'quebra-cabeca'] },
+  { nome: 'git-branch-outline', tags: ['ti', 'programacao', 'versao', 'fluxo', 'codigo', 'desenvolvimento'] },
+  { nome: 'bonfire-outline', tags: ['inovacao', 'criatividade', 'energia', 'fogo', 'destaque'] },
+  { nome: 'headset-outline', tags: ['suporte', 'atendimento', 'comunicacao', 'ead', 'atendimento ao aluno'] },
+  { nome: 'rocket-outline', tags: ['inovacao', 'tecnologia', 'foguete', 'lançamento', 'projeto'] },
+  { nome: 'finger-print-outline', tags: ['seguranca', 'biometria', 'tecnologia', 'autenticacao', 'dados'] },
+  { nome: 'planet-outline', tags: ['ciencia', 'astronomia', 'geografia', 'espaco', 'mundo'] },
 ];

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
-import * as ImageManipulator from 'expo-image-manipulator'; // 👈 Importado para compressão
+import * as ImageManipulator from 'expo-image-manipulator'; 
 import { fazerUploadParaSupabaseStorage } from '../services/publicacaoServices';
 
 export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   const [publicacoes, setPublicacoes] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const [busca, setBusca] = useState(''); // 👈 Novo estado para a busca de posts  
+  const [busca, setBusca] = useState('');   
   const [modalPublicacao, setModalPublicacao] = useState(false);
   const [publicacaoEditando, setPublicacaoEditando] = useState(null);
   const [cursoId, setCursoId] = useState('');

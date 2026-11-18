@@ -18,6 +18,8 @@ export async function buscarPublicacoesDoCurso(cursoId) {
     supabase.from('usuario').select('id, nome') // Ajuste 'usuario' para o nome exato da sua tabela de usuários se necessário
   ]);
 
+  const { data: dadosCursos } = await supabase.from('curso').select('id, nome').order('nome');
+  setCursosDisponiveis(dadosCursos || []);
   if (resPosts.error) throw resPosts.error;
 
   const posts = resPosts.data ?? [];

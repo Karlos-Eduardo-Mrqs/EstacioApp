@@ -24,10 +24,10 @@ export default function PainelPublicacoes({ usuarioAtual }) {
     busca,
     setBusca,
     carregando,
-    erro,
     modalPublicacao,
     setModalPublicacao,
     publicacaoEditando,
+    erro,
     titulo,
     setTitulo,
     descricao,
@@ -44,6 +44,9 @@ export default function PainelPublicacoes({ usuarioAtual }) {
     excluirPublicacao,
     toast,
     setToast,
+    cursoId,      
+    setCursoId,   
+    cursosDisponiveis 
   } = useGerenciarPublicacoes(usuarioAtual?.curso_id, usuarioAtual);
 
   const { width: larguraTela } = useWindowDimensions();
@@ -282,8 +285,8 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         ) : null}
       </View>
 
-      {erro && <FeedbackBox tipo="erro" mensagem={erro} onClose={() => {}} />}
-
+      {toast.tipo === 'erro' && toast.visible && <FeedbackBox tipo="erro" mensagem={toast.mensagem} onClose={() => {}} />}
+      
       {carregando ? (
         <ActivityIndicator size="large" color="#0754A6" style={{ marginTop: 40 }} />
       ) : publicacoes.length === 0 ? (
@@ -403,6 +406,9 @@ export default function PainelPublicacoes({ usuarioAtual }) {
         salvarPublicacao={salvarPublicacao}
         carregando={carregando}
         carregandoImagem={carregandoImagem}
+        cursoId={cursoId}             
+        setCursoId={setCursoId}       
+        cursosDisponiveis={cursosDisponiveis}
       />
 
       <ConfirmPopup

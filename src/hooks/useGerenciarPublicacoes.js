@@ -10,7 +10,9 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   const [busca, setBusca] = useState(''); // 👈 Novo estado para a busca de posts  
   const [modalPublicacao, setModalPublicacao] = useState(false);
   const [publicacaoEditando, setPublicacaoEditando] = useState(null);
-
+  const [cursoId, setCursoId] = useState('');
+  const [erro, setErro] = useState(null);
+  const [cursosDisponiveis, setCursosDisponiveis] = useState([]);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [imagem, setImagem] = useState(null); 
@@ -32,6 +34,8 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   async function buscarPublicacoes() {
     try {
       setCarregando(true);
+
+      // 1. Busca os posts, usuários e os cursos em paralelo
       let query = supabase
         .from('post')
         .select(`
@@ -52,19 +56,30 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
       const ehCoord = perfilNorm.includes("coordenador");
 
       if (ehCoord) {
-        // Coordenador vê estritamente apenas os posts criados por ele próprio
-        query = query.eq('usuario_id', usuarioAtual.id);
+        // Coordenador vê os posts dele OU posts gerais (curso_id is null)
+        query = query.or(`usuario_id.eq.${usuarioAtual.id},curso_id.is.null`);
       } else if (cursoIdFiltro) {
-        query = query.eq('curso_id', cursoIdFiltro);
+        // Aluno/Outro vê posts do seu curso OU posts gerais (curso_id is null)
+        query = query.or(`curso_id.eq.${cursoIdFiltro},curso_id.is.null`);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
+      // Executa a busca dos posts, dos usuários e da tabela de cursos simultaneamente
+      const [resPosts, resUsuarios, resCursos] = await Promise.all([
+        query,
+        supabase.from('usuario').select('id, nome'),
+        supabase.from('curso').select('id, nome').order('nome')
+      ]);
 
-      const posts = data ?? [];
-      const { data: usuarios } = await supabase.from('usuario').select('id, nome');
+      if (resPosts.error) throw resPosts.error;
+
+      const posts = resPosts.data ?? [];
+      const usuarios = resUsuarios.data ?? [];
+      
+      // ✅ Preenche a lista de cursos disponíveis para popular o Select
+      setCursosDisponiveis(resCursos.data || []);
+
       const mapaUsuarios = {};
-      (usuarios || []).forEach(u => { mapaUsuarios[u.id] = u.nome; });
+      usuarios.forEach(u => { mapaUsuarios[u.id] = u.nome; });
 
       const postsComAutor = posts.map(pub => ({
         ...pub,
@@ -76,6 +91,7 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
 
       setPublicacoes(postsComAutor);
     } catch (err) {
+      setErro('Não foi possível carregar os dados.');
       dispararToast('Erro', 'Não foi possível carregar as publicações.', 'erro');
     } finally {
       setCarregando(false);
@@ -105,6 +121,7 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     setDescricao('');
     setImagem(null);
     setProporcao('16:9');
+    setCursoId(''); // Deixa vazio por padrão para permitir post geral ("Geral / Todos")
     setModalPublicacao(true);
   }
 
@@ -112,6 +129,7 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     setPublicacaoEditando(pub);
     setTitulo(pub.titulo || '');
     setDescricao(pub.descricao || '');
+    setCursoId(pub?.curso_id ? String(pub.curso_id) : ''); // Carrega o curso ou deixa vazio se for geral
     
     const urlImg = typeof pub.imagem === 'object' ? pub.imagem?.caminho_img : pub.imagem;
     setImagem(urlImg || null);
@@ -233,11 +251,11 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
         imagemIdFinal = null;
       }
 
-      // 3. Salvar os dados na tabela "post"
+      // 3. Salvar os dados na tabela "post" (Se cursoId estiver vazio, envia explicitamente null para ser geral)
       const dadosPublicacao = {
         titulo,
         descricao,
-        curso_id: cursoIdFiltro || null,
+        curso_id: cursoId ? Number(cursoId) : null, 
         usuario_id: usuarioAtual?.id || null,
         imagem_id: imagemIdFinal,
       };
@@ -331,6 +349,7 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     carregando,
     modalPublicacao,
     setModalPublicacao,
+    erro,
     publicacaoEditando,
     titulo,
     setTitulo,
@@ -340,6 +359,8 @@ export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
     proporcao,
     setProporcao,
     carregandoImagem,
+    cursoId, setCursoId,
+    cursosDisponiveis, setCursosDisponiveis,
     abrirNovaPublicacao,
     abrirEdicaoPublicacao,
     selecionarImagem,

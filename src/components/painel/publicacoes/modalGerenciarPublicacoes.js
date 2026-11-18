@@ -1,4 +1,4 @@
-import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
+import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View,Platform} from "react-native";
 import {LISTA_PROPORCOES,obterAspectRatioNumerico} from "../../../constants/proporcoesConstantes";
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
 import BotaoFechar from "../../BotaoFechar";
@@ -26,6 +26,9 @@ export default function ModalGerenciarPublicacao({
   setTitulo,
   descricao,
   setDescricao,
+  cursoId = '',                     // 👈 Valor padrão
+  setCursoId = () => {},            // 👈 Função vazia de segurança
+  cursosDisponiveis = [],           // 👈 Garante que nunca será undefined
   imagem,
   proporcao,
   setProporcao,
@@ -82,6 +85,50 @@ export default function ModalGerenciarPublicacao({
               textAlignVertical="top"
               maxLength={500}
             />
+
+            {/* 🏫 CURSO VINCULADO */}
+            <Text style={styles.label}>Curso vinculado *</Text>
+            <View style={{ marginBottom: 16 }}>
+              {Platform.OS === "web" ? (
+                <select
+                  value={cursoId}
+                  onChange={(e) => setCursoId(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#CBD5E1',
+                    backgroundColor: '#FFFFFF',
+                    fontSize: 14,
+                    color: '#0F172A'
+                  }}
+                >
+                    <option value="">Geral / Todos (Visível para todos)</option>
+                    {cursosDisponiveis.map((curso) => (
+                      <option key={curso.id} value={curso.id}>
+                        {curso.nome}
+                      </option>
+                    ))}
+                </select>
+              ) : (
+                <ScrollView style={{ maxHeight: 120, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8 }} nestedScrollEnabled>
+                  {cursosDisponiveis.map((curso) => (
+                    <TouchableOpacity
+                      style={{
+                        padding: 10,
+                        backgroundColor: !cursoId ? '#EFF6FF' : 'transparent',
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#F1F5F9'
+                      }}
+                      onPress={() => setCursoId('')} // 👈 Zera o ID para mandar null
+                    >
+                      <Text style={{ fontSize: 13, color: '#1E293B' }}>Geral / Todos</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+            </View>
 
             <Text style={styles.label}>Imagem da publicação *</Text>
 

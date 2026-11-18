@@ -58,11 +58,14 @@ export async function atualizarServicoNoBanco(id, servicoAtualizado) {
   const { data, error } = await supabase
     .from('servico')
     .update(servicoAtualizado)
-    .eq('id', id)
+    .eq('id', Number(id))
     .select()
     .single();
-
-  if (error) throw error;
+  
+  if (error) {
+    console.error("Erro detalhado do Supabase ao atualizar:", error); // Ajuda a debugar se houver outro campo
+    throw error;
+  }
   return data;
 }
 

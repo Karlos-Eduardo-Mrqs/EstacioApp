@@ -122,7 +122,7 @@ export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioA
         aviso: aviso.trim() || null,
         coordenador_id: coordenadorId ? Number(coordenadorId) : null,
         curso_id: cursoId ? Number(cursoId) : null,
-        status: 'Ativo',
+        status: true,
       };
 
       if (servicoEditando) {

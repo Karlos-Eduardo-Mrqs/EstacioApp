@@ -70,7 +70,7 @@ export default function AvisosGerencia({ avisosAtivos = [], onReexibirAviso }) {
 
   return (
     <View style={styles.blocoSection}>
-      <Text style={styles.tituloSecaoBloco}>AVISOS DA GERÊNCIA</Text>
+      <Text style={styles.tituloSecaoBloco}>AVISOS DO CAMPUS</Text>
       
       {avisosAtivos && avisosAtivos.length > 0 ? (
         temMuitosAvisos ? (

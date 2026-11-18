@@ -208,13 +208,13 @@ export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventos
 export async function buscarTodosAvisosAtivosDoBanco() {
   const agoraIso = new Date().toISOString();
 
-  // 1. Busca os avisos fazendo o JOIN com as tabelas curso e evento
+  // 1. Busca os avisos fazendo o JOIN com as tabelas curso e evento do Supabase
   const { data, error } = await supabase
     .from('aviso')
     .select(`
       *,
-      curso:curso_id ( id, nome),
-      evento:evento_id ( id, titulo)
+      curso:curso_id ( id, nome ),
+      evento:evento_id ( id, titulo )
     `)
     .gt('expira_em', agoraIso)
     .order('created_at', { ascending: false });
@@ -222,28 +222,12 @@ export async function buscarTodosAvisosAtivosDoBanco() {
   if (error) throw error;
   const avisos = data || [];
 
+  // 2. Mapeia os dados usando o próprio retorno do JOIN do Supabase
   return avisos.map(aviso => {
-    let nomeCurso = null;
-    let nomeEvento = null;
-
-    if (aviso.curso_id && cursos) {
-      const cursoFound = cursos.find(c => Number(c.id) === Number(aviso.curso_id));
-      if (cursoFound) {
-        nomeCurso = cursoFound.titulo || cursoFound.nome || `Curso #${aviso.curso_id}`;
-      }
-    }
-
-    if (aviso.evento_id && eventos) {
-      const eventoFound = eventos.find(e => Number(e.id) === Number(aviso.evento_id));
-      if (eventoFound) {
-        nomeEvento = eventoFound.titulo || eventoFound.nome || `Evento #${aviso.evento_id}`;
-      }
-    }
-
     return {
       ...aviso,
-      nomeDestinatarioCurso: nomeCurso,
-      nomeDestinatarioEvento: nomeEvento,
+      nomeDestinatarioCurso: aviso.curso ? (aviso.curso.nome || aviso.curso.titulo) : (aviso.curso_id ? `Curso #${aviso.curso_id}` : null),
+      nomeDestinatarioEvento: aviso.evento ? (aviso.evento.titulo || aviso.evento.nome) : (aviso.evento_id ? `Evento #${aviso.evento_id}` : null),
     };
   });
 }

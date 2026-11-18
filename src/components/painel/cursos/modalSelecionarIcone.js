@@ -69,21 +69,6 @@ export default function ModalSelecionarIcone({ visible, onClose, onSelect }) {
             </TouchableOpacity>
           </View>
 
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: "#cbd5e1",
-              borderRadius: 8,
-              padding: 10,
-              marginBottom: 16,
-              fontSize: 14,
-              backgroundColor: "#FAFAFA",
-            }}
-            placeholder="Pesquisar por nome ou tag (ex: ti, saude, direito)..."
-            placeholderTextColor="#94A3B8"
-            value={pesquisa}
-            onChangeText={setPesquisa}
-          />
           <ScrollView showsVerticalScrollIndicator={false}>
             <FlatList
               data={iconesFiltrados}

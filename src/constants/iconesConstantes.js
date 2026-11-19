@@ -124,8 +124,6 @@ export const globalIcons = {
   'grid-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/grid-outline.svg',
   'lock-open-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/lock-open-outline.svg',
   'link-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/link-outline.svg',
-  
-  // 🌟 NOVOS ÍCONES ADICIONADOS NA GLOBAL ICONS
   'bulb': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/bulb.svg',
   'accessibility-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/accessibility-outline.svg',
   'extension-puzzle-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/extension-puzzle-outline.svg',
@@ -207,7 +205,6 @@ export const LISTA_ICONES_CURSOS = [
   // --- Optometria e Oftalmologia ---
   { nome: 'eye-outline', tags: ['oftalmologia', 'optometria', 'saude', 'visao'] },
 
-  // --- 🌟 NOVOS ÍCONES ADICIONADOS NA LISTA DO MODAL ---
   { nome: 'bulb', tags: ['cerebro', 'psicologia', 'pensamento', 'ideia', 'mente', 'cognicao'] },
   { nome: 'accessibility-outline', tags: ['inclusao', 'acessibilidade', 'psicopedagogia', 'apoio', 'humano'] },
   { nome: 'extension-puzzle-outline', tags: ['logica', 'jogos', 'pedagogia', 'resolucao', 'pecas', 'quebra-cabeca'] },

@@ -1,10 +1,11 @@
-// src/components/painel/usuarios/painelGerenciarUsuarios.js
-import { FlatList, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import { FlatList, Text, TextInput, TouchableOpacity, View, useWindowDimensions} from "react-native";
 import { useGerenciarUsuarios } from "../../../hooks/userGerenciaUsuarios";
 import { painelStyles as styles } from "../../../styles/painel/painelStyles";
 import ConfirmPopup from "../../ConfirmPopup";
 import FeedbackBox from "../../FeedPopup";
 import PainelCadastro from "./modalGerenciarUsuarios";
+import ModalCursosUsuarios from "./modalCursosUsuarios";
 import CustomIcon from "../../CustomIcon";
 
 export default function GerenciarUsuarios() {
@@ -34,14 +35,19 @@ export default function GerenciarUsuarios() {
     telefone,
     setTelefone,
     cursos = [],
-    cursoId,
-    setCursoId,
+    cursosSelecionados = [],
+    setCursosSelecionados,
+    alternarSelecaoCurso,
     fecharCadastro,
     criarUsuario,
     solicitarAlternarStatus,
     solicitarRemocao,
-    limparFormulario
+    limparFormulario,
   } = useGerenciarUsuarios();
+
+  const { width } = useWindowDimensions();
+  const empilharContato = width < 900;
+  const [coordenadorCursosModal, setCoordenadorCursosModal] = useState(null);
 
   // Função auxiliar para encontrar o nome do curso pelo ID
   const obterNomeCurso = (cursoId) => {
@@ -60,7 +66,14 @@ export default function GerenciarUsuarios() {
             {item.nome}
           </Text>
           
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 2 }}>
+          <View
+            style={{
+              flexDirection: empilharContato ? 'column' : 'row',
+              alignItems: empilharContato ? 'flex-start' : 'center',
+              gap: empilharContato ? 4 : 14,
+              marginTop: 2,
+            }}
+          >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <CustomIcon name="mail-outline" size={13} color="#64748B" />
               <Text style={{ fontSize: 12, color: '#64748B' }} numberOfLines={1}>
@@ -81,28 +94,34 @@ export default function GerenciarUsuarios() {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F1F5F9' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, flex: 1, marginRight: 8 }}>
-            {/* Badge de Perfil */}
-            <View style={[styles.perfilBadge, { backgroundColor: '#E2E8F0', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 }]}>
-              <Text style={{ fontSize: 11, fontWeight: '600', color: '#334155' }} numberOfLines={1}>
-                {item.perfil}
-              </Text>
-            </View>
 
-            {/* 📚 Badge do Curso do Coordenador */}
-            {nomeCurso ? (
-              <View style={{ backgroundColor: '#EEF2FF', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <CustomIcon name="school-outline" size={12} color="#4338CA" />
-                <Text style={{ fontSize: 11, fontWeight: '600', color: '#4338CA' }} numberOfLines={1}>
-                  {nomeCurso}
-                </Text>
-              </View>
-            ) : null}
+            {/* 🎓 Tag interativa "Cursos" que abre o modal */}
+            <TouchableOpacity
+              onPress={() => setCoordenadorCursosModal(item)}
+              activeOpacity={0.75}
+              style={{
+                backgroundColor: '#EEF2FF',
+                borderWidth: 1,
+                borderColor: '#C7D2FE',
+                paddingHorizontal: 10,
+                paddingVertical: 4,
+                borderRadius: 6,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              <CustomIcon name="school-outline" size={13} color="#4338CA" />
+              <Text style={{ fontSize: 11, fontWeight: '700', color: '#4338CA' }}>
+                Cursos
+              </Text>
+            </TouchableOpacity>
 
             {/* Badge de Status */}
             <View
               style={[
                 styles.statusBadge,
-                { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+                { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
                 item.ativo ? { backgroundColor: '#DCFCE7' } : { backgroundColor: '#FEE2E2' },
               ]}
             >
@@ -243,7 +262,7 @@ export default function GerenciarUsuarios() {
             </View>
 
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#334155' }}> Usuarios cadastrados </Text>
+              <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#334155' }}> Coordenadores cadastrados </Text>
               <Text style={{ fontSize: 12, color: '#64748B', fontWeight: '500' }}>
                 {usuariosFiltrados.length} de {usuarios.length}
               </Text>
@@ -280,10 +299,18 @@ export default function GerenciarUsuarios() {
         perfil={perfil}
         setPerfil={setPerfil}
         cursos={cursos}
-        cursoId={cursoId}
-        setCursoId={setCursoId}
+        cursosSelecionados={cursosSelecionados}
+        setCursosSelecionados={setCursosSelecionados}
+        alternarSelecaoCurso={alternarSelecaoCurso}
         onCriar={criarUsuario}
         styles={styles}
+      />
+
+      <ModalCursosUsuarios
+        visible={Boolean(coordenadorCursosModal)}
+        onClose={() => setCoordenadorCursosModal(null)}
+        usuario={coordenadorCursosModal}
+        cursosLista={cursos}
       />
 
       <ConfirmPopup

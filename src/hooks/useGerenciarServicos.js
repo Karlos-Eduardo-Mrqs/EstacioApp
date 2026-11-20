@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import {buscarServicosDoBanco,filtrarServicos,criarServicoNoBanco,atualizarServicoNoBanco,removerServicoDoBanco} from '../services/servicoService';
+import {buscarServicosDoBanco,filtrarServicos,criarServicoNoBanco,atualizarServicoNoBanco,removerServicoDoBanco, alternarStatusServicoNoBanco} from '../services/servicoService';
+
 import { buscarCoordenadoresDoBanco } from '../services/cursoServices';
 import { supabase } from '../../lib/supabase';
 
@@ -149,6 +150,61 @@ export function useGerenciarServicos(usuarioAtual) {
     });
   };
 
+  const servicoEstaAtivo = (status) => {
+    if (typeof status === "boolean") return status;
+    if (typeof status === "string") {
+      return (
+        status.trim().toLowerCase() !== "bloqueado" &&
+        status.trim().toLowerCase() !== "inativo"
+      );
+    }
+    return true;
+  };
+
+  const alternarStatusServico = (item) => {
+    if (!item?.id) return;
+
+    const estaAtivo = Boolean(item.status);
+    const proximoStatus = !estaAtivo;
+    const acaoTexto = proximoStatus ? "liberar" : "bloquear";
+
+    setConfirmacao({
+      visible: true,
+      nome: proximoStatus ? "Liberar serviço" : "Bloquear serviço",
+      mensagem: `Tem certeza de que deseja ${acaoTexto} o serviço "${item.nome}"?`,
+      tipo: proximoStatus ? "info" : "danger",
+      onConfirm: async () => {
+        try {
+          const servicoAtualizado = await alternarStatusServicoNoBanco(item.id, item.status);
+          const statusFinal = Boolean(servicoAtualizado?.status ?? proximoStatus);
+
+          setServicos((prev) =>
+            prev.map((srv) =>
+              String(srv.id) === String(item.id) ? { ...srv, status: statusFinal } : srv
+            )
+          );
+
+          setToast({
+            visible: true,
+            nome: "Sucesso",
+            mensagem: statusFinal
+              ? `Serviço "${item.nome}" liberado com sucesso.`
+              : `Serviço "${item.nome}" bloqueado com sucesso.`,
+          });
+        } catch (error) {
+          console.error("Erro ao alterar status do serviço:", error);
+          setToast({
+            visible: true,
+            nome: "Erro",
+            mensagem: error?.message || "Não foi possível alterar o status do serviço.",
+          });
+        } finally {
+          setConfirmacao((prev) => ({ ...prev, visible: false }));
+        }
+      },
+    });
+  };
+
   const quantidadeCoordenadores = new Set(
     servicosFiltrados.map((item) => item.responsavel?.trim().toLowerCase()).filter(Boolean)
   ).size;
@@ -178,6 +234,7 @@ export function useGerenciarServicos(usuarioAtual) {
     abrirEdicao,
     salvarServico,
     confirmarExclusao,
+    alternarStatusServico,
     limparFormulario,
     carregarServicos,
   };

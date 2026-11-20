@@ -73,4 +73,52 @@ export async function removerUsuarioNoBanco(id) {
     .eq('id', id);
 
   if (error) throw error;
+} 
+
+export async function buscarCursosDoCoordenadorNoBanco(coordenadorId) {
+  const { data, error } = await supabase
+    .from('coordenador_curso')
+    .select('curso_id')
+    .eq('coordenador_id', Number(coordenadorId));
+
+  if (error) throw error;
+  return (data || []).map((row) => Number(row.curso_id));
+}
+
+export async function buscarTodosVinculosCoordenadorCurso() {
+  const { data, error } = await supabase
+    .from('coordenador_curso')
+    .select('coordenador_id, curso_id');
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function sincronizarCursosDoCoordenador(coordenadorId, cursosIds = []) {
+  const idCoord = Number(coordenadorId);
+  const idsNormalizados = [...new Set((cursosIds || []).map((id) => Number(id)).filter(Boolean))];
+
+  // Remove vínculos anteriores do coordenador
+  const { error: deleteError } = await supabase
+    .from('coordenador_curso')
+    .delete()
+    .eq('coordenador_id', idCoord);
+
+  if (deleteError) throw deleteError;
+
+  // Insere os novos cursos selecionados
+  if (idsNormalizados.length > 0) {
+    const linhas = idsNormalizados.map((cursoId) => ({
+      coordenador_id: idCoord,
+      curso_id: cursoId,
+    }));
+
+    const { error: insertError } = await supabase
+      .from('coordenador_curso')
+      .insert(linhas);
+
+    if (insertError) throw insertError;
+  }
+
+  return idsNormalizados;
 }

@@ -1,13 +1,5 @@
-// src/components/painel/painelNavegacao.js
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  Platform,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import {Modal,Platform,Text,TouchableOpacity,useWindowDimensions,View} from "react-native";
 import { painelNavegacaostyles as styles } from "../../styles/painel/painelNavegacaostyles";
 import ConfirmPopup from "../ConfirmPopup";
 import CustomIcon from "../CustomIcon";

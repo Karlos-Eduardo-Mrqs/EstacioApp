@@ -59,7 +59,7 @@ export const painelServicosstyles = StyleSheet.create({
   areaGerenciamento: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 14,
+    padding: 20,
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },

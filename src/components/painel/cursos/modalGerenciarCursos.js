@@ -35,11 +35,9 @@ export default function ModalGerenciarCurso({
   setTipo,
   modalidade,
   setModalidade,
-  coordenadorId,
-  setCoordenadorId,
-  coordenadoresDisponiveis,
+  coordenadoresDisponiveis,coordenadoresSelecionados, setCoordenadoresSelecionados,alternarSelecaoCoordenador,
   feedback,
-  salvarCurso,usuarioAtual
+  salvarCurso,usuarioAtual,
 }) {
   const [modalIconesVisivel, setModalIconesVisivel] = useState(false);
   const [dropdownAberto, setDropdownAberto] = useState(false);
@@ -218,108 +216,112 @@ export default function ModalGerenciarCurso({
               </View>
             </View>
 
-            {/* 📌 DROPDOWN DE COORDENADOR RESPONSÁVEL (Aparece apenas se NÃO for coordenador) */}
+            {/* 📌 SELEÇÃO DE MÚLTIPLOS COORDENADORES (Apenas para Gerência) */}
             {!ehCoordenador && (
-              <View style={[styles.campo, { zIndex: 9999, elevation: 9999 }]}>
-                <Text style={styles.label}>Coordenador Responsável</Text>
+              <View style={styles.campo}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 6,
+                  }}
+                >
+                  <Text style={[styles.label, { marginBottom: 0 }]}>
+                    Coordenadores Responsáveis ({coordenadoresSelecionados.length} selecionado(s))
+                  </Text>
 
-                {(() => {
-                  const coordSelecionado = coordenadoresDisponiveis?.find(
-                    (c) => String(c.id) === String(coordenadorId),
-                  );
-                  const nomeExibido = coordSelecionado
-                    ? `👤 ${coordSelecionado.nome} (${coordSelecionado.email})`
-                    : "📌 Nenhum (Geral)";
+                  {coordenadoresSelecionados.length > 0 && setCoordenadoresSelecionados && (
+                    <TouchableOpacity onPress={() => setCoordenadoresSelecionados([])}>
+                      <Text style={{ fontSize: 12, color: "#DC2626", fontWeight: "600" }}>
+                        Limpar
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
 
-                  return (
-                    <View style={{ position: "relative" }}>
-                      <TouchableOpacity
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "#CBD5E1",
-                          borderRadius: 8,
-                          backgroundColor: "#FFFFFF",
-                          padding: 12,
-                          flexDirection: "row",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                        onPress={() => setDropdownAberto(!dropdownAberto)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={{ fontSize: 14, color: "#0F172A", flex: 1 }} numberOfLines={1}>
-                          {nomeExibido}
-                        </Text>
-                        <CustomIcon
-                          name={dropdownAberto ? "chevron-up" : "chevron-down"}
-                          size={18}
-                          color="#64748B"
-                        />
-                      </TouchableOpacity>
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#CBD5E1",
+                    borderRadius: 8,
+                    backgroundColor: "#FFFFFF",
+                    maxHeight: 175,
+                    padding: 6,
+                  }}
+                >
+                  {!coordenadoresDisponiveis || coordenadoresDisponiveis.length === 0 ? (
+                    <Text style={{ fontSize: 12.5, color: "#64748B", padding: 10 }}>
+                      Nenhum coordenador disponível.
+                    </Text>
+                  ) : (
+                    <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                      {coordenadoresDisponiveis.map((coord) => {
+                        const idNum = Number(coord.id);
+                        const selecionado = coordenadoresSelecionados.includes(idNum);
 
-                      {dropdownAberto && (
-                        <View
-                          style={{
-                            position: "absolute",
-                            top: "100%",
-                            left: 0,
-                            right: 0,
-                            marginTop: 4,
-                            borderWidth: 1,
-                            borderColor: "#CBD5E1",
-                            borderRadius: 8,
-                            backgroundColor: "#FFFFFF",
-                            maxHeight: 180,
-                            elevation: 10,
-                            zIndex: 10000,
-                          }}
-                        >
-                          <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
-                            <TouchableOpacity
-                              style={{
-                                padding: 12,
-                                backgroundColor: !coordenadorId ? "#EFF6FF" : "#FFFFFF",
-                                borderBottomWidth: 1,
-                                borderBottomColor: "#F1F5F9",
-                              }}
-                              onPress={() => {
-                                setCoordenadorId("");
-                                setDropdownAberto(false);
-                              }}
-                            >
-                              <Text style={{ fontSize: 14, color: !coordenadorId ? "#173EA5" : "#334155" }}>
-                                📌 Nenhum (Geral)
+                        const handleToggle = () => {
+                          if (alternarSelecaoCoordenador) {
+                            alternarSelecaoCoordenador(idNum);
+                          } else if (setCoordenadoresSelecionados) {
+                            setCoordenadoresSelecionados((prev = []) =>
+                              prev.includes(idNum)
+                                ? prev.filter((item) => item !== idNum)
+                                : [...prev, idNum]
+                            );
+                          }
+                        };
+
+                        return (
+                          <TouchableOpacity
+                            key={coord.id}
+                            onPress={handleToggle}
+                            activeOpacity={0.75}
+                            style={{
+                              flexDirection: "row",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              paddingVertical: 9,
+                              paddingHorizontal: 10,
+                              borderRadius: 6,
+                              marginBottom: 4,
+                              backgroundColor: selecionado ? "#EFF6FF" : "#F8FAFC",
+                              borderWidth: 1,
+                              borderColor: selecionado ? "#93C5FD" : "#E2E8F0",
+                            }}
+                          >
+                            <View style={{ flex: 1, marginRight: 8 }}>
+                              <Text
+                                style={{
+                                  fontSize: 13,
+                                  fontWeight: selecionado ? "700" : "500",
+                                  color: selecionado ? "#173EA5" : "#1E293B",
+                                }}
+                                numberOfLines={1}
+                              >
+                                {coord.nome}
                               </Text>
-                            </TouchableOpacity>
-
-                            {coordenadoresDisponiveis?.map((coord) => {
-                              const selecionado = String(coordenadorId) === String(coord.id);
-                              return (
-                                <TouchableOpacity
-                                  key={coord.id}
-                                  style={{
-                                    padding: 12,
-                                    backgroundColor: selecionado ? "#EFF6FF" : "#FFFFFF",
-                                    borderBottomWidth: 1,
-                                    borderBottomColor: "#F1F5F9",
-                                  }}
-                                  onPress={() => {
-                                    setCoordenadorId(String(coord.id));
-                                    setDropdownAberto(false);
-                                  }}
+                              {coord.email ? (
+                                <Text
+                                  style={{ fontSize: 11.5, color: "#64748B" }}
+                                  numberOfLines={1}
                                 >
-                                  <Text style={{ fontSize: 14, color: selecionado ? "#173EA5" : "#334155" }}>
-                                    👤 {coord.nome} ({coord.email})
-                                  </Text>
-                                </TouchableOpacity>
-                              );
-                            })}
-                          </ScrollView>
-                        </View>
-                      )}
-                    </View>
-                  );
-                })()}
+                                  {coord.email}
+                                </Text>
+                              ) : null}
+                            </View>
+
+                            <CustomIcon
+                              name={selecionado ? "checkbox" : "square-outline"}
+                              size={18}
+                              color={selecionado ? "#173EA5" : "#94A3B8"}
+                            />
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  )}
+                </View>
               </View>
             )}
 

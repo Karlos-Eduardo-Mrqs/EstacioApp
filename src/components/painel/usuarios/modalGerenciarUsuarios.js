@@ -1,6 +1,5 @@
 import {KeyboardAvoidingView,Modal,Platform,ScrollView,Text,TextInput,TouchableOpacity,useWindowDimensions,View,} from 'react-native';
-import CustomIcon from "../../../components/CustomIcon"; 
-import { Picker } from '@react-native-picker/picker';
+import CustomIcon from '../../../components/CustomIcon';
 import { formatarEntradaTelefone } from '../../../utils/dataUtils';
 
 export default function PainelGerenciarUsuarios({
@@ -20,13 +19,39 @@ export default function PainelGerenciarUsuarios({
   telefone,
   setTelefone,
   cursos = [],
-  cursoId,
-  setCursoId,
+  cursosSelecionados = [],
+  setCursosSelecionados,
+  alternarSelecaoCurso,
   onCriar,
   styles,
 }) {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const handleToggleCurso = (idCurso) => {
+    const numId = Number(idCurso);
+    if (Number.isNaN(numId)) return;
+
+    if (typeof alternarSelecaoCurso === 'function') {
+      alternarSelecaoCurso(numId);
+      return;
+    }
+
+    if (typeof setCursosSelecionados === 'function') {
+      setCursosSelecionados((prev = []) => {
+        const base = Array.isArray(prev) ? prev.map((id) => Number(id)) : [];
+        const idNum = Number(item.id);
+        const selecionado = selecionadosNormalizados.includes(idNum);
+        return base.includes(numId)
+          ? base.filter((itemId) => itemId !== numId)
+          : [...base, numId];
+      });
+    }
+  };
+
+  const selecionadosNormalizados = Array.isArray(cursosSelecionados)
+    ? cursosSelecionados.map((id) => Number(id))
+    : [];
 
   return (
     <Modal
@@ -44,10 +69,12 @@ export default function PainelGerenciarUsuarios({
           <View style={styles.modalCabecalho}>
             <View>
               <Text style={styles.modalTitulo}>
-                {usuarioEditando ? "Editar usuario" : "Novo usuario"}
+                {usuarioEditando ? 'Editar usuario' : 'Novo usuario'}
               </Text>
               <Text style={styles.modalSubtitulo}>
-                {usuarioEditando ? "Altere os dados necessários." : "Preencha os dados para cadastrar."}
+                {usuarioEditando
+                  ? 'Altere os dados necessários.'
+                  : 'Preencha os dados para cadastrar.'}
               </Text>
             </View>
 
@@ -57,7 +84,7 @@ export default function PainelGerenciarUsuarios({
               accessibilityLabel="Fechar modal"
             >
               <CustomIcon
-                name={isDesktop ? "close" : "arrow-back"}
+                name={isDesktop ? 'close' : 'arrow-back'}
                 size={22}
                 color="#032551"
               />
@@ -136,10 +163,12 @@ export default function PainelGerenciarUsuarios({
               <TouchableOpacity
                 style={[
                   styles.opcaoPerfil,
-                  perfil === 'Gerência Acadêmica' &&
-                    styles.opcaoSelecionada,
+                  perfil === 'Gerência Acadêmica' && styles.opcaoSelecionada,
                 ]}
-                onPress={() => setPerfil('Gerência Acadêmica')}
+                onPress={() => {
+                  setPerfil('Gerência Acadêmica');
+                  if (setCursosSelecionados) setCursosSelecionados([]);
+                }}
               >
                 <Text
                   style={[
@@ -153,87 +182,105 @@ export default function PainelGerenciarUsuarios({
               </TouchableOpacity>
             </View>
 
-            {/* CURSO: SOMENTE PARA COORDENADORES */}
+            {/* CURSOS (MÚLTIPLOS): SOMENTE PARA COORDENADORES */}
             {perfil === 'Coordenador' && (
-              <>
-                <Text style={styles.label}>Curso *</Text>
+              <View style={{ marginBottom: 12 }}>
                 <View
-                  style={[
-                    styles.input,
-                    {
-                      padding: 0,
-                      overflow: 'hidden',
-                      justifyContent: 'center',
-                    },
-                  ]}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 6,
+                  }}
                 >
-                  {Platform.OS === 'web' ? (
-                    <select
-                      value={cursoId == null ? '' : String(cursoId)}
-                      onChange={(event) => {
-                        const valor = event.target.value;
-                        setCursoId(valor === '' ? null : Number(valor));
-                      }}
-                      style={{
-                        width: '100%',
-                        height: 46,
-                        padding: '0 12px',
-                        border: 'none',
-                        outline: 'none',
-                        backgroundColor: 'transparent',
-                        color: '#334155',
-                        fontSize: 14,
-                        cursor: 'pointer',
-                        boxSizing: 'border-box',
-                      }}
-                    >
-                      <option value="">
-                        {cursos.length === 0 ? "A carregar cursos..." : "Selecione um curso"}
-                      </option>
-                      {cursos.map((item) => (
-                        <option key={item.id} value={String(item.id)}>
-                          {item.titulo || item.nome}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <Picker
-                      selectedValue={cursoId == null ? '' : String(cursoId)}
-                      onValueChange={(valor) => {
-                        if (valor === '') {
-                          setCursoId(null);
-                          return;
-                        }
-                        const selecionado = cursos.find(
-                          (item) => String(item.id) === String(valor)
-                        );
-                        setCursoId(selecionado ? selecionado.id : null);
-                      }}
-                      style={{ width: '100%' }}
-                    >
-                      <Picker.Item 
-                        label={cursos.length === 0 ? "A carregar cursos..." : "Selecione um curso"} 
-                        value="" 
-                      />
-                      {cursos.map((item) => (
-                        <Picker.Item 
-                          key={item.id} 
-                          label={item.titulo || item.nome} 
-                          value={String(item.id)} 
-                        />
-                      ))}
-                    </Picker>
+                  <Text style={[styles.label, { marginBottom: 0 }]}> Cursos orientados * ({selecionadosNormalizados.length} selecionado(s)) </Text>
+
+                  {cursosSelecionados.length > 0 && setCursosSelecionados && (
+                    <TouchableOpacity onPress={() => setCursosSelecionados([])}>
+                      <Text style={{ fontSize: 12, color: '#DC2626', fontWeight: '600' }}>
+                        Limpar
+                      </Text>
+                    </TouchableOpacity>
                   )}
                 </View>
-              </>
+
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#CBD5E1',
+                    borderRadius: 8,
+                    backgroundColor: '#FFFFFF',
+                    maxHeight: 190,
+                    padding: 6,
+                  }}
+                >
+                  {cursos.length === 0 ? (
+                    <Text style={{ fontSize: 12.5, color: '#64748B', padding: 10 }}>
+                      Carregando cursos...
+                    </Text>
+                  ) : (
+                    <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                      {cursos.map((item) => {
+                        const idNum = Number(item.id);
+                        const selecionado = cursosSelecionados.includes(idNum);
+                        const tituloCurso = item.titulo || item.nome;
+
+                        return (
+                          <TouchableOpacity
+                            key={item.id}
+                            onPress={() => handleToggleCurso(idNum)}
+                            activeOpacity={0.75}
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              paddingVertical: 9,
+                              paddingHorizontal: 10,
+                              borderRadius: 6,
+                              marginBottom: 4,
+                              backgroundColor: selecionado ? '#EEF2FF' : '#F8FAFC',
+                              borderWidth: 1,
+                              borderColor: selecionado ? '#818CF8' : '#E2E8F0',
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                fontWeight: selecionado ? '700' : '500',
+                                color: selecionado ? '#1E3A8A' : '#334155',
+                                flex: 1,
+                                marginRight: 8,
+                              }}
+                            >
+                              {tituloCurso}
+                            </Text>
+
+                            <CustomIcon
+                              name={selecionado ? 'checkbox' : 'square-outline'}
+                              size={18}
+                              color={selecionado ? '#1D4ED8' : '#94A3B8'}
+                            />
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                  )}
+                </View>
+              </View>
             )}
 
             <Text style={styles.label}>
-              {usuarioEditando ? "Nova senha (deixe em branco para manter)" : "Senha temporária *"}
+              {usuarioEditando
+                ? 'Nova senha (deixe em branco para manter)'
+                : 'Senha temporária *'}
             </Text>
             <TextInput
               style={styles.input}
-              placeholder={usuarioEditando ? "Preencha apenas se quiser alterar" : "Informe uma senha temporária"}
+              placeholder={
+                usuarioEditando
+                  ? 'Preencha apenas se quiser alterar'
+                  : 'Informe uma senha temporária'
+              }
               placeholderTextColor="#9ca3af"
               value={senha}
               onChangeText={setSenha}
@@ -248,7 +295,7 @@ export default function PainelGerenciarUsuarios({
               activeOpacity={0.8}
             >
               <Text style={styles.textoCriar}>
-                {usuarioEditando ? "Salvar alterações" : "+ Criar usuarios"}
+                {usuarioEditando ? 'Salvar alterações' : '+ Criar usuarios'}
               </Text>
             </TouchableOpacity>
 

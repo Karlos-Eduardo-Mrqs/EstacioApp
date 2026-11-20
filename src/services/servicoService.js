@@ -31,7 +31,7 @@ export async function buscarServicosDoBanco() {
     dias: item.dias || '',
     aviso: item.aviso || '',
     linksUteis: item.links_uteis || '',
-    status: item.status || 'Ativo',
+    status: typeof item.status === 'boolean' ? item.status : (item.status ?? true),
     coordenador_id: item.coordenador_id ? String(item.coordenador_id) : '',
     curso_id: item.curso_id ? String(item.curso_id) : '',
     responsavel: item.coordenador?.nome || 'A definir',
@@ -77,20 +77,25 @@ export async function criarServicoNoBanco(novoServico) {
 }
 
 export async function atualizarServicoNoBanco(id, servicoAtualizado) {
+  const filtroId = Number.isNaN(Number(id)) ? id : Number(id);
+
   const { data, error } = await supabase
     .from('servico')
     .update(servicoAtualizado)
-    .eq('id', Number(id))
-    .select()
-    .single();
+    .eq('id', filtroId)
+    .select();
 
   if (error) {
     console.error("Erro detalhado do Supabase ao atualizar:", error);
     throw error;
   }
-  return data;
-}
 
+  if (!data || data.length === 0) {
+    throw new Error("Nenhum registro atualizado na tabela servico (verifique ID ou permissão RLS).");
+  }
+
+  return data[0];
+}
 export async function removerServicoDoBanco(id) {
   const { error } = await supabase
     .from('servico')
@@ -99,4 +104,23 @@ export async function removerServicoDoBanco(id) {
 
   if (error) throw error;
   return true;
+}
+
+export async function alternarStatusServicoNoBanco(id, statusAtual) {
+  const filtroId = Number.isNaN(Number(id)) ? id : Number(id);
+  const novoStatus = !Boolean(statusAtual);
+
+  const { data, error } = await supabase
+    .from('servico')
+    .update({ status: novoStatus })
+    .eq('id', filtroId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Erro detalhado do Supabase ao alternar status do serviço:", error);
+    throw error;
+  }
+
+  return data;
 }

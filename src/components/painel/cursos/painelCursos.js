@@ -30,7 +30,7 @@ export default function PainelCursos({ usuarioAtual }) {
     modalidade,     
     setModalidade,
     coordenadorId, setCoordenadorId,
-    coordenadoresDisponiveis,
+    coordenadoresDisponiveis,coordenadoresSelecionados,setCoordenadoresSelecionados,alternarSelecaoCoordenador,
     feedback,
     toast,
     setToast,
@@ -39,7 +39,7 @@ export default function PainelCursos({ usuarioAtual }) {
     abrirNovoCurso,
     abrirEdicaoCurso,
     salvarCurso,
-    excluirCurso
+    excluirCurso,
   } = useGerenciarCursos(usuarioAtual);
 
   const ehCoordenador = usuarioAtual?.perfil?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes('coordenador');
@@ -100,6 +100,9 @@ export default function PainelCursos({ usuarioAtual }) {
         coordenadorId={coordenadorId}
         setCoordenadorId={setCoordenadorId}
         coordenadoresDisponiveis={coordenadoresDisponiveis}
+        coordenadoresSelecionados={coordenadoresSelecionados}
+        setCoordenadoresSelecionados={setCoordenadoresSelecionados}
+        alternarSelecaoCoordenador={alternarSelecaoCoordenador}
         feedback={feedback}
         salvarCurso={salvarCurso}
       />

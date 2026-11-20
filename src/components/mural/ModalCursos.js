@@ -1,73 +1,38 @@
-import { useState, useEffect, useCallback } from "react";
+import { useRef, useState } from "react";
 import {Linking,Modal,ScrollView,Text,TouchableOpacity,View,useWindowDimensions,Image,ActivityIndicator,} from "react-native";
 import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursosStyles";
+import ControlCarrossel from "../ControlesCarrossel";
 import CustomIcon from "../CustomIcon";
 import BotaoFechar from "../BotaoFechar";
 import ModalVisualizarImagem from "../ModalVisualizarImagemCheia";
 import LeituraPopup from "../leituraPopup";
-import { buscarPublicacoesEAvisosDoCurso } from "../../services/publicacaoServices";
+import SectionCoordenacaoCurso from "./secaoCoordenacaoCurso";
+import { useModalCurso } from "../../hooks/useModalCurso";
 import { obterAspectRatioNumerico } from "../../constants/proporcoesConstantes";
 
-export default function ModalCurso({ curso, onClose, onSelectEvento }) {
+export default function ModalCurso({ curso, onClose }) {
   const { width } = useWindowDimensions();
   const larguraCardPublicacao = width < 600 ? 260 : 300;
+  const carrosselRef = useRef(null);
+  const [scrollX, setScrollX] = useState(0);
+  const [larguraConteudo, setLarguraConteudo] = useState(0);
+  const [larguraContainer, setLarguraContainer] = useState(0);
 
-  const [publicacoes, setPublicacoes] = useState([]);
-  const [avisosCurso, setAvisosCurso] = useState([]);
-  const [coordenadorCurso, setCoordenadorCurso] = useState(null);
-  const [carregandoPublicacoes, setCarregandoPublicacoes] = useState(false);
-  const [publicacoesExpandidas, setPublicacoesExpandidas] = useState([]);
-  const [imagemSelecionada, setImagemSelecionada] = useState(null);
-  const [avisoSelecionado, setAvisoSelecionado] = useState(null);
-
-  const carregarDadosDoCurso = useCallback(async (cursoId) => {
-    try {
-      setCarregandoPublicacoes(true);
-      const { posts, avisos, coordenador } = await buscarPublicacoesEAvisosDoCurso(cursoId);
-      setPublicacoes(posts || []);
-      setAvisosCurso(avisos || []);
-      setCoordenadorCurso(coordenador || null);
-    } catch (err) {
-      console.error("Erro ao carregar dados do curso:", err);
-      setPublicacoes([]);
-      setAvisosCurso([]);
-      setCoordenadorCurso(null);
-    } finally {
-      setCarregandoPublicacoes(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (curso?.id) {
-      carregarDadosDoCurso(curso.id);
-    } else {
-      setPublicacoes([]);
-      setAvisosCurso([]);
-      setCoordenadorCurso(null);
-    }
-  }, [curso, carregarDadosDoCurso]);
-
-  function alternarDescricao(id) {
-    setPublicacoesExpandidas((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  }
-
-  function precisaExpandir(texto) {
-    return texto && texto.length > 120;
-  }
+  const {
+    publicacoes,
+    avisosCurso,
+    coordenadoresCurso,
+    carregandoPublicacoes,
+    publicacoesExpandidas,
+    imagemSelecionada,
+    setImagemSelecionada,
+    avisoSelecionado,
+    setAvisoSelecionado,
+    alternarDescricao,
+    precisaExpandir,
+  } = useModalCurso(curso);
 
   if (!curso) return null;
-
-  const emailCoordenacao =
-    coordenadorCurso?.email ||
-    curso.coordenadores?.[0]?.email ||
-    "coordenacao@estacio.br";
-
-  const nomeCoordenacao =
-    coordenadorCurso?.nome ||
-    curso.coordenadores?.[0]?.nome ||
-    "Coordenação Acadêmica";
 
   const subModalAberto = Boolean(imagemSelecionada || avisoSelecionado);
 
@@ -288,9 +253,14 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   />
                 ) : publicacoes.length > 0 ? (
                   <ScrollView
+                    ref={carrosselRef}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     nestedScrollEnabled
+                    scrollEventThrottle={16}
+                    onScroll={(e) => setScrollX(e.nativeEvent.contentOffset.x)}
+                    onLayout={(e) => setLarguraContainer(e.nativeEvent.layout.width)}
+                    onContentSizeChange={(w) => setLarguraConteudo(w)}
                     contentContainerStyle={modalStyles.listaPublicacoes}
                   >
                     {publicacoes.map((publicacao) => {
@@ -392,146 +362,22 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
               </View>
 
               {/* BLOCO 4: FALE COM A COORDENAÇÃO */}
-              <View style={modalStyles.blocoSecao}>
-                <Text style={[modalStyles.tituloBlocoSecao, { letterSpacing: 0.3 }]}>
-                  FALE COM A COORDENAÇÃO
-                </Text>
-                <View style={modalStyles.linhaAmarela} />
-
-                {curso.coordenadores && curso.coordenadores.length > 0 ? (
-                  curso.coordenadores.map((coord, index) => (
-                    <View
-                      key={index}
-                      style={[
-                        modalStyles.cardCoordenacao,
-                        {
-                          padding: 14,
-                          borderRadius: 10,
-                          borderWidth: 1,
-                          borderColor: "#E2E8F0",
-                          backgroundColor: "#FFFFFF",
-                        },
-                        index > 0 && { marginTop: 15 },
-                      ]}
-                    >
-                      <View style={modalStyles.topoCoordenacao}>
-                        <View
-                          style={[modalStyles.avatarCoordenacao, { backgroundColor: "#032551" }]}
-                        >
-                          <CustomIcon name="person-outline" size={18} color="#FFFFFF" />
-                        </View>
-                        <View style={{ flex: 1 }}>
-                          <Text
-                            style={[
-                              modalStyles.nomeCoordenacao,
-                              { fontWeight: "700", color: "#032551", fontSize: 14 },
-                            ]}
-                          >
-                            {coord.nome}
-                          </Text>
-                          <Text
-                            style={[
-                              modalStyles.descricaoCoordenacao,
-                              { color: "#64748B", fontSize: 11.5 },
-                            ]}
-                          >
-                            Coordenação de {curso.nome || curso.titulo}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View
-                        style={{
-                          marginTop: 10,
-                          gap: 6,
-                          borderTopWidth: 1,
-                          borderTopColor: "#F1F5F9",
-                          paddingTop: 10,
-                        }}
-                      >
-                        <TouchableOpacity
-                          onPress={() => Linking.openURL(`mailto:${coord.email}`)}
-                          style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-                        >
-                          <CustomIcon name="mail-outline" size={14} color="#054ca9" />
-                          <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "600" }}>
-                            {coord.email}
-                          </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => Linking.openURL(`tel:${coord.telefone}`)}
-                          style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-                        >
-                          <CustomIcon name="phone-portrait-outline" size={14} color="#054ca9" />
-                          <Text style={{ fontSize: 12, color: "#054ca9", fontWeight: "600" }}>
-                            {coord.telefone}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ))
-                ) : (
-                  <View
-                    style={[
-                      modalStyles.cardCoordenacao,
-                      {
-                        padding: 16,
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        borderColor: "#E2E8F0",
-                        backgroundColor: "#FFFFFF",
-                      },
-                    ]}
-                  >
-                    <View style={modalStyles.topoCoordenacao}>
-                      <View style={[modalStyles.avatarCoordenacao, { backgroundColor: "#032551" }]}>
-                        <CustomIcon name="school-outline" size={18} color="#FFFFFF" />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Text
-                          style={[
-                            modalStyles.nomeCoordenacao,
-                            { fontWeight: "700", color: "#032551", fontSize: 14 },
-                          ]}
-                        >
-                          {nomeCoordenacao} ({emailCoordenacao})
-                        </Text>
-                        <Text
-                          style={[
-                            modalStyles.descricaoCoordenacao,
-                            { color: "#64748B", fontSize: 11.5 },
-                          ]}
-                        >
-                          Precisa de suporte ou esclarecer dúvidas sobre a matriz curricular?
-                        </Text>
-                      </View>
-                    </View>
-
-                    <TouchableOpacity
-                      style={[
-                        modalStyles.btnContato,
-                        { marginTop: 14, borderRadius: 8, paddingVertical: 12 },
-                      ]}
-                      onPress={() =>
-                        Linking.openURL(
-                          `mailto:${emailCoordenacao}?subject=Dúvida sobre o curso ` +
-                            (curso.nome || curso.titulo)
-                        )
-                      }
-                      activeOpacity={0.8}
-                    >
-                      <CustomIcon name="send-outline" size={15} color="#FFFFFF" />
-                      <Text style={[modalStyles.textoBtnContato, { fontWeight: "700", fontSize: 13 }]}>
-                        Enviar E-mail
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
-              </View>
+              <SectionCoordenacaoCurso curso={curso} coordenadores={coordenadoresCurso} />
             </ScrollView>
           </View>
         </View>
       </Modal>
+      
+      
+      {publicacoes.length > 0 && (
+          <ControlCarrossel
+            scrollRef={carrosselRef}
+            scrollX={scrollX}
+            larguraConteudo={larguraConteudo}
+            larguraContainer={larguraContainer}
+            passoScroll={larguraCardPublicacao + 12}
+          />
+      )}
 
       <ModalVisualizarImagem
         visible={Boolean(imagemSelecionada)}

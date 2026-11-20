@@ -1,4 +1,3 @@
-import React from 'react';
 import { ActivityIndicator, ScrollView, StatusBar, Text, View } from 'react-native';
 import { painelServicosstyles as styles } from "../../../styles/painel/painelServicosStyles";
 import { useGerenciarServicos } from "../../../hooks/useGerenciarServicos";
@@ -7,6 +6,7 @@ import ModalGerenciarServico from './modalGerenciarServicos';
 import ToastPopup from '../../Popup';
 import ConfirmPopup from '../../ConfirmPopup';
 import CustomIcon from '../../CustomIcon';
+import ModalDetalhesServico from '../../mural/ModalServicos';
 
 export default function PainelServicos({ usuarioAtual }) {
   const {
@@ -45,6 +45,7 @@ export default function PainelServicos({ usuarioAtual }) {
     abrirEdicao,
     salvarServico,
     confirmarExclusao,
+    alternarStatusServico,
   } = useGerenciarServicos(usuarioAtual);
   
   const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
@@ -102,6 +103,7 @@ export default function PainelServicos({ usuarioAtual }) {
             setPesquisa={setPesquisa}
             onEditar={(item) => abrirEdicao(item)}
             onExcluir={ehCoordenador ? null : (id) => confirmarExclusao(id)}
+            onAlternarStatus={ehCoordenador ? null : (item) => alternarStatusServico(item)}
             onDetalhes={(item) => setServicoSelecionado(item)}
             onNovoServico={ehCoordenador ? null : abrirCadastro}
           />
@@ -130,6 +132,12 @@ export default function PainelServicos({ usuarioAtual }) {
         coordenadoresDisponiveis={coordenadoresDisponiveis}
         cursosDisponiveis={cursosDisponiveis}
         salvarServico={salvarServico}
+      />
+
+      <ModalDetalhesServico
+        servico={servicoSelecionado}
+        visible={Boolean(servicoSelecionado)}
+        onClose={() => setServicoSelecionado(null)}
       />
 
       <ToastPopup

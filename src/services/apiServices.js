@@ -4,3 +4,5 @@ export * from "./imagemServices";
 export * from "./parceriaServices";
 export * from "./usuarioServices";
 export * from "./servicoService";
+export * from "./publicacaoServices";
+export * from "./notificacaoService";

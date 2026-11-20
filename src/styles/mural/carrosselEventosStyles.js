@@ -2,7 +2,27 @@ import { StyleSheet } from "react-native";
 import { CoresInstitucionais } from "../theme";
 
 export const carrosselEventosStyles = StyleSheet.create({
-  containerScroll: {paddingHorizontal: 15, gap: 12 },
+  secaoFavoritosContainer: {
+    backgroundColor: CoresInstitucionais.brancoPuro,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: CoresInstitucionais.bordaSuave,
+    padding: 20,
+    marginTop: 14,
+    marginBottom: 20,
+    marginHorizontal: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+  },
+  containerScroll: {
+    paddingHorizontal: 15,
+    paddingTop: 6,
+    paddingBottom: 8,
+    gap: 12,
+  },
   cartao: {
     width: 230,
     backgroundColor: CoresInstitucionais.brancoPuro,

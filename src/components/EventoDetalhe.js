@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native"; // 👈 Importado Linking
-import { supabase } from "../../lib/supabase"; 
+import { Image, Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { compartilharCard } from "../services/compartilharServices";
 import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
+import { carregarFallbackImagemEvento, obterUrlImagemEvento } from "../services/imagemServices";
 import { formatarDataApenas } from "../utils/dataUtils";
 import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
 import BotaoFechar from "./BotaoFechar";
+import ModalVisualizarImagem from "./ModalVisualizarImagemCheia";
 import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
 export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadraoUrl }) {
   const viewRef = useRef();
   const [feedback, setFeedback] = useState({ tipo: "", mensagem: "" });
   const [fallbackUrl, setFallbackUrl] = useState(imagemPadraoUrl || null);
+  const [imagemTelaCheiaVisivel, setImagemTelaCheiaVisivel] = useState(false);
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState({
@@ -24,19 +26,24 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
   });
 
   useEffect(() => {
+    let ativo = true;
+
     if (imagemPadraoUrl) {
       setFallbackUrl(imagemPadraoUrl);
-      return;
+      return () => {
+        ativo = false;
+      };
     }
-    async function carregarFallback() {
-      const { data } = await supabase
-        .from("imagem")
-        .select("caminho_img")
-        .eq("id", 21)
-        .single();
-      if (data?.caminho_img) setFallbackUrl(data.caminho_img);
-    }
-    carregarFallback();
+
+    carregarFallbackImagemEvento(21).then((url) => {
+      if (ativo && url) {
+        setFallbackUrl(url);
+      }
+    });
+
+    return () => {
+      ativo = false;
+    };
   }, [imagemPadraoUrl]);
 
   if (!evento) return null;
@@ -107,12 +114,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
     setConfirmVisible(true);
   };
 
-  const urlImagemCapa =
-    typeof evento?.imagem === "object"
-      ? evento.imagem?.caminho_img
-      : evento?.imagem;
-
-  const urlFinal = urlImagemCapa || fallbackUrl;
+  const urlFinal = obterUrlImagemEvento(evento, fallbackUrl);
   const imagemFonte = urlFinal ? { uri: urlFinal } : null;
 
   let localExibido = "Estácio Nova América";
@@ -136,7 +138,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
   const dataFormatada = formatarDataApenas(
     evento.inicio || evento.dia || evento.dataEvento,
   );
-  
+
   const horasAAC = evento.horasAAC || evento.horas_acc;
 
   return (
@@ -144,7 +146,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
       <Modal
         animationType="fade"
         transparent={true}
-        visible={true}
+        visible={!imagemTelaCheiaVisivel}
         onRequestClose={onClose}
       >
         <View style={localStyles.modalOverlay}>
@@ -155,11 +157,18 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
           >
             {/* TOPO COM BANNER 16:9 E BOTÃO FECHAR FLUTUANTE */}
             <View style={localStyles.bannerContainer}>
-              <Image
-                source={imagemFonte}
-                style={localStyles.imagemPost}
-                resizeMode="cover"
-              />
+              <TouchableOpacity
+                activeOpacity={0.9}
+                disabled={!urlFinal}
+                onPress={() => setImagemTelaCheiaVisivel(true)}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <Image
+                  source={imagemFonte}
+                  style={localStyles.imagemPost}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
               <BotaoFechar onPress={onClose} style={localStyles.closeButtonClean} />
             </View>
 
@@ -223,7 +232,7 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
               {/* 🌐 BOTÃO CONDICIONAL DE ACESSAR LINK (Aparece se houver link cadastrado) */}
               {linkEvento ? (
                 <TouchableOpacity
-                  style={[localStyles.btnNotificarClean, { backgroundColor: "#059669" }]} // Estilo verde diferenciado para destaque do link
+                  style={[localStyles.btnNotificarClean, { backgroundColor: "#059669" }]}
                   onPress={handleAcessarLink}
                   activeOpacity={0.8}
                 >
@@ -254,6 +263,12 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
           </View>
         </View>
       </Modal>
+
+      <ModalVisualizarImagem
+        visible={imagemTelaCheiaVisivel}
+        imageUrl={urlFinal}
+        onClose={() => setImagemTelaCheiaVisivel(false)}
+      />
 
       <ConfirmPopup
         visible={confirmVisible}

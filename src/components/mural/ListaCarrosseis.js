@@ -13,10 +13,10 @@ export default function ListaCarrosseis({
   listaProximos,
   listaSemana,
   eventosProximoMes,
-  servicos = [], // 👈 Recebe a lista de serviços institucionais
+  servicos = [], 
   onSelectCurso,
   onSelectEvento,
-  onSelectServico, // 👈 Callback ao selecionar um serviço
+  onSelectServico, 
   carregandoCursos,
   erroCursos,
   todosOsEventos = [],

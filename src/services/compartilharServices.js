@@ -7,7 +7,7 @@ export async function compartilharCard(viewRef, evento) {
         const { captureRef } = await import('react-native-view-shot');
         const uri = await captureRef(viewRef, {
           format: "png",
-          quality: 1.0,
+          quality: 0.80,
         });
 
         const tituloFormatado = evento?.titulo ? evento.titulo.replace(/\s+/g, '_') : 'evento';

@@ -151,7 +151,7 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
                   {servico.responsavel || 'Coordenação'}
                 </Text>
                 <Text style={styles.coordSub}>
-                  {servico.cargo || 'Coordenador(a) responsável'}
+                  {servico.cargo || 'Coordenador(a) responsável'} ({servico.email})
                 </Text>
               </View>
             </View>
@@ -162,7 +162,7 @@ export default function ModalDetalhesServico({ servico, visible, onClose }) {
                 style={styles.botaoEnviarEmail}
                 onPress={() => abrirEmail(servico.email)}
               >
-                <Text style={styles.botaoEnviarEmailTexto}>Enviar E-mail ({servico.email})</Text>
+                <Text style={styles.botaoEnviarEmailTexto}>Enviar E-mail </Text>
               </TouchableOpacity>
             ) : null}
 

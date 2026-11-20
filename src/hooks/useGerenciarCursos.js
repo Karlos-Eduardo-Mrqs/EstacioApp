@@ -1,13 +1,7 @@
 import { useState, useEffect } from 'react';
-import { 
-  buscarCursosDoBanco, 
-  criarCursoNoBanco, 
-  atualizarCursoNoBanco, 
-  removerCursoDoBanco,
-  buscarCoordenadoresDoBanco
-} from '../services/cursoServices';
+import { buscarCursosDoBanco, criarCursoNoBanco, atualizarCursoNoBanco, removerCursoDoBanco,buscarCoordenadoresDoBanco} from '../services/apiServices';
 
-export function useGerenciarCursos(usuarioAtual) { // 👈 Parâmetro usuarioAtual adicionado
+export function useGerenciarCursos(usuarioAtual) {
   const [cursos, setCursos] = useState([]);
   const [busca, setBusca] = useState('');
   const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]);

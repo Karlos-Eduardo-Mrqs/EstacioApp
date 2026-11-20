@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { buscarParceriasDoBanco, criarParceriaNoBanco, atualizarParceriaNoBanco, excluirParceriaDoBanco } from '../services/parceriaServices';
+import { buscarParceriasDoBanco, criarParceriaNoBanco, atualizarParceriaNoBanco, excluirParceriaDoBanco } from '../services/apiServices';
 
 export function useGerenciarParcerias() {
   const [parcerias, setParcerias] = useState([]);

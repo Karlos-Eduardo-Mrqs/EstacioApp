@@ -5,8 +5,8 @@ import { modalCursosStyles as modalStyles } from "../../styles/mural/modalCursos
 import CustomIcon from "../CustomIcon"; 
 import BotaoFechar from "../BotaoFechar";
 import ModalVisualizarImagem from "../ModalVisualizarImagemCheia";
-import { buscarPublicacoesDoCursoSimples } from "../../services/publicacaoServices";
-import { supabase } from "../../../lib/supabase"; // 👈 Importado para buscar os avisos do curso
+import LeituraPopup from "../leituraPopup";
+import { buscarPublicacoesEAvisosDoCurso } from "../../services/publicacaoServices";
 import { obterAspectRatioNumerico } from "../../constants/proporcoesConstantes";
 
 export default function ModalCurso({ curso, onClose, onSelectEvento }) {
@@ -15,11 +15,12 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
 
   // Estados locais para gerenciar publicações, avisos e zoom de imagem
   const [publicacoes, setPublicacoes] = useState([]);
-  const [avisosCurso, setAvisosCurso] = useState([]); // 👈 Novo estado para os avisos do curso
+  const [avisosCurso, setAvisosCurso] = useState([]);
+  const [coordenadorCurso, setCoordenadorCurso] = useState(null);
   const [carregandoPublicacoes, setCarregandoPublicacoes] = useState(false);
   const [publicacoesExpandidas, setPublicacoesExpandidas] = useState([]);
   const [imagemSelecionada, setImagemSelecionada] = useState(null);
-  const [avisoSelecionado, setAvisoSelecionado] = useState(null); // 👈 Estado para abrir o pop-up de leitura do aviso
+  const [avisoSelecionado, setAvisoSelecionado] = useState(null);
 
   useEffect(() => {
     if (curso?.id) {
@@ -27,30 +28,22 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
     } else {
       setPublicacoes([]);
       setAvisosCurso([]);
+      setCoordenadorCurso(null);
     }
   }, [curso]);
 
   async function carregarDadosDoCurso(cursoId) {
     try {
       setCarregandoPublicacoes(true);
-      
-      // 1. Busca publicações e avisos em paralelo para máxima eficiência
-      const [dadosPubs, resAvisos] = await Promise.all([
-        buscarPublicacoesDoCursoSimples(cursoId),
-        supabase
-          .from('aviso')
-          .select('*')
-          .or(`curso_id.eq.${cursoId},curso_id.is.null`)
-          .gt('expira_em', new Date().toISOString())
-          .order('created_at', { ascending: false })
-      ]);
-
-      setPublicacoes(dadosPubs || []);
-      setAvisosCurso(resAvisos.data || []);
+      const { posts, avisos, coordenador } = await buscarPublicacoesEAvisosDoCurso(cursoId);
+      setPublicacoes(posts || []);
+      setAvisosCurso(avisos || []);
+      setCoordenadorCurso(coordenador || null);
     } catch (err) {
       console.error("Erro ao carregar dados do curso:", err);
       setPublicacoes([]);
       setAvisosCurso([]);
+      setCoordenadorCurso(null);
     } finally {
       setCarregandoPublicacoes(false);
     }
@@ -67,6 +60,16 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
   }
 
   if (!curso) return null;
+
+  const emailCoordenacao =
+    coordenadorCurso?.email ||
+    curso.coordenadores?.[0]?.email ||
+    "coordenacao@estacio.br";
+
+  const nomeCoordenacao =
+    coordenadorCurso?.nome ||
+    curso.coordenadores?.[0]?.nome ||
+    "Coordenação Acadêmica";
 
   return (
     <Modal animationType="slide" transparent={true} visible={true} onRequestClose={onClose}>
@@ -122,7 +125,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                 >
                   <CustomIcon name="globe-outline" size={18} color="#FFFFFF" />
                   <Text style={[modalStyles.textoBtnSite, { fontWeight: '700', fontSize: 13 }]}>
-                    + Informações (Site Oficial)
+                    + Informações no site oficial
                   </Text>
                 </TouchableOpacity>
               ) : (
@@ -331,7 +334,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[modalStyles.nomeCoordenacao, { fontWeight: '700', color: '#032551', fontSize: 14 }]}>
-                        Coordenação Acadêmica
+                        {nomeCoordenacao} ({emailCoordenacao})
                       </Text>
                       <Text style={[modalStyles.descricaoCoordenacao, { color: '#64748B', fontSize: 11.5 }]}>
                         Precisa de suporte ou esclarecer dúvidas sobre a matriz curricular?
@@ -343,7 +346,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                     style={[modalStyles.btnContato, { marginTop: 14, borderRadius: 8, paddingVertical: 12 }]}
                     onPress={() =>
                       Linking.openURL(
-                        "mailto:coordenacao@estacio.br?subject=Dúvida sobre o curso " +
+                        `mailto:${emailCoordenacao}?subject=Dúvida sobre o curso ` +
                           (curso.nome || curso.titulo),
                       )
                     }
@@ -351,7 +354,7 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
                   >
                     <CustomIcon name="send-outline" size={15} color="#FFFFFF" />
                     <Text style={[modalStyles.textoBtnContato, { fontWeight: '700', fontSize: 13 }]}>
-                      Enviar E-mail para Coordenação
+                      Enviar E-mail
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -368,43 +371,11 @@ export default function ModalCurso({ curso, onClose, onSelectEvento }) {
           />
 
           {/* 🔍 POP-UP DE LEITURA DO AVISO SELECIONADO */}
-          <Modal
+          <LeituraPopup
+            aviso={avisoSelecionado}
             visible={!!avisoSelecionado}
-            transparent={true}
-            animationType="fade"
-            onRequestClose={() => setAvisoSelecionado(null)}
-          >
-            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-              <View style={{ backgroundColor: '#FFFFFF', width: '100%', maxWidth: 450, borderRadius: 12, padding: 20, borderWidth: 1, borderColor: '#E2E8F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9', pb: 8 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: '#032551', flex: 1, marginRight: 10 }}>
-                    📢 {avisoSelecionado?.titulo}
-                  </Text>
-                  <TouchableOpacity onPress={() => setAvisoSelecionado(null)}>
-                    <CustomIcon name="close" size={22} color="#64748B" />
-                  </TouchableOpacity>
-                </View>
-
-                <ScrollView style={{ maxHeight: 250, marginBottom: 16 }} showsVerticalScrollIndicator={false}>
-                  <Text style={{ fontSize: 14, color: '#334155', lineHeight: 22 }}>
-                    {avisoSelecionado?.mensagem}
-                  </Text>
-                </ScrollView>
-
-                <Text style={{ fontSize: 11, color: '#94A3B8', marginBottom: 16, fontStyle: 'italic' }}>
-                  Expira em: {avisoSelecionado?.expira_em ? new Date(avisoSelecionado.expira_em).toLocaleString() : ''}
-                </Text>
-
-                <TouchableOpacity
-                  style={{ backgroundColor: '#032551', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
-                  onPress={() => setAvisoSelecionado(null)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 }}>Entendido</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </Modal>
+            onClose={() => setAvisoSelecionado(null)}
+          />
 
         </View>
       </View>

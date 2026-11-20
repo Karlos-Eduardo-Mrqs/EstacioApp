@@ -1,4 +1,3 @@
-// src/components/ModalVisualizarImagem.js
 import { Image, Modal, View } from "react-native";
 import BotaoFechar from "./BotaoFechar";
 

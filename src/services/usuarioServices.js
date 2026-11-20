@@ -1,4 +1,3 @@
-// src/services/usuarioServices.js
 import { supabase } from '../../lib/supabase';
 
 export async function fazerLoginNoBanco(email, senha) {

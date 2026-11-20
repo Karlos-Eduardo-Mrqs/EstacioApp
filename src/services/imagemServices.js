@@ -8,7 +8,6 @@ export async function criarImagemNoBanco(novaImagem) {
             titulo: novaImagem.titulo,
             descricao: novaImagem.descricao,
             caminho_img: novaImagem.caminho_img,
-            // ❌ REMOVA ESTA LINHA: caminho_img_original: novaImagem.caminho_img_original,
             proporcao: novaImagem.proporcao || '16:9' 
         }])
         .select()
@@ -97,4 +96,33 @@ export async function removerOuSubstituirImagemEvento(eventoEditando) {
 
   if (error) throw error;
   return data;
+}
+
+export async function carregarFallbackImagemEvento(imagemId = 21) {
+  try {
+    const { data, error } = await supabase
+      .from("imagem")
+      .select("caminho_img")
+      .eq("id", imagemId)
+      .single();
+
+    if (error) {
+      console.log("Erro ao carregar imagem fallback:", error);
+      return null;
+    }
+
+    return data?.caminho_img || null;
+  } catch (error) {
+    console.log("Erro inesperado ao carregar imagem fallback:", error);
+    return null;
+  }
+}
+
+export function obterUrlImagemEvento(evento, fallbackUrl = null) {
+  const urlImagemCapa =
+    typeof evento?.imagem === "object"
+      ? evento.imagem?.caminho_img
+      : evento?.imagem;
+
+  return urlImagemCapa || fallbackUrl || null;
 }

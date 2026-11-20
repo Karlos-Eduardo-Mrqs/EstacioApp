@@ -143,34 +143,42 @@ export async function fazerUploadParaSupabaseStorage(uriLocal) {
 }
 
 // Exemplo de ajuste na função que busca os dados para o ModalCursos
-export async function buscarPublicacoesE포AvisosDoCurso(cursoId) {
-  if (!cursoId) return [];
+export async function buscarPublicacoesEAvisosDoCurso(cursoId) {
+  if (!cursoId) return { posts: [], avisos: [], coordenador: null };
 
   try {
-    // 1. Busca os posts normais do curso
-    const { data: posts, error: erroPosts } = await supabase
-      .from('post')
-      .select(`*, imagem(*), curso(nome)`)
-      .eq('curso_id', cursoId)
-      .order('created_at', { ascending: false });
+    const [resPosts, resAvisos, resCoordenadores] = await Promise.all([
+      supabase
+        .from('post')
+        .select(`*, imagem(*), curso(nome)`)
+        .eq('curso_id', cursoId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('aviso')
+        .select(`*, curso:curso_id (id, nome)`)
+        .or(`curso_id.eq.${cursoId},curso_id.is.null`)
+        .gt('expira_em', new Date().toISOString())
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('usuario')
+        .select('id, nome, email, perfil, curso_id')
+        .eq('curso_id', cursoId)
+    ]);
 
-    if (erroPosts) throw erroPosts;
+    if (resPosts.error) throw resPosts.error;
+    if (resAvisos.error) throw resAvisos.error;
 
-    // 2. Busca os avisos direcionados especificamente a este curso (ou globais)
-    const { data: avisos, error: erroAvisos } = await supabase
-      .from('aviso')
-      .select(`*, curso:curso_id (id, nome)`)
-      .or(`curso_id.eq.${cursoId},curso_id.is.null`)
-      .gt('expira_em', new Date().toISOString())
-      .order('created_at', { ascending: false });
+    const coordenadorEncontrado = (resCoordenadores.data || []).find((u) => {
+      const perfilNorm = u.perfil
+        ? u.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+        : "";
+      return perfilNorm.includes("coordenador");
+    }) || null;
 
-    if (erroAvisos) throw erroAvisos;
-
-    // 3. Opcional: Padronize ou junte ambos se o modal os exibir juntos, 
-    // ou retorne os avisos separadamente para exibi-los no topo do modal do curso.
     return {
-      posts: posts || [],
-      avisos: avisos || []
+      posts: resPosts.data || [],
+      avisos: resAvisos.data || [],
+      coordenador: coordenadorEncontrado,
     };
   } catch (error) {
     console.error("Erro ao buscar conteúdo do curso:", error);

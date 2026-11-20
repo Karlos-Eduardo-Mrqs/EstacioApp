@@ -1,42 +1,80 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { CoresInstitucionais } from '../../styles/theme';
+import { useEffect, useState, useCallback } from 'react';
+import { View } from 'react-native';
+import { useRouter } from 'expo-router';
+import ToastPopup from '../Popup';
 
 export default function AuthGuard({ usuarioAtual, perfilPermitido, children, onVoltar }) {
-  if (!usuarioAtual) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#f4f5f7' }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#172554', marginBottom: 8 }}>Acesso Restrito 🔒</Text>
-        <Text style={{ fontSize: 14, color: '#64748b', textAlign: 'center', marginBottom: 20 }}>
-          Precisa de efetuar login com uma conta autorizada para aceder a este painel.
-        </Text>
-        <TouchableOpacity 
-          style={{ backgroundColor: '#032551', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 8 }}
-          onPress={onVoltar}
-        >
-          <Text style={{ color: '#ffffff', fontWeight: 'bold' }}>Voltar ao Início</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+  const router = useRouter();
+  const [toast, setToast] = useState({
+    visible: false,
+    titulo: '',
+    mensagem: '',
+  });
 
-  const perfilUsuario = usuarioAtual.perfil ? usuarioAtual.perfil.trim().toLowerCase() : '';
-  const permitido = Array.isArray(perfilPermitido) 
-    ? perfilPermitido.some(p => perfilUsuario.includes(p.toLowerCase()))
-    : perfilUsuario.includes(perfilPermitido.toLowerCase());
+  const voltarParaMural = useCallback(() => {
+    if (typeof onVoltar === 'function') {
+      onVoltar();
+    } else {
+      router.replace('/');
+    }
+  }, [onVoltar, router]);
 
-  if (!permitido) {
+  const perfilUsuario = usuarioAtual?.perfil
+    ? usuarioAtual.perfil.trim().toLowerCase()
+    : '';
+
+  const temUsuario = Boolean(usuarioAtual);
+  const permitido =
+    temUsuario &&
+    (Array.isArray(perfilPermitido)
+      ? perfilPermitido.some((p) => perfilUsuario.includes(String(p).toLowerCase()))
+      : perfilUsuario.includes(String(perfilPermitido || '').toLowerCase()));
+
+  useEffect(() => {
+    if (!temUsuario) {
+      setToast({
+        visible: true,
+        titulo: 'Acesso Restrito 🔒',
+        mensagem: 'Faça login com uma conta autorizada para acessar esta área. Voltando ao mural...',
+      });
+
+      const timer = setTimeout(() => {
+        voltarParaMural();
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (!permitido) {
+      setToast({
+        visible: true,
+        titulo: 'Acesso Negado ⚠️',
+        mensagem: 'Você não tem autorização para entrar aqui. Voltando ao mural...',
+      });
+
+      const timer = setTimeout(() => {
+        voltarParaMural();
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [temUsuario, permitido, voltarParaMural]);
+
+  const fecharToastEVoltar = () => {
+    setToast((prev) => ({ ...prev, visible: false }));
+    voltarParaMural();
+  };
+
+  if (!temUsuario || !permitido) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24, backgroundColor: '#f4f5f7' }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#dc2626', marginBottom: 8 }}>Acesso Negado ⚠️</Text>
-        <Text style={{ fontSize: 14, color: '#64748b', textAlign: 'center', marginBottom: 20 }}>
-          A sua conta ({usuarioAtual.perfil}) não possui privilégios para aceder a esta secção.
-        </Text>
-        <TouchableOpacity 
-          style={{ backgroundColor: '#032551', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 8 }}
-          onPress={onVoltar}
-        >
-          <Text style={{ color: '#ffffff', fontWeight: 'bold' }}>Voltar</Text>
-        </TouchableOpacity>
+      <View style={{ flex: 1, backgroundColor: '#f4f5f7' }}>
+        <ToastPopup
+          visible={toast.visible}
+          titulo={toast.titulo}
+          mensagem={toast.mensagem}
+          onClose={fecharToastEVoltar}
+          duracao={4}
+        />
       </View>
     );
   }

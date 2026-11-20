@@ -1,5 +1,8 @@
+import { View, Text, TouchableOpacity } from "react-native";
+
 export const nomesMeses = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril','Maio', 'Junho', 'Julho', 'Agosto','Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
 export const CAMPOS_EVENTO = {
@@ -40,10 +43,10 @@ export function mapearEvento(registro, indice) {
     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
     tipo: 'Evento',
     local: '',
-    turma: registro.curso?.nome ?? 'Geral', 
-    autor: registro.palestrante ?? 'Não informado', 
-    descricao: registro.descricao ?? 'Sem descrição informada para este evento.', 
-    horas_acc: registro.horasAAC ?? 0, 
+    turma: registro.curso?.nome ?? 'Geral',
+    autor: registro.palestrante ?? 'Não informado',
+    descricao: registro.descricao ?? 'Sem descrição informada para este evento.',
+    horas_acc: registro.horasAAC ?? 0,
   };
 }
 
@@ -63,4 +66,121 @@ export function gerarMesesCalendario(quantidade = 4) {
       espacosVazios: dataMes.getDay(),
     };
   });
+}
+
+export function normalizarEventosComData(eventos = []) {
+  return (eventos || []).map((evento) => ({
+    ...evento,
+    dataEvento:
+      evento.dataEvento instanceof Date && !isNaN(evento.dataEvento)
+        ? evento.dataEvento
+        : evento.data
+          ? new Date(evento.data)
+          : new Date(),
+  }));
+}
+
+export function obterListasEventosPorPeriodo(eventosValidos = []) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const eventosOrdenados = [...eventosValidos].sort(
+    (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime()
+  );
+
+  const listaProximos = eventosOrdenados
+    .filter((evento) => evento.dataEvento >= hoje)
+    .slice(0, 6);
+
+  const limiteSemana = new Date(hoje);
+  limiteSemana.setDate(limiteSemana.getDate() + 7);
+  const listaSemana = eventosOrdenados
+    .filter((evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana)
+    .slice(0, 6);
+
+  const primeiroDiaProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+  const primeiroDiaMesSeguinte = new Date(
+    primeiroDiaProximoMes.getFullYear(),
+    primeiroDiaProximoMes.getMonth() + 1,
+    1
+  );
+  const eventosProximoMes = eventosOrdenados
+    .filter(
+      (evento) =>
+        evento.dataEvento >= primeiroDiaProximoMes &&
+        evento.dataEvento < primeiroDiaMesSeguinte
+    )
+    .slice(0, 6);
+
+  return {
+    listaProximos,
+    listaSemana,
+    eventosProximoMes,
+  };
+}
+
+export function filtrarEventosDoDia(eventosValidos, mesNome, diaNumero, anoMes) {
+  const mesIndex = nomesMeses.indexOf(mesNome);
+  return (eventosValidos || []).filter(
+    (evento) =>
+      evento.dataEvento.getFullYear() === anoMes &&
+      evento.dataEvento.getMonth() === mesIndex &&
+      evento.dataEvento.getDate() === diaNumero
+  );
+}
+
+export function renderizarCelulasDiasCalendario({
+  styles,
+  mesNome,
+  totalDias,
+  espacosVazios,
+  anoMes,
+  eventosValidos,
+  diaFocado,
+  onSelecionarDia,
+}) {
+  const celulas = [];
+  for (let i = 0; i < espacosVazios; i++) {
+    celulas.push(<View key={`vazio-${i}`} style={styles.celulaDia} />);
+  }
+
+  const nomeMesLimpo = mesNome.split(" ")[0];
+  const mesIndex = nomesMeses.indexOf(nomeMesLimpo);
+
+  for (let dia = 1; dia <= totalDias; dia++) {
+    const isDestaque = (eventosValidos || []).some(
+      (evento) =>
+        evento.dataEvento &&
+        evento.dataEvento.getFullYear() === anoMes &&
+        evento.dataEvento.getMonth() === mesIndex &&
+        evento.dataEvento.getDate() === dia
+    );
+
+    const isSelecionado = diaFocado === `${dia} de ${nomeMesLimpo}`;
+
+    celulas.push(
+      <TouchableOpacity
+        key={`dia-${dia}`}
+        style={[
+          styles.celulaDia,
+          isDestaque && styles.diaDestaque,
+          isSelecionado && styles.diaSelecionado,
+        ]}
+        onPress={() => onSelecionarDia(mesNome, dia, anoMes)}
+        activeOpacity={0.7}
+      >
+        <Text
+          style={[
+            styles.textoDia,
+            isDestaque && styles.textoDiaDestaque,
+            isSelecionado && styles.textoDiaSelecionado,
+          ]}
+        >
+          {dia}
+        </Text>
+      </TouchableOpacity>
+    );
+  }
+
+  return celulas;
 }

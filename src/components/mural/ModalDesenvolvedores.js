@@ -4,7 +4,6 @@ import { modalDesenvolvedoresStyles } from "../../styles/mural/modalDesenvolvedo
 import { CoresInstitucionais } from "../../styles/theme";
 
 export default function ModalDesenvolvedores({ visible, onClose }) {
-  // Deteção correta do ecossistema Desktop/Mobile
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width >= 768;
 

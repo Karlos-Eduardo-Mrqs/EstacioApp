@@ -189,7 +189,11 @@ export async function buscarAvisosAtivosDoBanco(cursosFavoritosIds = [], eventos
 
     // Aviso direcionado a Curso
     if (a.curso_id !== null) {
-      if (cursosFavoritosIds && cursosFavoritosIds.some(idFav => Number(idFav) === Number(a.curso_id))) {
+      const correspondeCurso = (cursosFavoritosIds || []).some((fav) => {
+        const idFav = typeof fav === 'object' && fav !== null ? fav.id : fav;
+        return Number(idFav) === Number(a.curso_id);
+      });
+      if (correspondeCurso) {
         return true;
       }
     }

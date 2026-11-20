@@ -14,6 +14,7 @@ import ConteudoAbas from "../components/mural/conteudosAbas";
 import ModalCurso from "../components/mural/ModalCursos";
 import ModalDesenvolvedores from "../components/mural/ModalDesenvolvedores";
 import ToastPopup from "../components/Popup";
+import LeituraPopup from "../components/leituraPopup";
 import EventoDetalhe from "../components/EventoDetalhe";
 import PainelNavigator from "../components/painel/painelNavegacao";
 
@@ -100,6 +101,7 @@ export default function App() {
                   scriptApp={appCtrl}
                   appCtrl={appCtrl}
                   avisosAtivos={appCtrl.avisosAtivos}
+                  onAbrirAviso={appCtrl.abrirLeituraAviso}
                   onReexibirAviso={appCtrl.reexibirAvisoPopup}
               />
             </View>
@@ -142,6 +144,12 @@ export default function App() {
         mensagem={appCtrl.popupInfo.mensagem}
         duracao={appCtrl.popupInfo.duracao}
         onClose={() => appCtrl.setPopupInfo((prev) => ({ ...prev, visible: false }))}
+      />
+      
+      <LeituraPopup
+        aviso={appCtrl.avisoLeituraAtual}
+        visible={!!appCtrl.avisoLeituraAtual}
+        onClose={appCtrl.fecharLeituraAviso}
       />
 
       <ModalCurso

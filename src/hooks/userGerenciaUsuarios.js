@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { 
-  buscarUsuariosDoBanco, 
-  criarUsuarioNoBanco, 
-  removerUsuarioNoBanco, 
-  buscarCursosDoBanco, 
-  atualizarUsuarioNoBanco 
+import { buscarUsuariosDoBanco, criarUsuarioNoBanco, removerUsuarioNoBanco, buscarCursosDoBanco, atualizarUsuarioNoBanco 
 } from '../services/usuarioServices';
 
 export function useGerenciarUsuarios() {
@@ -259,6 +254,5 @@ export function useGerenciarUsuarios() {
     criarUsuario: salvarUsuario,
     solicitarAlternarStatus,
     solicitarRemocao,
-    limparFormulario
   };
 }

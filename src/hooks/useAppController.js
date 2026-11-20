@@ -1,12 +1,26 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Dimensions, Platform } from "react-native";
+import { Dimensions, Linking, Platform } from "react-native";
 import { View, Text, TouchableOpacity } from "react-native";
-import { gerarMesesCalendario, nomesMeses } from "./Calendario";
+import {
+  gerarMesesCalendario,
+  normalizarEventosComData,
+  obterListasEventosPorPeriodo,
+  filtrarEventosDoDia,
+  renderizarCelulasDiasCalendario,
+} from "./Calendario";
 import { useNotificacoes } from "./useNotificacoes";
-import { useDadosAcademicos } from "./useDadosAcademicos";
+import {
+  buscarCursosDoBanco,
+  buscarEventosDoBanco,
+  buscarServicosDoBanco,
+} from "../services/apiServices";
 import { buscarAvisosAtivosDoBanco } from "../services/notificacaoService";
-import {limparSessaoUsuario,recuperarSessaoUsuario,salvarSessaoUsuario,} from "../services/sessaoServices";
+import {
+  limparSessaoUsuario,
+  recuperarSessaoUsuario,
+  salvarSessaoUsuario,
+} from "../services/sessaoServices";
 
 export function useAppController(styles) {
   // Estado global do Popup
@@ -25,10 +39,20 @@ export function useAppController(styles) {
     }, duracaoSegundos * 1000);
   };
 
-  // Consumindo os hooks auxiliares
+  // Consumindo hook auxiliar de notificações locais
   const { notificacoesSalvas, salvarNotificacao, removerNotificacao } = useNotificacoes(exibirPopup);
-  const { todosOsEventos, carregandoEventos, erroEventos, cursosDoBanco, carregandoCursos, erroCursos,servicos} = useDadosAcademicos(exibirPopup);
 
+  // Estados de dados acadêmicos gerenciados na inicialização do controller
+  const [todosOsEventos, setTodosOsEventos] = useState([]);
+  const [servicos, setServicos] = useState([]);
+  const [carregandoEventos, setCarregandoEventos] = useState(true);
+  const [erroEventos, setErroEventos] = useState(null);
+
+  const [cursosDoBanco, setCursosDoBanco] = useState([]);
+  const [carregandoCursos, setCarregandoCursos] = useState(true);
+  const [erroCursos, setErroCursos] = useState(null);
+
+  // Estados do calendário e seleção de evento
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
   const [diaFocado, setDiaFocado] = useState(null);
   const [eventosDoDia, setEventosDoDia] = useState([]);
@@ -36,78 +60,26 @@ export function useAppController(styles) {
   const semestre = gerarMesesCalendario(4);
   const diasSemana = ["D", "S", "T", "Q", "Q", "S", "S"];
 
-  // Filtros de datas e blindagem de objetos Date
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
+  const eventosValidos = normalizarEventosComData(todosOsEventos);
+  const { listaProximos, listaSemana, eventosProximoMes } =
+    obterListasEventosPorPeriodo(eventosValidos);
 
-  const eventosValidos = (todosOsEventos || []).map(evento => ({
-    ...evento,
-    dataEvento: evento.dataEvento instanceof Date && !isNaN(evento.dataEvento) 
-      ? evento.dataEvento 
-      : (evento.data ? new Date(evento.data) : new Date())
-  }));
-
-  const eventosOrdenados = [...eventosValidos].sort((a, b) => {
-    return a.dataEvento.getTime() - b.dataEvento.getTime();
-  });
-
-  const listaProximos = eventosOrdenados.filter((evento) => evento.dataEvento >= hoje).slice(0, 6);
-
-  const limiteSemana = new Date(hoje);
-  limiteSemana.setDate(limiteSemana.getDate() + 7);
-  const listaSemana = eventosOrdenados.filter((evento) => evento.dataEvento >= hoje && evento.dataEvento <= limiteSemana).slice(0, 6);
-
-  const primeiroDiaProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
-  const primeiroDiaMesSeguinte = new Date(primeiroDiaProximoMes.getFullYear(), primeiroDiaProximoMes.getMonth() + 1, 1);
-  const eventosProximoMes = eventosOrdenados.filter((evento) => evento.dataEvento >= primeiroDiaProximoMes && evento.dataEvento < primeiroDiaMesSeguinte).slice(0, 6);
-
-  // Manipulação do Calendário
   const handleDiaClick = (mesNome, diaNumero, anoMes) => {
-    const mesIndex = nomesMeses.indexOf(mesNome);
     setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
-    const eventosEncontrados = eventosValidos.filter(
-      (evento) =>
-        evento.dataEvento.getFullYear() === anoMes &&
-        evento.dataEvento.getMonth() === mesIndex &&
-        evento.dataEvento.getDate() === diaNumero
-    );
-    setEventosDoDia(eventosEncontrados);
+    setEventosDoDia(filtrarEventosDoDia(eventosValidos, mesNome, diaNumero, anoMes));
   };
 
-  const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) => {
-    let celulas = [];
-    for (let i = 0; i < espacosVazios; i++) {
-      celulas.push(<View key={`vazio-${i}`} style={styles.celulaDia}></View>);
-    }
-
-    for (let dia = 1; dia <= totalDias; dia++) {
-      const mesIndex = nomesMeses.indexOf(mesNome.split(" ")[0]);
-      
-      const isDestaque = eventosValidos.some(
-        (evento) => 
-          evento.dataEvento && 
-          evento.dataEvento.getFullYear() === anoMes && 
-          evento.dataEvento.getMonth() === mesIndex && 
-          evento.dataEvento.getDate() === dia
-      );
-      
-      const isSelecionado = diaFocado === `${dia} de ${mesNome.split(" ")[0]}`;
-
-      celulas.push(
-        <TouchableOpacity
-          key={`dia-${dia}`}
-          style={[styles.celulaDia, isDestaque && styles.diaDestaque, isSelecionado && styles.diaSelecionado]}
-          onPress={() => handleDiaClick(mesNome, dia, anoMes)}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.textoDia, isDestaque && styles.textoDiaDestaque, isSelecionado && styles.textoDiaSelecionado]}>
-            {dia}
-          </Text>
-        </TouchableOpacity>
-      );
-    }
-    return celulas;
-  };
+  const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) =>
+    renderizarCelulasDiasCalendario({
+      styles,
+      mesNome,
+      totalDias,
+      espacosVazios,
+      anoMes,
+      eventosValidos,
+      diaFocado,
+      onSelecionarDia: handleDiaClick,
+    });
 
   const renderCartaoPequeno = (evento) => (
     <View key={evento.id} style={styles.cartaoPequeno}>
@@ -121,11 +93,11 @@ export function useAppController(styles) {
   );
 
   const cursosDestaque = (cursosDoBanco || []).filter(
-    (curso) => curso.modalidade === 'Graduação' && curso.tipo !== 'Online/EAD'
+    (curso) => curso.modalidade === "Graduação" && curso.tipo !== "Online/EAD"
   );
 
   const cursosTecnicos = (cursosDoBanco || []).filter(
-    (curso) => curso.tipo === 'Online/EAD' || curso.modalidade === 'Técnico'
+    (curso) => curso.tipo === "Online/EAD" || curso.modalidade === "Técnico"
   );
 
   const handleSelecionarCurso = (curso) => {
@@ -152,7 +124,16 @@ export function useAppController(styles) {
   const [activeTab, setActiveTab] = useState("mural");
   const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
   const [avisosAtivos, setAvisosAtivos] = useState([]);
-  
+  const [avisoLeituraAtual, setAvisoLeituraAtual] = useState(null);
+
+  const abrirLeituraAviso = (aviso) => {
+    setAvisoLeituraAtual(aviso || null);
+  };
+
+  const fecharLeituraAviso = () => {
+    setAvisoLeituraAtual(null);
+  };
+
   useEffect(() => {
     const subscription = Dimensions.addEventListener("change", ({ window }) => {
       setWindowWidth(window.width);
@@ -160,11 +141,14 @@ export function useAppController(styles) {
     return () => subscription?.remove();
   }, []);
 
+  // Inicialização unificada: sessão, onboarding e dados acadêmicos
   useEffect(() => {
+    let ativo = true;
+
     async function inicializarApp() {
       try {
         const usuarioSalvo = await recuperarSessaoUsuario();
-        if (usuarioSalvo) {
+        if (ativo && usuarioSalvo) {
           setUtilizadorLogado(usuarioSalvo);
           const perfil = usuarioSalvo.perfil ? usuarioSalvo.perfil.trim().toLowerCase() : "";
           if (perfil.includes("gerência") || perfil.includes("gerencia") || perfil.includes("coordenador")) {
@@ -173,19 +157,69 @@ export function useAppController(styles) {
         }
 
         const salvos = await AsyncStorage.getItem("@cursos_selecionados");
-        if (salvos && JSON.parse(salvos).length >= 3) {
-          setCursosSelecionados(JSON.parse(salvos));
-          setMostrarOnboarding(false);
-        } else {
-          setMostrarOnboarding(true);
+        if (ativo) {
+          if (salvos && JSON.parse(salvos).length >= 3) {
+            setCursosSelecionados(JSON.parse(salvos));
+            setMostrarOnboarding(false);
+          } else {
+            setMostrarOnboarding(true);
+          }
         }
       } catch (e) {
-        setMostrarOnboarding(true);
+        if (ativo) setMostrarOnboarding(true);
       } finally {
-        setCarregandoSessao(false);
+        if (ativo) setCarregandoSessao(false);
+      }
+
+      if (!ativo) return;
+
+      setCarregandoCursos(true);
+      setCarregandoEventos(true);
+
+      const [resCursos, resEventos, resServicos] = await Promise.allSettled([
+        buscarCursosDoBanco(),
+        buscarEventosDoBanco(),
+        buscarServicosDoBanco(),
+      ]);
+
+      if (!ativo) return;
+
+      if (resCursos.status === "fulfilled") {
+        setCursosDoBanco(resCursos.value || []);
+        setErroCursos(null);
+      } else {
+        const msg = resCursos.reason instanceof Error
+          ? resCursos.reason.message
+          : "Não foi possível carregar os cursos.";
+        setErroCursos(msg);
+        exibirPopup("❌ Erro nos Cursos", msg, "erro", 4);
+      }
+      setCarregandoCursos(false);
+
+      if (resEventos.status === "fulfilled") {
+        setTodosOsEventos(resEventos.value || []);
+        setErroEventos(null);
+      } else {
+        setTodosOsEventos([]);
+        const msg = resEventos.reason instanceof Error
+          ? resEventos.reason.message
+          : "Erro ao carregar eventos.";
+        setErroEventos(msg);
+        exibirPopup("❌ Erro nos Eventos", msg, "erro", 4);
+      }
+      setCarregandoEventos(false);
+
+      if (resServicos.status === "fulfilled") {
+        setServicos(resServicos.value || []);
+      } else {
+        console.log("Erro ao carregar serviços no mural:", resServicos.reason);
       }
     }
+
     inicializarApp();
+    return () => {
+      ativo = false;
+    };
   }, []);
 
   const handleConcluirSetup = async (cursosEscolhidos) => {
@@ -245,7 +279,7 @@ export function useAppController(styles) {
 
           if (String(ultimoAvisoVistoId) !== String(ultimoAviso.id)) {
             setTimeout(() => {
-              exibirPopup(`📢 ${ultimoAviso.titulo}`, ultimoAviso.mensagem, "sucesso", 7);
+              abrirLeituraAviso(ultimoAviso);
             }, 1800);
 
             await AsyncStorage.setItem("@ultimo_aviso_visto_id", String(ultimoAviso.id));
@@ -256,25 +290,24 @@ export function useAppController(styles) {
       }
     }
 
-    if (!carregandoSessao && cursosSelecionados.length > 0) {
+    if (!carregandoSessao) {
       carregarAvisos();
     }
   }, [cursosSelecionados, carregandoSessao, activeTab]);
 
   const reexibirAvisoPopup = (aviso) => {
-    exibirPopup(`📢 ${aviso.titulo}`, aviso.mensagem, "sucesso", 7);
+    abrirLeituraAviso(aviso);
   };
 
   const isDesktop = Platform.OS === "web" && windowWidth >= 768;
 
   return {
-    // Retornos combinados de dados acadêmicos, calendário e controle
     eventoSelecionado, setEventoSelecionado,
     diaFocado, eventosDoDia, carregandoEventos, erroEventos,
     diasSemana, semestre,
     listaProximos, listaSemana, eventosProximoMes,
-    cursosDestaque,             
-    cursosTecnicos,             
+    cursosDestaque,
+    cursosTecnicos,
     handleSelecionarCurso,
     carregandoCursos, erroCursos,
     notificacoesSalvas,
@@ -284,7 +317,6 @@ export function useAppController(styles) {
     renderCartaoPequeno,
     popupInfo, setPopupInfo,
     exibirPopup,
-    // Retornos de controle de sessão e telas
     mostrarOnboarding,
     cursosSelecionados,
     stepInicialOnboarding,
@@ -303,6 +335,9 @@ export function useAppController(styles) {
     handleLoginSucesso,
     handleLogout,
     avisosAtivos,
+    avisoLeituraAtual,
+    abrirLeituraAviso,
+    fecharLeituraAviso,
     reexibirAvisoPopup,
     todosOsEventos: eventosValidos,
     cursos: cursosDoBanco,

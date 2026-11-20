@@ -1,7 +1,7 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { CoresInstitucionais } from "../../styles/theme";
-import { formatarDataApenas } from "../../utils/dataUtils"; // 👈 Importa o formatador centralizado
+import { formatarDataApenas } from "../../utils/dataUtils";
 
 export default function CarrosselEventosCursosFavoritos({
   todosOsEventos = [],
@@ -30,7 +30,6 @@ export default function CarrosselEventosCursosFavoritos({
       : cursosSelecionados.map((item) => String(item).toLowerCase());
 
   const eventosFavoritos = todosOsEventos.filter((evento) => {
-    // Extrai o nome da turma/curso do evento com segurança (seja string ou objeto)
     let nomeTurmaEvento = "";
     if (evento?.turma) {
       nomeTurmaEvento =
@@ -47,12 +46,10 @@ export default function CarrosselEventosCursosFavoritos({
     if (!nomeTurmaEvento) return false;
     const turmaStr = nomeTurmaEvento.toLowerCase();
 
-    // Compara se o curso do evento faz parte dos favoritos do usuário
     const match = termosBusca.some(
       (termo) => turmaStr.includes(termo) || termo.includes(turmaStr),
     );
 
-    // Valida se o evento é de hoje em diante
     const dataEventoObj =
       evento.dataEvento instanceof Date
         ? evento.dataEvento
@@ -62,16 +59,15 @@ export default function CarrosselEventosCursosFavoritos({
     return match && dataValida;
   });
 
-  // Se não houver eventos favoritos para exibir, oculta o bloco inteiro
   if (eventosFavoritos.length === 0) return null;
 
   return (
-    <View style={{ marginBottom: 24, marginTop: 16 }}>
+    <View style={estilosCarrosselEvento.secaoFavoritosContainer}>
       {/* ── TÍTULO DA SEÇÃO ── */}
-      <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+      <View style={{ marginBottom: 8 }}>
         <Text
           style={{
-            fontSize: 14,
+            fontSize: 12,
             fontWeight: "bold",
             color: CoresInstitucionais.azulPrincipal,
             textTransform: "uppercase",
@@ -86,8 +82,7 @@ export default function CarrosselEventosCursosFavoritos({
         style={{
           borderTopWidth: 1,
           borderTopColor: "#032551",
-          marginBottom: 12,
-          marginHorizontal: 16,
+          marginBottom: 14,
         }}
       />
 
@@ -95,7 +90,8 @@ export default function CarrosselEventosCursosFavoritos({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 40, gap: 12 }}
+        nestedScrollEnabled
+        contentContainerStyle={estilosCarrosselEvento.containerScroll}
       >
         {eventosFavoritos.map((evento, index) => {
           let nomeTurmaCard = "Geral";
@@ -111,7 +107,6 @@ export default function CarrosselEventosCursosFavoritos({
                 : evento.curso;
           }
 
-          // 📅 Formatação correta e segura da data para cada evento do carrossel
           const dataFormatada = formatarDataApenas(
             evento.inicio || evento.data || evento.dataEvento,
           );

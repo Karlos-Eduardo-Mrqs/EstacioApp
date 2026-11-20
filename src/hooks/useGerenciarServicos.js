@@ -1,18 +1,13 @@
-import { useState, useEffect } from 'react';
-import { 
-  buscarServicosDoBanco, 
-  criarServicoNoBanco, 
-  atualizarServicoNoBanco, 
-  removerServicoDoBanco 
-} from '../services/servicoService';
+import { useState, useEffect, useCallback } from 'react';
+import {buscarServicosDoBanco,filtrarServicos,criarServicoNoBanco,atualizarServicoNoBanco,removerServicoDoBanco} from '../services/apiServices';
 import { buscarCoordenadoresDoBanco } from '../services/cursoServices';
 import { supabase } from '../../lib/supabase';
 
-export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioAtual adicionado
+export function useGerenciarServicos(usuarioAtual) {
   const [servicos, setServicos] = useState([]);
   const [coordenadoresDisponiveis, setCoordenadoresDisponiveis] = useState([]);
   const [cursosDisponiveis, setCursosDisponiveis] = useState([]);
-  
+
   const [pesquisa, setPesquisa] = useState('');
   const [carregando, setCarregando] = useState(false);
 
@@ -32,45 +27,37 @@ export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioA
   const [toast, setToast] = useState({ visible: false, nome: '', mensagem: '' });
   const [confirmacao, setConfirmacao] = useState({ visible: false, nome: '', mensagem: '', onConfirm: null, tipo: 'danger' });
 
-  const perfilNorm = usuarioAtual?.perfil ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
-  const ehCoord = perfilNorm.includes("coordenador");
-
-  // ✅ Declaração única unificando o filtro de permissão e de pesquisa
-  const servicosFiltrados = servicos.filter((item) => {
-    if (ehCoord) {
-      return Number(item.coordenador_id || item.coordenadorId) === Number(usuarioAtual?.id) || 
-             Number(item.curso_id || item.cursoId) === Number(usuarioAtual?.curso_id);
-    }
-    const termo = pesquisa.toLowerCase();
-    return (
-      item.nome?.toLowerCase().includes(termo) ||
-      item.responsavel?.toLowerCase().includes(termo) ||
-      item.curso?.toLowerCase().includes(termo)
-    );
-  });
-
-  useEffect(() => {
-    carregarDados();
+  const carregarServicos = useCallback(async () => {
+    const dadosServicos = await buscarServicosDoBanco();
+    setServicos(dadosServicos || []);
+    return dadosServicos || [];
   }, []);
 
-  async function carregarDados() {
+  const carregarDados = useCallback(async () => {
     try {
       setCarregando(true);
       const [dadosServicos, dadosCoords, { data: dadosCursos }] = await Promise.all([
-        buscarServicosDoBanco(),
+        carregarServicos(),
         buscarCoordenadoresDoBanco(),
-        supabase.from('curso').select('id, nome').order('nome')
+        supabase.from('curso').select('id, nome').order('nome'),
       ]);
 
-      setServicos(dadosServicos || []);
       setCoordenadoresDisponiveis(dadosCoords || []);
       setCursosDisponiveis(dadosCursos || []);
+      return dadosServicos;
     } catch (error) {
       setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível carregar os dados.' });
+      return [];
     } finally {
       setCarregando(false);
     }
-  }
+  }, [carregarServicos]);
+
+  useEffect(() => {
+    carregarDados();
+  }, [carregarDados]);
+
+  const servicosFiltrados = filtrarServicos(servicos, { pesquisa, usuarioAtual });
 
   const limparFormulario = () => {
     setNome('');
@@ -135,7 +122,7 @@ export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioA
 
       setModalFormulario(false);
       limparFormulario();
-      carregarDados();
+      await carregarServicos();
     } catch (error) {
       setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível salvar o serviço no banco.' });
     }
@@ -150,20 +137,20 @@ export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioA
       onConfirm: async () => {
         try {
           await removerServicoDoBanco(id);
-          setServicos(lista => lista.filter(item => item.id !== id));
+          await carregarServicos();
           setServicoSelecionado(null);
           setToast({ visible: true, nome: 'Sucesso', mensagem: 'Serviço removido com sucesso.' });
         } catch (error) {
           setToast({ visible: true, nome: 'Erro', mensagem: 'Não foi possível excluir o serviço.' });
         } finally {
-          setConfirmacao(prev => ({ ...prev, visible: false }));
+          setConfirmacao((prev) => ({ ...prev, visible: false }));
         }
-      }
+      },
     });
   };
 
   const quantidadeCoordenadores = new Set(
-    servicosFiltrados.map(item => item.responsavel?.trim().toLowerCase()).filter(Boolean)
+    servicosFiltrados.map((item) => item.responsavel?.trim().toLowerCase()).filter(Boolean)
   ).size;
 
   return {
@@ -192,5 +179,6 @@ export function useGerenciarServicos(usuarioAtual) { // 👈 Parâmetro usuarioA
     salvarServico,
     confirmarExclusao,
     limparFormulario,
+    carregarServicos,
   };
 }

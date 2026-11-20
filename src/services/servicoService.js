@@ -24,13 +24,13 @@ export async function buscarServicosDoBanco() {
     throw error;
   }
 
- return (data || []).map((item) => ({
+  return (data || []).map((item) => ({
     id: String(item.id),
     nome: item.nome || '',
     descricao: item.descricao || '',
     dias: item.dias || '',
     aviso: item.aviso || '',
-    linksUteis: item.links_uteis || '', // 👈 Garante que o banco (links_uteis) vá para o modal como linksUteis
+    linksUteis: item.links_uteis || '',
     status: item.status || 'Ativo',
     coordenador_id: item.coordenador_id ? String(item.coordenador_id) : '',
     curso_id: item.curso_id ? String(item.curso_id) : '',
@@ -40,6 +40,29 @@ export async function buscarServicosDoBanco() {
     cargo: item.coordenador?.perfil || 'Coordenador',
     curso: item.cursoRel?.nome || 'Todos',
   }));
+}
+
+export function filtrarServicos(servicos = [], { pesquisa = '', usuarioAtual = null } = {}) {
+  const perfilNorm = usuarioAtual?.perfil
+    ? usuarioAtual.perfil.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    : "";
+  const ehCoord = perfilNorm.includes("coordenador");
+  const termo = pesquisa.toLowerCase();
+
+  return (servicos || []).filter((item) => {
+    if (ehCoord) {
+      return (
+        Number(item.coordenador_id || item.coordenadorId) === Number(usuarioAtual?.id) ||
+        Number(item.curso_id || item.cursoId) === Number(usuarioAtual?.curso_id)
+      );
+    }
+
+    return (
+      item.nome?.toLowerCase().includes(termo) ||
+      item.responsavel?.toLowerCase().includes(termo) ||
+      item.curso?.toLowerCase().includes(termo)
+    );
+  });
 }
 
 export async function criarServicoNoBanco(novoServico) {
@@ -60,9 +83,9 @@ export async function atualizarServicoNoBanco(id, servicoAtualizado) {
     .eq('id', Number(id))
     .select()
     .single();
-  
+
   if (error) {
-    console.error("Erro detalhado do Supabase ao atualizar:", error); // Ajuda a debugar se houver outro campo
+    console.error("Erro detalhado do Supabase ao atualizar:", error);
     throw error;
   }
   return data;

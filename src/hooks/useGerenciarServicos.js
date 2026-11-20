@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {buscarServicosDoBanco,filtrarServicos,criarServicoNoBanco,atualizarServicoNoBanco,removerServicoDoBanco} from '../services/apiServices';
+import {buscarServicosDoBanco,filtrarServicos,criarServicoNoBanco,atualizarServicoNoBanco,removerServicoDoBanco} from '../services/servicoService';
 import { buscarCoordenadoresDoBanco } from '../services/cursoServices';
 import { supabase } from '../../lib/supabase';
 

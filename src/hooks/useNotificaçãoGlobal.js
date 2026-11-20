@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { buscarCursosDoBanco } from "../services/cursoServices";
 import { buscarEventosDoBanco } from "../services/eventoServices";
-import { buscarTodosAvisosAtivosDoBanco, criarAvisoGlobalNoBanco } from "../services/apiServices";
+import { buscarTodosAvisosAtivosDoBanco, criarAvisoGlobalNoBanco } from "../services/notificacaoService";
 
 export function useNotificacaoGlobal(usuarioAtual) {
   const [cursos, setCursos] = useState([]);

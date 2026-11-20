@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, KeyboardAvoidingView, Keyboard
 import { styles } from '../../styles/loginForm';
 import CustomIcon from "../CustomIcon";
 import FeedbackBox from '../../components/FeedPopup';
-import { fazerLoginNoBanco } from '../../services/apiServices';
+import { fazerLoginNoBanco } from '../../services/usuarioServices';
 
 export default function LoginScreen({ onClose, onLoginSuccess }) {
   const [email, setEmail] = useState('');

@@ -1,3 +1,4 @@
+import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { bottomNavBarstyles } from "../styles/bottomNavBarStyles";
 import { sideNavBarStyles } from "../styles/sideNavBarStyles";
@@ -14,7 +15,7 @@ const tabs = [
 ];
 
 // 📱 Barra Inferior (Mobile)
-export function BottomNavBar({ activeTab, onTabPress }) {
+export const BottomNavBar = React.memo(function BottomNavBar({ activeTab, onTabPress }) {
   return (
     <View style={bottomNavBarstyles.navContainer}>
       {tabs.map((tab) => {
@@ -36,10 +37,10 @@ export function BottomNavBar({ activeTab, onTabPress }) {
       })}
     </View>
   );
-}
+});
 
 // 💻 Barra Lateral (Desktop / Telas Maiores)
-export function SidebarNavBar({ activeTab, onTabPress }) {
+export const SidebarNavBar = React.memo(function SidebarNavBar({ activeTab, onTabPress }) {
   return (
     <View style={sideNavBarStyles.sidebar}>
       <View style={sideNavBarStyles.brandContainer}>
@@ -71,4 +72,4 @@ export function SidebarNavBar({ activeTab, onTabPress }) {
       </View>
     </View>
   );
-}
+});

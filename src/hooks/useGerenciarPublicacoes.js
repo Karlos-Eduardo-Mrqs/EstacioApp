@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator'; 
-import { fazerUploadParaSupabaseStorage } from '../services/apiServices';
+import { fazerUploadParaSupabaseStorage } from '../services/imagemServices';
 
 export function useGerenciarPublicacoes(cursoIdFiltro, usuarioAtual) {
   const [publicacoes, setPublicacoes] = useState([]);

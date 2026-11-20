@@ -1,48 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { Dimensions, Linking, Platform } from "react-native";
-import { View, Text, TouchableOpacity } from "react-native";
-import {
-  gerarMesesCalendario,
-  normalizarEventosComData,
-  obterListasEventosPorPeriodo,
-  filtrarEventosDoDia,
-  renderizarCelulasDiasCalendario,
-} from "./Calendario";
+import { Text, TouchableOpacity, View } from "react-native";
+import {gerarMesesCalendario,normalizarEventosComData,obterListasEventosPorPeriodo,renderizarCelulasDiasCalendario,} from "./Calendario";
 import { useNotificacoes } from "./useNotificacoes";
-import {
-  buscarCursosDoBanco,
-  buscarEventosDoBanco,
-  buscarServicosDoBanco,
-} from "../services/apiServices";
+import { useMuralUI } from "./useMuralUI";
+import { buscarServicosDoBanco } from "../services/servicoService";
+import {buscarCursosDoBanco} from "../services/cursoServices";
+import {buscarEventosDoBanco,} from "../services/eventoServices";
 import { buscarAvisosAtivosDoBanco } from "../services/notificacaoService";
-import {
-  limparSessaoUsuario,
-  recuperarSessaoUsuario,
-  salvarSessaoUsuario,
-} from "../services/sessaoServices";
+import {limparSessaoUsuario,recuperarSessaoUsuario,salvarSessaoUsuario,} from "../services/sessaoServices";
 
 export function useAppController(styles) {
-  // Estado global do Popup
-  const [popupInfo, setPopupInfo] = useState({
-    visible: false,
-    titulo: "",
-    mensagem: "",
-    tipo: "sucesso",
-    duracao: 0,
-  });
-
-  const exibirPopup = (titulo, mensagem, tipo = "sucesso", duracaoSegundos = 4) => {
-    setPopupInfo({ visible: true, titulo, mensagem, tipo, duracao: duracaoSegundos });
-    setTimeout(() => {
-      setPopupInfo((prev) => ({ ...prev, visible: false }));
-    }, duracaoSegundos * 1000);
-  };
-
-  // Consumindo hook auxiliar de notificações locais
-  const { notificacoesSalvas, salvarNotificacao, removerNotificacao } = useNotificacoes(exibirPopup);
-
-  // Estados de dados acadêmicos gerenciados na inicialização do controller
   const [todosOsEventos, setTodosOsEventos] = useState([]);
   const [servicos, setServicos] = useState([]);
   const [carregandoEventos, setCarregandoEventos] = useState(true);
@@ -52,22 +20,24 @@ export function useAppController(styles) {
   const [carregandoCursos, setCarregandoCursos] = useState(true);
   const [erroCursos, setErroCursos] = useState(null);
 
-  // Estados do calendário e seleção de evento
-  const [eventoSelecionado, setEventoSelecionado] = useState(null);
-  const [diaFocado, setDiaFocado] = useState(null);
-  const [eventosDoDia, setEventosDoDia] = useState([]);
+  const [mostrarOnboarding, setMostrarOnboarding] = useState(false);
+  const [cursosSelecionados, setCursosSelecionados] = useState([]);
+  const [stepInicialOnboarding, setStepInicialOnboarding] = useState(1);
+  const [carregandoSessao, setCarregandoSessao] = useState(true);
+  const [utilizadorLogado, setUtilizadorLogado] = useState(null);
+  const [avisosAtivos, setAvisosAtivos] = useState([]);
+
+  const eventosValidos = normalizarEventosComData(todosOsEventos);
+
+  const ui = useMuralUI(eventosValidos);
+  const { notificacoesSalvas, salvarNotificacao, removerNotificacao } = useNotificacoes(
+    ui.exibirPopup
+  );
 
   const semestre = gerarMesesCalendario(4);
   const diasSemana = ["D", "S", "T", "Q", "Q", "S", "S"];
-
-  const eventosValidos = normalizarEventosComData(todosOsEventos);
   const { listaProximos, listaSemana, eventosProximoMes } =
     obterListasEventosPorPeriodo(eventosValidos);
-
-  const handleDiaClick = (mesNome, diaNumero, anoMes) => {
-    setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
-    setEventosDoDia(filtrarEventosDoDia(eventosValidos, mesNome, diaNumero, anoMes));
-  };
 
   const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) =>
     renderizarCelulasDiasCalendario({
@@ -77,16 +47,23 @@ export function useAppController(styles) {
       espacosVazios,
       anoMes,
       eventosValidos,
-      diaFocado,
-      onSelecionarDia: handleDiaClick,
+      diaFocado: ui.diaFocado,
+      onSelecionarDia: ui.handleDiaClick,
     });
 
   const renderCartaoPequeno = (evento) => (
     <View key={evento.id} style={styles.cartaoPequeno}>
       <Text style={styles.tagCartaoPequeno}>{evento.tipo}</Text>
-      <Text style={styles.tituloCartaoPequeno} numberOfLines={2}>{evento.titulo}</Text>
-      <Text style={styles.dataCartaoPequeno}>{evento.dia} de {evento.mes}</Text>
-      <TouchableOpacity style={styles.btnVerDescricaoMini} onPress={() => setEventoSelecionado(evento)}>
+      <Text style={styles.tituloCartaoPequeno} numberOfLines={2}>
+        {evento.titulo}
+      </Text>
+      <Text style={styles.dataCartaoPequeno}>
+        {evento.dia} de {evento.mes}
+      </Text>
+      <TouchableOpacity
+        style={styles.btnVerDescricaoMini}
+        onPress={() => ui.setEventoSelecionado(evento)}
+      >
         <Text style={styles.btnTextoMini}>+ Detalhes</Text>
       </TouchableOpacity>
     </View>
@@ -100,48 +77,6 @@ export function useAppController(styles) {
     (curso) => curso.tipo === "Online/EAD" || curso.modalidade === "Técnico"
   );
 
-  const handleSelecionarCurso = (curso) => {
-    if (curso.link) {
-      Linking.openURL(curso.link);
-    } else {
-      exibirPopup("Aviso", `Curso selecionado: ${curso.nome || curso.titulo}`, "sucesso", 3);
-    }
-  };
-
-  // Estados de controle e navegação
-  const [mostrarOnboarding, setMostrarOnboarding] = useState(false);
-  const [cursosSelecionados, setCursosSelecionados] = useState([]);
-  const [stepInicialOnboarding, setStepInicialOnboarding] = useState(1);
-  const [carregandoSessao, setCarregandoSessao] = useState(true);
-
-  const [modalDevsVisivel, setModalDevsVisivel] = useState(false);
-  const [cursoSelecionado, setCursoSelecionado] = useState(null);
-  const [modalLoginVisivel, setModalLoginVisivel] = useState(false);
-  const [modalGerenciaVisivel, setModalGerenciaVisivel] = useState(false);
-  const [modalCoordenadorVisivel, setModalCoordenadorVisivel] = useState(false);
-  const [utilizadorLogado, setUtilizadorLogado] = useState(null);
-
-  const [activeTab, setActiveTab] = useState("mural");
-  const [windowWidth, setWindowWidth] = useState(Dimensions.get("window").width);
-  const [avisosAtivos, setAvisosAtivos] = useState([]);
-  const [avisoLeituraAtual, setAvisoLeituraAtual] = useState(null);
-
-  const abrirLeituraAviso = (aviso) => {
-    setAvisoLeituraAtual(aviso || null);
-  };
-
-  const fecharLeituraAviso = () => {
-    setAvisoLeituraAtual(null);
-  };
-
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener("change", ({ window }) => {
-      setWindowWidth(window.width);
-    });
-    return () => subscription?.remove();
-  }, []);
-
-  // Inicialização unificada: sessão, onboarding e dados acadêmicos
   useEffect(() => {
     let ativo = true;
 
@@ -150,16 +85,23 @@ export function useAppController(styles) {
         const usuarioSalvo = await recuperarSessaoUsuario();
         if (ativo && usuarioSalvo) {
           setUtilizadorLogado(usuarioSalvo);
-          const perfil = usuarioSalvo.perfil ? usuarioSalvo.perfil.trim().toLowerCase() : "";
-          if (perfil.includes("gerência") || perfil.includes("gerencia") || perfil.includes("coordenador")) {
-            setModalGerenciaVisivel(true);
+          const perfil = usuarioSalvo.perfil
+            ? usuarioSalvo.perfil.trim().toLowerCase()
+            : "";
+          if (
+            perfil.includes("gerência") ||
+            perfil.includes("gerencia") ||
+            perfil.includes("coordenador")
+          ) {
+            ui.setModalGerenciaVisivel(true);
           }
         }
 
         const salvos = await AsyncStorage.getItem("@cursos_selecionados");
         if (ativo) {
-          if (salvos && JSON.parse(salvos).length >= 3) {
-            setCursosSelecionados(JSON.parse(salvos));
+          const parsedCursos = salvos ? JSON.parse(salvos) : [];
+          if (Array.isArray(parsedCursos) && parsedCursos.length >= 3) {
+            setCursosSelecionados(parsedCursos);
             setMostrarOnboarding(false);
           } else {
             setMostrarOnboarding(true);
@@ -188,11 +130,12 @@ export function useAppController(styles) {
         setCursosDoBanco(resCursos.value || []);
         setErroCursos(null);
       } else {
-        const msg = resCursos.reason instanceof Error
-          ? resCursos.reason.message
-          : "Não foi possível carregar os cursos.";
+        const msg =
+          resCursos.reason instanceof Error
+            ? resCursos.reason.message
+            : "Não foi possível carregar os cursos.";
         setErroCursos(msg);
-        exibirPopup("❌ Erro nos Cursos", msg, "erro", 4);
+        ui.exibirPopup("❌ Erro nos Cursos", msg, "erro", 4);
       }
       setCarregandoCursos(false);
 
@@ -201,11 +144,12 @@ export function useAppController(styles) {
         setErroEventos(null);
       } else {
         setTodosOsEventos([]);
-        const msg = resEventos.reason instanceof Error
-          ? resEventos.reason.message
-          : "Erro ao carregar eventos.";
+        const msg =
+          resEventos.reason instanceof Error
+            ? resEventos.reason.message
+            : "Erro ao carregar eventos.";
         setErroEventos(msg);
-        exibirPopup("❌ Erro nos Eventos", msg, "erro", 4);
+        ui.exibirPopup("❌ Erro nos Eventos", msg, "erro", 4);
       }
       setCarregandoEventos(false);
 
@@ -224,10 +168,18 @@ export function useAppController(styles) {
 
   const handleConcluirSetup = async (cursosEscolhidos) => {
     try {
-      await AsyncStorage.setItem("@cursos_selecionados", JSON.stringify(cursosEscolhidos));
+      await AsyncStorage.setItem(
+        "@cursos_selecionados",
+        JSON.stringify(cursosEscolhidos)
+      );
       setCursosSelecionados(cursosEscolhidos);
       setMostrarOnboarding(false);
-      exibirPopup("✨ Cursos Atualizados!", "Seu feed de eventos foi personalizado.", "sucesso", 4);
+      ui.exibirPopup(
+        "✨ Cursos Atualizados!",
+        "Seu feed de eventos foi personalizado.",
+        "sucesso",
+        4
+      );
     } catch (error) {
       console.log("Erro ao salvar cursos", error);
     }
@@ -236,9 +188,19 @@ export function useAppController(styles) {
   const handlePularOnboarding = () => {
     setMostrarOnboarding(false);
     if (cursosSelecionados.length > 0) {
-      exibirPopup("ℹ️ Edição Cancelada", "Você pode refazer sua lista de cursos a qualquer momento entrando na aba Configurações.", "aviso", 5);
+      ui.exibirPopup(
+        "ℹ️ Edição Cancelada",
+        "Você pode refazer sua lista de cursos a qualquer momento entrando na aba Configurações.",
+        "aviso",
+        5
+      );
     } else {
-      exibirPopup("ℹ️ Lembrete", "Você pode personalizar seus cursos a qualquer momento no topo do mural.", "aviso", 5);
+      ui.exibirPopup(
+        "ℹ️ Lembrete",
+        "Você pode personalizar seus cursos a qualquer momento no topo do mural.",
+        "aviso",
+        5
+      );
     }
   };
 
@@ -250,39 +212,50 @@ export function useAppController(styles) {
   const handleLoginSucesso = async (usuario) => {
     setUtilizadorLogado(usuario);
     await salvarSessaoUsuario(usuario);
-    setModalLoginVisivel(false);
+    ui.setModalLoginVisivel(false);
     const perfil = usuario.perfil ? usuario.perfil.trim().toLowerCase() : "";
 
-    if (perfil.includes("gerência") || perfil.includes("gerencia") || perfil.includes("coordenador")) {
-      setModalGerenciaVisivel(true);
+    if (
+      perfil.includes("gerência") ||
+      perfil.includes("gerencia") ||
+      perfil.includes("coordenador")
+    ) {
+      ui.setModalGerenciaVisivel(true);
     } else {
-      exibirPopup("Acesso Negado", "Perfil sem autorização para painel.", "erro");
+      ui.exibirPopup("Acesso Negado", "Perfil sem autorização para painel.", "erro");
     }
   };
 
   const handleLogout = async () => {
     await limparSessaoUsuario();
     setUtilizadorLogado(null);
-    setModalGerenciaVisivel(false);
-    setModalCoordenadorVisivel(false);
+    ui.setModalGerenciaVisivel(false);
+    ui.setModalCoordenadorVisivel(false);
   };
 
   useEffect(() => {
+    let timerAviso = null;
+
     async function carregarAvisos() {
       try {
         const avisos = await buscarAvisosAtivosDoBanco(cursosSelecionados);
         setAvisosAtivos(avisos);
 
-        if (activeTab === "mural" && avisos.length > 0) {
+        if (ui.activeTab === "mural" && avisos.length > 0) {
           const ultimoAviso = avisos[0];
-          const ultimoAvisoVistoId = await AsyncStorage.getItem("@ultimo_aviso_visto_id");
+          const ultimoAvisoVistoId = await AsyncStorage.getItem(
+            "@ultimo_aviso_visto_id"
+          );
 
           if (String(ultimoAvisoVistoId) !== String(ultimoAviso.id)) {
-            setTimeout(() => {
-              abrirLeituraAviso(ultimoAviso);
+            timerAviso = setTimeout(() => {
+              ui.abrirLeituraAviso(ultimoAviso);
             }, 1800);
 
-            await AsyncStorage.setItem("@ultimo_aviso_visto_id", String(ultimoAviso.id));
+            await AsyncStorage.setItem(
+              "@ultimo_aviso_visto_id",
+              String(ultimoAviso.id)
+            );
           }
         }
       } catch (error) {
@@ -293,52 +266,65 @@ export function useAppController(styles) {
     if (!carregandoSessao) {
       carregarAvisos();
     }
-  }, [cursosSelecionados, carregandoSessao, activeTab]);
 
-  const reexibirAvisoPopup = (aviso) => {
-    abrirLeituraAviso(aviso);
-  };
-
-  const isDesktop = Platform.OS === "web" && windowWidth >= 768;
+    return () => {
+      if (timerAviso) clearTimeout(timerAviso);
+    };
+  }, [cursosSelecionados, carregandoSessao, ui.activeTab]);
 
   return {
-    eventoSelecionado, setEventoSelecionado,
-    diaFocado, eventosDoDia, carregandoEventos, erroEventos,
-    diasSemana, semestre,
-    listaProximos, listaSemana, eventosProximoMes,
+    eventoSelecionado: ui.eventoSelecionado,
+    setEventoSelecionado: ui.setEventoSelecionado,
+    diaFocado: ui.diaFocado,
+    eventosDoDia: ui.eventosDoDia,
+    carregandoEventos,
+    erroEventos,
+    diasSemana,
+    semestre,
+    listaProximos,
+    listaSemana,
+    eventosProximoMes,
     cursosDestaque,
     cursosTecnicos,
-    handleSelecionarCurso,
-    carregandoCursos, erroCursos,
+    handleSelecionarCurso: ui.handleSelecionarCurso,
+    carregandoCursos,
+    erroCursos,
     notificacoesSalvas,
     salvarNotificacao,
     removerNotificacao,
     renderizarDias,
     renderCartaoPequeno,
-    popupInfo, setPopupInfo,
-    exibirPopup,
+    popupInfo: ui.popupInfo,
+    setPopupInfo: ui.setPopupInfo,
+    exibirPopup: ui.exibirPopup,
     mostrarOnboarding,
     cursosSelecionados,
     stepInicialOnboarding,
     carregandoSessao,
-    modalDevsVisivel, setModalDevsVisivel,
-    cursoSelecionado, setCursoSelecionado,
-    modalLoginVisivel, setModalLoginVisivel,
-    modalGerenciaVisivel, setModalGerenciaVisivel,
-    modalCoordenadorVisivel, setModalCoordenadorVisivel,
+    modalDevsVisivel: ui.modalDevsVisivel,
+    setModalDevsVisivel: ui.setModalDevsVisivel,
+    cursoSelecionado: ui.cursoSelecionado,
+    setCursoSelecionado: ui.setCursoSelecionado,
+    modalLoginVisivel: ui.modalLoginVisivel,
+    setModalLoginVisivel: ui.setModalLoginVisivel,
+    modalGerenciaVisivel: ui.modalGerenciaVisivel,
+    setModalGerenciaVisivel: ui.setModalGerenciaVisivel,
+    modalCoordenadorVisivel: ui.modalCoordenadorVisivel,
+    setModalCoordenadorVisivel: ui.setModalCoordenadorVisivel,
     utilizadorLogado,
-    activeTab, setActiveTab,
-    isDesktop,
+    activeTab: ui.activeTab,
+    setActiveTab: ui.setActiveTab,
+    isDesktop: ui.isDesktop,
     handleConcluirSetup,
     handlePularOnboarding,
     handleRedefinirCursos,
     handleLoginSucesso,
     handleLogout,
     avisosAtivos,
-    avisoLeituraAtual,
-    abrirLeituraAviso,
-    fecharLeituraAviso,
-    reexibirAvisoPopup,
+    avisoLeituraAtual: ui.avisoLeituraAtual,
+    abrirLeituraAviso: ui.abrirLeituraAviso,
+    fecharLeituraAviso: ui.fecharLeituraAviso,
+    reexibirAvisoPopup: ui.reexibirAvisoPopup,
     todosOsEventos: eventosValidos,
     cursos: cursosDoBanco,
     servicos,

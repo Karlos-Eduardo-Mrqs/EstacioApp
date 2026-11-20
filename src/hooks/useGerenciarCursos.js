@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { buscarCursosDoBanco, criarCursoNoBanco, atualizarCursoNoBanco, removerCursoDoBanco,buscarCoordenadoresDoBanco} from '../services/apiServices';
+import { buscarCursosDoBanco, criarCursoNoBanco, atualizarCursoNoBanco, removerCursoDoBanco,buscarCoordenadoresDoBanco} from "../services/cursoServices";
 
 export function useGerenciarCursos(usuarioAtual) {
   const [cursos, setCursos] = useState([]);

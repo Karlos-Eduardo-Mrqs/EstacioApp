@@ -1,4 +1,3 @@
-// src/services/imagemServices.js
 import { supabase } from '../../lib/supabase';
 
 export async function criarImagemNoBanco(novaImagem) {

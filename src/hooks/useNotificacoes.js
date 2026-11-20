@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { solicitarPermissaoEAgendarLembrete } from "../services/apiServices";
+import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
 
 export function useNotificacoes(exibirPopup) {
   const [notificacoesSalvas, setNotificacoesSalvas] = useState([]);

@@ -1,5 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { supabase } from '../../lib/supabase'; // 👈 Ajuste o caminho do seu client supabase se necessário
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { supabase } from '../../lib/supabase';
+
+const TAMANHO_LOTE = 21;
 
 export function useBuscaEventos(eventosIniciais = []) {
   const [pesquisa, setPesquisa] = useState('');
@@ -7,7 +9,10 @@ export function useBuscaEventos(eventosIniciais = []) {
   const [eventoModal, setEventoModal] = useState(null);
   const [imagemPadraoUrl, setImagemPadraoUrl] = useState(null);
 
-  // 🔍 1. Busca a imagem padrão (id = 21) do Supabase uma única vez ao iniciar
+  const [limiteExibicao, setLimiteExibicao] = useState(TAMANHO_LOTE);
+  const [carregandoMais, setCarregandoMais] = useState(false);
+  const timeoutCarregarRef = useRef(null);
+
   useEffect(() => {
     async function buscarImagemPadrao() {
       try {
@@ -25,29 +30,33 @@ export function useBuscaEventos(eventosIniciais = []) {
       }
     }
     buscarImagemPadrao();
+
+    return () => {
+      if (timeoutCarregarRef.current) {
+        clearTimeout(timeoutCarregarRef.current);
+      }
+    };
   }, []);
 
-  // 🛡️ 2. Injeta a imagem padrão (id = 21) nos itens que não possuem imagem
   const eventosComImagemTratada = useMemo(() => {
-    return eventosIniciais.map(evento => {
-      const temImagemValida = typeof evento?.imagem === 'object' ? evento.imagem?.caminho_img : evento?.imagem;
-      
+    return eventosIniciais.map((evento) => {
+      const temImagemValida =
+        typeof evento?.imagem === 'object' ? evento.imagem?.caminho_img : evento?.imagem;
+
       if (!temImagemValida && imagemPadraoUrl) {
         return {
           ...evento,
-          imagem: imagemPadraoUrl
+          imagem: imagemPadraoUrl,
         };
       }
       return evento;
     });
   }, [eventosIniciais, imagemPadraoUrl]);
 
-  // 🔍 3. Lógica de filtragem aprimorada (pesquisa por título, descrição E nome do curso)
   const eventosFiltrados = useMemo(() => {
-    return eventosComImagemTratada.filter(evento => {
-      const termo = pesquisa.toLowerCase();
+    return eventosComImagemTratada.filter((evento) => {
+      const termo = pesquisa.trim().toLowerCase();
 
-      // Extrai o nome do curso de forma segura (seja string ou objeto relacional do Supabase)
       let nomeCurso = "";
       if (evento?.curso) {
         nomeCurso = typeof evento.curso === 'object' ? (evento.curso.nome || "") : evento.curso;
@@ -55,16 +64,42 @@ export function useBuscaEventos(eventosIniciais = []) {
         nomeCurso = typeof evento.turma === 'object' ? (evento.turma.nome || "") : evento.turma;
       }
 
-      const matchTexto = 
-        evento.titulo?.toLowerCase().includes(termo) || 
+      const matchTexto =
+        !termo ||
+        evento.titulo?.toLowerCase().includes(termo) ||
         evento.descricao?.toLowerCase().includes(termo) ||
-        nomeCurso.toLowerCase().includes(termo); // 👈 Agora pesquisa também pelo nome do curso/turma!
-      
+        nomeCurso.toLowerCase().includes(termo);
+
       const matchCurso = cursoSelecionado ? nomeCurso === cursoSelecionado : true;
 
       return matchTexto && matchCurso;
     });
   }, [eventosComImagemTratada, pesquisa, cursoSelecionado]);
+
+  // Volta para 21 itens sempre que o filtro ou a busca muda
+  useEffect(() => {
+    setLimiteExibicao(TAMANHO_LOTE);
+    setCarregandoMais(false);
+    if (timeoutCarregarRef.current) {
+      clearTimeout(timeoutCarregarRef.current);
+    }
+  }, [pesquisa, cursoSelecionado]);
+
+  const eventosVisiveis = useMemo(() => {
+    return eventosFiltrados.slice(0, limiteExibicao);
+  }, [eventosFiltrados, limiteExibicao]);
+
+  const temMaisEventos = eventosVisiveis.length < eventosFiltrados.length;
+
+  const carregarMaisEventos = useCallback(() => {
+    if (!temMaisEventos || carregandoMais) return;
+
+    setCarregandoMais(true);
+    timeoutCarregarRef.current = setTimeout(() => {
+      setLimiteExibicao((prev) => Math.min(prev + TAMANHO_LOTE, eventosFiltrados.length));
+      setCarregandoMais(false);
+    }, 350);
+  }, [temMaisEventos, carregandoMais, eventosFiltrados.length]);
 
   return {
     pesquisa,
@@ -73,7 +108,11 @@ export function useBuscaEventos(eventosIniciais = []) {
     setCursoSelecionado,
     eventoModal,
     setEventoModal,
-    eventosFiltrados,
-    imagemPadraoUrl
+    eventosFiltrados: eventosVisiveis,
+    totalFiltrados: eventosFiltrados.length,
+    temMaisEventos,
+    carregandoMais,
+    carregarMaisEventos,
+    imagemPadraoUrl,
   };
 }

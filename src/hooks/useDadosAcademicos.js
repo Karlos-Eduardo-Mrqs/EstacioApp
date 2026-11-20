@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { buscarCursosDoBanco, buscarEventosDoBanco, buscarServicosDoBanco } from '../services/apiServices';
+import {buscarCursosDoBanco} from "../services/cursoServices";
+import {buscarEventosDoBanco,} from "../services/eventoServices";
+import { buscarServicosDoBanco } from '../services/servicoService';
 import { formatarDataApenas, formatarDataHora, obterTempoEvento } from '../utils/dataUtils';
 
 function parseDataSegura(valor) {

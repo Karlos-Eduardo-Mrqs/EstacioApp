@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { buscarEventosDoBanco, criarEventoNoBanco, atualizarEventoNoBanco, removerEventoDoBanco,
-alterarStatusEventoNoBanco, criarImagemNoBanco, atualizarImagemNoBanco, buscarCursosDoBanco, fazerUploadParaSupabaseStorage } from '../services/apiServices';
+import {buscarCursosDoBanco} from "../services/cursoServices";
+import {buscarEventosDoBanco, criarEventoNoBanco, atualizarEventoNoBanco, removerEventoDoBanco,alterarStatusEventoNoBanco} from "../services/eventoServices";
+import {criarImagemNoBanco, atualizarImagemNoBanco, fazerUploadParaSupabaseStorage } from '../services/imagemServices';
 import { converterParaISO } from '../utils/dataUtils';
 
 export function useGerenciarEventos(usuarioAtual = null) {

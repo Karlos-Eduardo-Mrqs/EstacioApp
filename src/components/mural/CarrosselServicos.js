@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { CoresInstitucionais } from "../../styles/theme";
 import ModalDetalhesServico from "./ModalServicos";
 import { carrosselServicosStyles as styles } from "../../styles/mural/carrosselServicosStyles";
+import ControlesCarrossel from "../ControlesCarrossel";
 
 export default function CarrosselServicos({ servicos = [], onSelectServico }) {
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
+  const scrollRef = useRef(null);
+  const [scrollX, setScrollX] = useState(0);
+  const [larguraConteudo, setLarguraConteudo] = useState(0);
+  const [larguraContainer, setLarguraContainer] = useState(0);
 
   if (!servicos || servicos.length === 0) return null;
 
@@ -18,7 +23,6 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
 
   return (
     <View style={styles.secaoContainer}>
-      {/* TÍTULO DA SEÇÃO */}
       <View style={{ marginBottom: 8, flexDirection: "row", alignItems: "center" }}>
         <Text
           style={{
@@ -33,7 +37,6 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
         </Text>
       </View>
 
-      {/* LINHA DIVISÓRIA SUTIL */}
       <View
         style={{
           height: 2,
@@ -44,12 +47,16 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
         }}
       />
 
-      {/* CARROSSEL HORIZONTAL */}
       <View style={styles.carrosselWrapper}>
         <ScrollView
+          ref={scrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           nestedScrollEnabled
+          scrollEventThrottle={16}
+          onScroll={(e) => setScrollX(e.nativeEvent.contentOffset.x)}
+          onLayout={(e) => setLarguraContainer(e.nativeEvent.layout.width)}
+          onContentSizeChange={(w) => setLarguraConteudo(w)}
           contentContainerStyle={styles.listaServicos}
         >
           {servicos.map((item, index) => (
@@ -59,14 +66,12 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
               activeOpacity={0.85}
               onPress={() => handlePressServico(item)}
             >
-              {/* Tag Numérica / Ícone */}
               <View style={styles.cardHeaderTop}>
                 <View style={styles.badgeNumero}>
                   <Text style={styles.cardNumero}>#{index + 1}</Text>
                 </View>
               </View>
 
-              {/* Conteúdo Central */}
               <View style={styles.cardBody}>
                 <Text style={styles.cardTitulo} numberOfLines={2}>
                   {item.nome}
@@ -76,7 +81,6 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
                 </Text>
               </View>
 
-              {/* Rodapé do Card */}
               <View style={styles.cardFooter}>
                 <View style={styles.tagContainer}>
                   <Text style={styles.tagTexto} numberOfLines={1}>
@@ -91,9 +95,24 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: 10,
+          }}
+        >
+          <ControlesCarrossel
+            scrollRef={scrollRef}
+            scrollX={scrollX}
+            larguraConteudo={larguraConteudo}
+            larguraContainer={larguraContainer}
+            passoScroll={280}
+          />
+        </View>
       </View>
 
-      {/* MODAL DE DETALHES */}
       <ModalDetalhesServico
         servico={servicoSelecionado}
         visible={servicoSelecionado !== null}

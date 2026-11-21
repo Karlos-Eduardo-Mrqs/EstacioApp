@@ -1,7 +1,9 @@
+import { useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { CoresInstitucionais } from "../../styles/theme";
 import { formatarDataApenas } from "../../utils/dataUtils";
+import ControlesCarrossel from "../ControlesCarrossel";
 
 export default function CarrosselEventosCursosFavoritos({
   todosOsEventos = [],
@@ -9,10 +11,14 @@ export default function CarrosselEventosCursosFavoritos({
   cursosDisponiveis = [],
   onSelectEvento,
 }) {
+  const scrollRef = useRef(null);
+  const [scrollX, setScrollX] = useState(0);
+  const [larguraConteudo, setLarguraConteudo] = useState(0);
+  const [larguraContainer, setLarguraContainer] = useState(0);
+
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  // 1. Cruza os IDs ou títulos salvos com os cursos disponíveis para extrair os nomes reais em texto
   const nomesCursosSelecionados = cursosDisponiveis
     .filter(
       (curso) =>
@@ -23,7 +29,6 @@ export default function CarrosselEventosCursosFavoritos({
     )
     .map((curso) => (curso.titulo || curso.nome || "").toLowerCase());
 
-  // 2. Termos de busca normalizados para comparar com os eventos
   const termosBusca =
     nomesCursosSelecionados.length > 0
       ? nomesCursosSelecionados
@@ -63,7 +68,6 @@ export default function CarrosselEventosCursosFavoritos({
 
   return (
     <View style={estilosCarrosselEvento.secaoFavoritosContainer}>
-      {/* ── TÍTULO DA SEÇÃO ── */}
       <View style={{ marginBottom: 8 }}>
         <Text
           style={{
@@ -77,7 +81,6 @@ export default function CarrosselEventosCursosFavoritos({
         </Text>
       </View>
 
-      {/* ── LINHA DIVISÓRIA ── */}
       <View
         style={{
           borderTopWidth: 1,
@@ -86,11 +89,15 @@ export default function CarrosselEventosCursosFavoritos({
         }}
       />
 
-      {/* ── SCROLL HORIZONTAL DE CARTÕES ── */}
       <ScrollView
+        ref={scrollRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         nestedScrollEnabled
+        scrollEventThrottle={16}
+        onScroll={(e) => setScrollX(e.nativeEvent.contentOffset.x)}
+        onLayout={(e) => setLarguraContainer(e.nativeEvent.layout.width)}
+        onContentSizeChange={(w) => setLarguraConteudo(w)}
         contentContainerStyle={estilosCarrosselEvento.containerScroll}
       >
         {eventosFavoritos.map((evento, index) => {
@@ -142,6 +149,22 @@ export default function CarrosselEventosCursosFavoritos({
           );
         })}
       </ScrollView>
+
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          marginTop: 8,
+        }}
+      >
+        <ControlesCarrossel
+          scrollRef={scrollRef}
+          scrollX={scrollX}
+          larguraConteudo={larguraConteudo}
+          larguraContainer={larguraContainer}
+          passoScroll={270}
+        />
+      </View>
     </View>
   );
 }

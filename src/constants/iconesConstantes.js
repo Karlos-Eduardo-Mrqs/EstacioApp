@@ -134,7 +134,8 @@ export const globalIcons = {
   'finger-print-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/finger-print-outline.svg',
   'planet-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/planet-outline.svg',
   'square-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/square-outline.svg',
-  'checkbox': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/checkbox.svg'
+  'checkbox': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/checkbox.svg',
+  'chevron-back': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/chevron-back.svg',
 };
 
 export const LISTA_ICONES_CURSOS = [

@@ -1,10 +1,65 @@
+import { useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { carrosselEventosStyles as estilosCarrosselEvento } from "../../styles/mural/carrosselEventosStyles";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
 import { formatarDataApenas } from "../../utils/dataUtils";
 import CursosCarrossel from "./CarrosselCursos";
 import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
-import CarrosselServicos from "./CarrosselServicos"; // 👈 Importa o novo carrossel de serviços
+import CarrosselServicos from "./CarrosselServicos";
+import ControlesCarrossel from "../ControlesCarrossel";
+
+function SecaoCarrosselEventos({
+  titulo,
+  eventos = [],
+  mensagemVazio,
+  renderCartao,
+}) {
+  const scrollRef = useRef(null);
+  const [scrollX, setScrollX] = useState(0);
+  const [larguraConteudo, setLarguraConteudo] = useState(0);
+  const [larguraContainer, setLarguraContainer] = useState(0);
+
+  return (
+    <View style={styles.blocoSection}>
+      <Text style={styles.tituloSecaoBloco}>{titulo}</Text>
+
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={(e) => setScrollX(e.nativeEvent.contentOffset.x)}
+        onLayout={(e) => setLarguraContainer(e.nativeEvent.layout.width)}
+        onContentSizeChange={(w) => setLarguraConteudo(w)}
+        contentContainerStyle={estilosCarrosselEvento.containerScroll}
+      >
+        {eventos.length > 0 ? (
+          eventos.map(renderCartao)
+        ) : (
+          <Text style={styles.textoMutavel}>{mensagemVazio}</Text>
+        )}
+      </ScrollView>
+
+      {eventos.length > 0 && (
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            marginTop: 8,
+          }}
+        >
+          <ControlesCarrossel
+            scrollRef={scrollRef}
+            scrollX={scrollX}
+            larguraConteudo={larguraConteudo}
+            larguraContainer={larguraContainer}
+            passoScroll={270}
+          />
+        </View>
+      )}
+    </View>
+  );
+}
 
 export default function ListaCarrosseis({
   cursos,
@@ -13,10 +68,10 @@ export default function ListaCarrosseis({
   listaProximos,
   listaSemana,
   eventosProximoMes,
-  servicos = [], 
+  servicos = [],
   onSelectCurso,
   onSelectEvento,
-  onSelectServico, 
+  onSelectServico,
   carregandoCursos,
   erroCursos,
   todosOsEventos = [],
@@ -69,7 +124,6 @@ export default function ListaCarrosseis({
 
   return (
     <View>
-      {/* ── CARROSSEL DOS CURSOS (TODOS OS CURSOS) ── */}
       <CursosCarrossel
         cursos={cursos || []}
         cursosTecnicos={cursosTecnicos || []}
@@ -79,7 +133,6 @@ export default function ListaCarrosseis({
         erroCursos={erroCursos}
       />
 
-      {/* ── CARROSSEL DE EVENTOS DOS CURSOS FAVORITOS ── */}
       <CarrosselEventosCursosFavoritos
         todosOsEventos={todosOsEventos}
         cursosSelecionados={cursosFavoritosIds}
@@ -87,67 +140,31 @@ export default function ListaCarrosseis({
         onSelectEvento={onSelectEvento}
       />
 
-      {/* Próximos Eventos */}
-      <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>PRÓXIMOS EVENTOS</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={estilosCarrosselEvento.containerScroll}
-        >
-          {listaProximos?.length > 0 ? (
-            listaProximos.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum próximo evento encontrado.
-            </Text>
-          )}
-        </ScrollView>
-      </View>
+      <SecaoCarrosselEventos
+        titulo="PRÓXIMOS EVENTOS"
+        eventos={listaProximos || []}
+        mensagemVazio="Nenhum próximo evento encontrado."
+        renderCartao={renderCartaoCarrossel}
+      />
 
-      {/* Eventos da Semana */}
-      <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>EVENTOS DA SEMANA</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={estilosCarrosselEvento.containerScroll}
-        >
-          {listaSemana?.length > 0 ? (
-            listaSemana.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum evento agendado para esta semana.
-            </Text>
-          )}
-        </ScrollView>
-      </View>
+      <SecaoCarrosselEventos
+        titulo="EVENTOS DA SEMANA"
+        eventos={listaSemana || []}
+        mensagemVazio="Nenhum evento agendado para esta semana."
+        renderCartao={renderCartaoCarrossel}
+      />
 
-      {/* Eventos para o Próximo Mês */}
-      <View style={styles.blocoSection}>
-        <Text style={styles.tituloSecaoBloco}>EVENTOS PARA O PRÓXIMO MÊS</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={estilosCarrosselEvento.containerScroll}
-        >
-          {eventosProximoMes?.length > 0 ? (
-            eventosProximoMes.map(renderCartaoCarrossel)
-          ) : (
-            <Text style={styles.textoMutavel}>
-              Nenhum evento para o próximo mês.
-            </Text>
-          )}
-        </ScrollView>
-      </View>
+      <SecaoCarrosselEventos
+        titulo="EVENTOS PARA O PRÓXIMO MÊS"
+        eventos={eventosProximoMes || []}
+        mensagemVazio="Nenhum evento para o próximo mês."
+        renderCartao={renderCartaoCarrossel}
+      />
 
-      
-      {/* ── CARROSSEL DE SERVIÇOS INSTITUCIONAIS ── */}
       <CarrosselServicos
         servicos={servicos || []}
         onSelectServico={onSelectServico}
       />
-      
     </View>
   );
 }

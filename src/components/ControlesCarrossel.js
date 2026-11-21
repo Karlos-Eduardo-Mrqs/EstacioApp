@@ -6,11 +6,18 @@ export default function ControlesCarrossel({
   scrollX = 0,
   larguraConteudo = 0,
   larguraContainer = 0,
-  passoScroll = 280,
+  passoScroll = 300,
 }) {
-  const podeVoltar = scrollX > 4;
+  const temOverflow =
+    larguraConteudo > 0 && larguraContainer > 0
+      ? larguraConteudo > larguraContainer + 6
+      : true;
+
+  if (!temOverflow) return null;
+
+  const podeVoltar = scrollX > 6;
   const maxScroll = Math.max(0, larguraConteudo - larguraContainer);
-  const podeAvancar = maxScroll > 0 ? scrollX < maxScroll - 4 : true;
+  const podeAvancar = maxScroll > 0 ? scrollX < maxScroll - 6 : true;
 
   const rolarPara = (direcao) => {
     if (!scrollRef?.current) return;
@@ -18,7 +25,10 @@ export default function ControlesCarrossel({
     const proximoX =
       direcao === "esquerda"
         ? Math.max(0, scrollX - passoScroll)
-        : scrollX + passoScroll;
+        : Math.min(
+            maxScroll > 0 ? maxScroll : scrollX + passoScroll,
+            scrollX + passoScroll,
+          );
 
     scrollRef.current.scrollTo({
       x: proximoX,
@@ -27,28 +37,37 @@ export default function ControlesCarrossel({
   };
 
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        backgroundColor: "#F1F5F9",
+        padding: 3,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#E2E8F0",
+      }}
+    >
       <TouchableOpacity
         onPress={() => rolarPara("esquerda")}
         disabled={!podeVoltar}
         activeOpacity={0.75}
         accessibilityLabel="Rolar para a esquerda"
         style={{
-          width: 30,
-          height: 30,
+          width: 28,
+          height: 28,
           borderRadius: 7,
-          borderWidth: 1,
-          borderColor: podeVoltar ? "#CBD5E1" : "#E2E8F0",
-          backgroundColor: podeVoltar ? "#FFFFFF" : "#F8FAFC",
+          backgroundColor: podeVoltar ? "#032551" : "transparent",
           justifyContent: "center",
           alignItems: "center",
-          opacity: podeVoltar ? 1 : 0.45,
+          opacity: podeVoltar ? 1 : 0.35,
         }}
       >
         <CustomIcon
           name="chevron-back"
-          size={17}
-          color={podeVoltar ? "#032551" : "#94A3B8"}
+          size={16}
+          color={podeVoltar ? "#FFFFFF" : "#64748B"}
         />
       </TouchableOpacity>
 
@@ -58,21 +77,19 @@ export default function ControlesCarrossel({
         activeOpacity={0.75}
         accessibilityLabel="Rolar para a direita"
         style={{
-          width: 30,
-          height: 30,
+          width: 28,
+          height: 28,
           borderRadius: 7,
-          borderWidth: 1,
-          borderColor: podeAvancar ? "#CBD5E1" : "#E2E8F0",
-          backgroundColor: podeAvancar ? "#FFFFFF" : "#F8FAFC",
+          backgroundColor: podeAvancar ? "#032551" : "transparent",
           justifyContent: "center",
           alignItems: "center",
-          opacity: podeAvancar ? 1 : 0.45,
+          opacity: podeAvancar ? 1 : 0.35,
         }}
       >
         <CustomIcon
           name="chevron-forward"
-          size={17}
-          color={podeAvancar ? "#032551" : "#94A3B8"}
+          size={16}
+          color={podeAvancar ? "#FFFFFF" : "#64748B"}
         />
       </TouchableOpacity>
     </View>

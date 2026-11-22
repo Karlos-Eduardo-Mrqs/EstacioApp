@@ -162,26 +162,40 @@ export function useGerenciarInscricoes(usuarioAtual = null) {
     });
   }
 
-  async function exportarExcel(grupo = grupoSelecionado) {
-    if (!grupo) return;
-    try {
-      const arquivo = await exportarInscricoesParaExcel(
-        grupo.evento,
-        grupo.inscricoes
-      );
-      setToast({
-        visible: true,
-        titulo: "Excel exportado",
-        mensagem: `Planilha "${arquivo}" gerada com sucesso!`,
-      });
-    } catch (error) {
-      setToast({
-        visible: true,
-        titulo: "Erro ao exportar",
-        mensagem: "Não foi possível gerar o arquivo Excel.",
-      });
-    }
+  async function exportarExcel(eventoOuGrupo = grupoSelecionado, listaOpcional = null) {
+  let evento = null;
+  let lista = [];
+
+  if (Array.isArray(listaOpcional)) {
+    evento = eventoOuGrupo;
+    lista = listaOpcional;
+  } else if (eventoOuGrupo?.evento && Array.isArray(eventoOuGrupo?.inscricoes)) {
+    evento = eventoOuGrupo.evento;
+    lista = eventoOuGrupo.inscricoes;
+  } else if (grupoSelecionado) {
+    evento = grupoSelecionado.evento;
+    lista = grupoSelecionado.inscricoes || [];
   }
+
+  if (!evento) return;
+
+  try {
+    const arquivo = await exportarInscricoesParaExcel(evento, lista);
+    setToast({
+      visible: true,
+      titulo: "Excel exportado",
+      mensagem: `Planilha "${arquivo}" gerada com sucesso!`,
+    });
+  } catch (error) {
+    console.log("Erro ao exportar Excel:", error);
+    setToast({
+      visible: true,
+      titulo: "Erro ao exportar",
+      mensagem: error?.message || "Não foi possível gerar o arquivo Excel.",
+    });
+  }
+}
+  
 
   async function excluirInscricao(inscricao) {
     setConfirmacao({

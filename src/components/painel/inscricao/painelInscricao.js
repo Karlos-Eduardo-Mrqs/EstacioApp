@@ -46,6 +46,22 @@ function formatarPeriodoEvento(evento) {
   return inicio || null;
 }
 
+function formatarPalestranteEvento(evento) {
+  if (!evento) return null;
+  const raw =
+    evento.palestrante ??
+    evento.responsavel ??
+    evento.ministrante ??
+    evento.nome_palestrante;
+
+  if (!raw) return null;
+  if (typeof raw === "object") {
+    return raw.nome ? String(raw.nome).trim() : null;
+  }
+  const texto = String(raw).trim();
+  return texto || null;
+}
+
 export default function PainelInscricoes({ usuarioAtual = null }) {
   const [filtroStatusTipo, setFiltroStatusTipo] = useState("todas");
 
@@ -83,26 +99,20 @@ export default function PainelInscricoes({ usuarioAtual = null }) {
     return true;
   });
 
-  function formatarPalestranteEvento(evento) {
-      if (!evento) return null;
-      const raw = evento.palestrante || evento.responsavel;
-      if (!raw) return null;
-      if (typeof raw === "object") {
-        return raw.nome ? String(raw.nome).trim() : null;
-      }
-      return String(raw).trim() || null;
-  }
-
   const eventoAtual = grupoSelecionado?.evento || null;
   const periodoFmt = formatarPeriodoEvento(eventoAtual);
   const localFmt = eventoAtual ? formatarLocalEvento(eventoAtual) : null;
+  const palestranteFmt = formatarPalestranteEvento(eventoAtual);
+
   const limiteVagasNum = Number(eventoAtual?.limite_vagas);
   const temLimiteVagas =
     Number.isFinite(limiteVagasNum) && limiteVagasNum > 0;
   const percentualOcupacao = temLimiteVagas
     ? Math.min(
         100,
-        Math.round(((grupoSelecionado?.totalAtivas || 0) / limiteVagasNum) * 100)
+        Math.round(
+          ((grupoSelecionado?.totalAtivas || 0) / limiteVagasNum) * 100
+        )
       )
     : null;
 
@@ -117,8 +127,6 @@ export default function PainelInscricoes({ usuarioAtual = null }) {
     setFiltroStatusTipo("todas");
     setEventoSelecionadoId(null);
   };
-  
-  const palestranteFmt = formatarPalestranteEvento(eventoAtual);
 
   return (
     <View style={styles.safeArea}>
@@ -198,7 +206,9 @@ export default function PainelInscricoes({ usuarioAtual = null }) {
                       size={14}
                       color="#173EA5"
                     />
-                    <Text style={s.speakerBadgeText}>Palestrante: {palestranteFmt}</Text>
+                    <Text style={s.speakerBadgeText}>
+                      Palestrante: {palestranteFmt}
+                    </Text>
                   </View>
                 ) : null}
 
@@ -279,7 +289,7 @@ export default function PainelInscricoes({ usuarioAtual = null }) {
               <View style={s.actionsRow}>
                 <TouchableOpacity
                   style={s.exportButton}
-                  onPress={() => exportarExcel(grupoSelecionado)}
+                  onPress={() => exportarExcel(eventoAtual, inscricoesFiltradasPorChip)}
                   activeOpacity={0.85}
                 >
                   <CustomIcon

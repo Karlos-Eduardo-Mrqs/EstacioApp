@@ -20,7 +20,8 @@ export default function GerenciarListaInscricao({
       item.email?.toLowerCase().includes(termo) ||
       item.telefone?.toLowerCase().includes(termo) ||
       item.matricula?.toLowerCase().includes(termo) ||
-      item.cpf?.toLowerCase().includes(termo)
+      item.cpf?.toLowerCase().includes(termo) ||
+      item.codigo_acesso?.toLowerCase().includes(termo)
     );
   });
 
@@ -28,7 +29,7 @@ export default function GerenciarListaInscricao({
     <View style={{ marginTop: 4 }}>
       <TextInput
         style={s.searchInput}
-        placeholder="Buscar inscrito por nome, e-mail, matrícula ou CPF..."
+        placeholder="Buscar inscrito por nome, e-mail, matrícula, CPF ou código..."
         placeholderTextColor="#94A3B8"
         value={pesquisa}
         onChangeText={setPesquisa}
@@ -39,7 +40,13 @@ export default function GerenciarListaInscricao({
           const ativa = item.status !== false;
 
           return (
-            <View key={item.id} style={s.itemCard}>
+            <View
+              key={item.id}
+              style={[
+                s.itemCard,
+                ativa ? s.itemCardActive : s.itemCardCanceled,
+              ]}
+            >
               <View style={s.itemHeader}>
                 <Text style={s.itemName} numberOfLines={1}>
                   {item.nome_completo}
@@ -61,15 +68,51 @@ export default function GerenciarListaInscricao({
                 </View>
               </View>
 
-              <Text style={s.itemMeta}>
-                {item.eh_aluno
-                  ? `🎓 Aluno • Matrícula: ${item.matricula || "-"}`
-                  : `👤 Pessoa Externa • CPF: ${item.cpf || "-"}`}
-              </Text>
+              <View style={s.itemDetailsBox}>
+                <View style={s.itemMetaRow}>
+                  <CustomIcon
+                    name={item.eh_aluno ? "school-outline" : "card-outline"}
+                    size={14}
+                    color="#173EA5"
+                  />
+                  <Text style={s.itemMetaText}>
+                    {item.eh_aluno
+                      ? `Aluno • Matrícula: ${item.matricula || "-"}`
+                      : `Pessoa Externa • CPF: ${item.cpf || "-"}`}
+                  </Text>
+                </View>
 
-              <Text style={s.itemMeta}>
-                📞 {item.telefone || "-"} • ✉️ {item.email || "-"}
-              </Text>
+                <View style={s.itemMetaRow}>
+                  <CustomIcon
+                    name="phone-portrait-outline"
+                    size={14}
+                    color="#475569"
+                  />
+                  <Text style={s.itemMetaText}>{item.telefone || "-"}</Text>
+                  <Text style={s.itemMetaText}>•</Text>
+                  <CustomIcon
+                    name="mail-outline"
+                    size={14}
+                    color="#475569"
+                  />
+                  <Text style={s.itemMetaText}>{item.email || "-"}</Text>
+                </View>
+              </View>
+
+              {item.codigo_acesso ? (
+                <View style={s.itemFooterMetaRow}>
+                  <View style={s.itemCodeBadge}>
+                    <CustomIcon
+                      name="key-outline"
+                      size={13}
+                      color="#173EA5"
+                    />
+                    <Text style={s.itemCodeText}>
+                      Código de acesso: {item.codigo_acesso}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
 
               <View style={s.itemActionsRow}>
                 {onEditar && (

@@ -3,7 +3,9 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import * as XLSX from 'xlsx';
 import { supabase } from '../../lib/supabase';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const CHAVE_INSCRICOES = '@mural_estacio:minhas_inscricoes';
 
 function normalizarTexto(valor) {
   return String(valor || '').trim().toLowerCase();
@@ -11,6 +13,15 @@ function normalizarTexto(valor) {
 
 function limparDigitos(valor) {
   return String(valor || '').replace(/\D/g, '');
+}
+
+function gerarCodigoAcesso() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let codigo = '';
+  for (let i = 0; i < 8; i++) {
+    codigo += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return codigo;
 }
 
 export async function verificarInscricaoExistente({
@@ -54,7 +65,7 @@ export async function verificarInscricaoExistente({
 }
 
 export async function buscarInscricoesComEventos(usuarioAtual = null) {
-  let query = supabase
+  const { data, error } = await supabase
     .from('inscricao')
     .select(`
       *,
@@ -74,7 +85,6 @@ export async function buscarInscricoesComEventos(usuarioAtual = null) {
     `)
     .order('criado_em', { ascending: false });
 
-  const { data, error } = await query;
   if (error) throw error;
 
   const lista = data || [];
@@ -179,13 +189,27 @@ export async function criarInscricaoNoBanco({
     cpf: !ehAluno ? String(cpf || '').trim() : null,
     telefone: String(telefone || '').trim(),
     email: String(email || '').trim().toLowerCase(),
+    codigo_acesso: gerarCodigoAcesso(),
     status: true,
   };
 
   const { data, error } = await supabase
     .from('inscricao')
     .insert([payload])
-    .select()
+    .select(`
+      *,
+      evento:evento_id (
+        id,
+        titulo,
+        descricao,
+        data_inicio,
+        data_fim,
+        local,
+        palestrante,
+        limite_vagas,
+        status
+      )
+    `)
     .single();
 
   if (error) throw error;
@@ -197,7 +221,20 @@ export async function atualizarInscricaoNoBanco(id, dadosAtualizados) {
     .from('inscricao')
     .update(dadosAtualizados)
     .eq('id', id)
-    .select()
+    .select(`
+      *,
+      evento:evento_id (
+        id,
+        titulo,
+        descricao,
+        data_inicio,
+        data_fim,
+        local,
+        palestrante,
+        limite_vagas,
+        status
+      )
+    `)
     .single();
 
   if (error) throw error;
@@ -208,28 +245,65 @@ export async function alterarStatusInscricaoNoBanco(id, novoStatus) {
   return atualizarInscricaoNoBanco(id, { status: Boolean(novoStatus) });
 }
 
-export async function exportarInscricoesParaExcel(evento, inscricoes = []) {
-  const linhas = (inscricoes || []).map((item, index) => ({
-    "#": index + 1,
-    "Nome Completo": item.nome_completo || "",
-    Tipo: item.eh_aluno ? "Aluno" : "Pessoa Externa",
-    Matrícula: item.eh_aluno ? item.matricula || "-" : "-",
-    CPF: !item.eh_aluno ? item.cpf || "-" : "-",
-    Telefone: item.telefone || "-",
-    "E-mail": item.email || "-",
-    Status: item.status === false ? "Cancelada" : "Ativa",
-  }));
+export async function excluirInscricaoNoBanco(id) {
+  const { error } = await supabase
+    .from('inscricao')
+    .delete()
+    .eq('id', id);
 
-  const planilha = XLSX.utils.json_to_sheet(linhas);
-  planilha["!cols"] = [
-    { wch: 5 },
-    { wch: 30 },
-    { wch: 16 },
-    { wch: 16 },
-    { wch: 18 },
-    { wch: 22 },
-    { wch: 30 },
-    { wch: 12 },
+  if (error) throw error;
+}
+
+export async function exportarInscricoesParaExcel(evento, inscricoes = []) {
+  const colunas = [
+    '#',
+    'Nome Completo',
+    'Tipo',
+    'Matrícula',
+    'CPF',
+    'Telefone',
+    'E-mail',
+    'Código de Acesso',
+    'Status',
+  ];
+
+  const listaOrdenada = [...(inscricoes || [])].sort((a, b) =>
+    String(a?.nome_completo || '').localeCompare(
+      String(b?.nome_completo || ''),
+      'pt-BR'
+    )
+  );
+
+  const linhas = listaOrdenada.map((item, index) => {
+    const ativa = item?.status !== false;
+    return {
+      '#': index + 1,
+      'Nome Completo': String(item?.nome_completo || '').trim(),
+      Tipo: item?.eh_aluno ? 'Aluno' : 'Pessoa Externa',
+      Matrícula: item?.eh_aluno ? item?.matricula || '-' : '-',
+      CPF: !item?.eh_aluno ? item?.cpf || '-' : '-',
+      Telefone: item?.telefone || '-',
+      'E-mail': String(item?.email || '').trim().toLowerCase() || '-',
+      'Código de Acesso': String(item?.codigo_acesso || '-').trim().toUpperCase(),
+      Status: ativa ? 'Ativa' : 'Cancelada',
+    };
+  });
+
+  const planilha = XLSX.utils.json_to_sheet(linhas, {
+    header: colunas,
+    skipHeader: false,
+  });
+
+  planilha['!cols'] = [
+    { wch: 6 },   // #
+    { wch: 30 },  // Nome Completo
+    { wch: 16 },  // Tipo
+    { wch: 18 },  // Matrícula
+    { wch: 18 },  // CPF
+    { wch: 22 },  // Telefone
+    { wch: 42 },  // E-mail
+    { wch: 18 },  // Código de Acesso
+    { wch: 14 },  // Status
   ];
 
   const workbook = XLSX.utils.book_new();
@@ -238,6 +312,8 @@ export async function exportarInscricoesParaExcel(evento, inscricoes = []) {
   const base64 = XLSX.write(workbook, { type: 'base64', bookType: 'xlsx' });
   const nomeSanitizado = String(evento?.titulo || 'evento')
     .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '');
   const nomeArquivo = `inscricoes_${nomeSanitizado || 'evento'}.xlsx`;
@@ -248,7 +324,7 @@ export async function exportarInscricoesParaExcel(evento, inscricoes = []) {
     for (let i = 0; i < byteCharacters.length; i++) {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
-    const byteArray = new Uint8Array(byteArrayOrBuffer(byteNumbers));
+    const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
@@ -279,55 +355,15 @@ export async function exportarInscricoesParaExcel(evento, inscricoes = []) {
   return nomeArquivo;
 }
 
-function byteArrayOrBuffer(arr) {
-  return new Uint8Array(arr);
-}
-
-export function excluirInscricao(inscricao) {
-    setConfirmacao({
-      visible: true,
-      titulo: "Excluir inscrição",
-      mensagem: `Deseja excluir permanentemente a inscrição de "${inscricao.nome_completo}"?`,
-      tipo: "danger",
-      onConfirm: async () => {
-        setConfirmacao((prev) => ({ ...prev, visible: false }));
-        try {
-          const { error } = await supabase
-            .from("inscricao")
-            .delete()
-            .eq("id", inscricao.id);
-
-          if (error) throw error;
-
-          await carregarInscricoes();
-          setToast({
-            visible: true,
-            titulo: "Inscrição excluída",
-            mensagem: "A inscrição foi removida do banco de dados.",
-          });
-        } catch (error) {
-          setToast({
-            visible: true,
-            titulo: "Erro",
-            mensagem: "Não foi possível excluir a inscrição.",
-          });
-        }
-      },
-    });
-}
-
-const CHAVE_INSCRICOES = "@mural_estacio:minhas_inscricoes";
-
 export async function obterInscricoesLocais() {
   try {
     const json = await AsyncStorage.getItem(CHAVE_INSCRICOES);
     return json ? JSON.parse(json) : [];
   } catch (error) {
-    console.warn("Erro ao ler inscrições locais:", error);
+    console.warn('Erro ao ler inscrições locais:', error);
     return [];
   }
 }
-
 
 export async function salvarInscricaoLocal(inscricao) {
   if (!inscricao?.id) return;
@@ -337,7 +373,7 @@ export async function salvarInscricaoLocal(inscricao) {
     const atualizadas = [inscricao, ...filtradas];
     await AsyncStorage.setItem(CHAVE_INSCRICOES, JSON.stringify(atualizadas));
   } catch (error) {
-    console.warn("Erro ao salvar inscrição local:", error);
+    console.warn('Erro ao salvar inscrição local:', error);
   }
 }
 
@@ -349,6 +385,111 @@ export async function atualizarStatusInscricaoLocal(id, novoStatus) {
     );
     await AsyncStorage.setItem(CHAVE_INSCRICOES, JSON.stringify(atualizadas));
   } catch (error) {
-    console.warn("Erro ao atualizar status local:", error);
+    console.warn('Erro ao atualizar status local:', error);
   }
+}
+
+// 🔄 Sincroniza as inscrições já salvas no dispositivo com o status real no Supabase
+export async function sincronizarInscricoesLocaisComBanco() {
+  const locais = await obterInscricoesLocais();
+  const idsLocais = locais.map((item) => item?.id).filter(Boolean);
+  if (idsLocais.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('inscricao')
+    .select(`
+      *,
+      evento:evento_id (
+        id,
+        titulo,
+        descricao,
+        data_inicio,
+        data_fim,
+        local,
+        palestrante,
+        limite_vagas,
+        status
+      )
+    `)
+    .in('id', idsLocais)
+    .order('criado_em', { ascending: false });
+
+  if (error) {
+    console.warn('Erro ao sincronizar inscrições com o banco:', error);
+    return locais;
+  }
+
+  const encontrados = data || [];
+  const mapaAtualizados = new Map(encontrados.map((reg) => [reg.id, reg]));
+
+  // Mantém registros locais apenas se não houver falha; se foi excluído no banco, não reaparece como ativa
+  const listaConsolidada = locais
+    .filter((item) => mapaAtualizados.has(item.id))
+    .map((item) => ({
+      ...item,
+      ...mapaAtualizados.get(item.id),
+      evento: mapaAtualizados.get(item.id)?.evento || item.evento,
+    }));
+
+  // Inclui eventuais novos registros que tenham sido salvos no banco com o mesmo ID
+  for (const reg of encontrados) {
+    if (!listaConsolidada.some((i) => i.id === reg.id)) {
+      listaConsolidada.push(reg);
+    }
+  }
+
+  await AsyncStorage.setItem(CHAVE_INSCRICOES, JSON.stringify(listaConsolidada));
+  return listaConsolidada;
+}
+
+// 🔑 Recupera inscrição em outro aparelho exigindo Matrícula/CPF + Código de Acesso
+export async function recuperarInscricaoPorCodigo({ documento, codigoAcesso }) {
+  const docLimpo = String(documento || '').trim();
+  const docDigitos = limparDigitos(docLimpo);
+  const codigoLimpo = String(codigoAcesso || '').trim().toUpperCase();
+
+  if (!docLimpo || !codigoLimpo) {
+    throw new Error('Preencha a matrícula ou CPF e o código da inscrição.');
+  }
+
+  const { data, error } = await supabase
+    .from('inscricao')
+    .select(`
+      *,
+      evento:evento_id (
+        id,
+        titulo,
+        descricao,
+        data_inicio,
+        data_fim,
+        local,
+        palestrante,
+        limite_vagas,
+        status
+      )
+    `)
+    .eq('codigo_acesso', codigoLimpo);
+
+  if (error) throw error;
+
+  const encontrada = (data || []).find((item) => {
+    const bateMatricula =
+      item.matricula &&
+      normalizarTexto(item.matricula) === normalizarTexto(docLimpo);
+    const bateCpf =
+      item.cpf &&
+      docDigitos.length >= 11 &&
+      limparDigitos(item.cpf) === docDigitos;
+
+    return bateMatricula || bateCpf;
+  });
+
+  if (!encontrada) {
+    throw new Error(
+      'Nenhuma inscrição encontrada para essa matrícula/CPF e código.'
+    );
+  }
+
+  await salvarInscricaoLocal(encontrada);
+  return encontrada;
 }

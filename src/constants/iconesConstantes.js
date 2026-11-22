@@ -72,6 +72,7 @@ export const globalIcons = {
   'shield-checkmark-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/shield-checkmark-outline.svg',
   'document-lock-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/document-lock-outline.svg',
   'finger-print-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/finger-print-outline.svg',
+  'close-circle-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/close-circle-outline.svg',
 
   // Edição e exclusão
   'trash-outline': 'https://raw.githubusercontent.com/ionic-team/ionicons/main/src/svg/trash-outline.svg',

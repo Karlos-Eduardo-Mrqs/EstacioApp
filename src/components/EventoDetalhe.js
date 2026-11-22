@@ -76,6 +76,10 @@ export default function EventoDetalhe({
         ? "#D97706"
         : "#173EA5";
 
+  const mostrarDetalhesSecundarios = Boolean(
+    evento.palestrante || horasAAC || (inscricaoHabilitada && temLimite)
+  );
+
   return (
     <>
       <Modal
@@ -169,8 +173,8 @@ export default function EventoDetalhe({
                   </View>
                 </View>
 
-                {/* 🕒 CAIXA SECUNDÁRIA (Palestrante e Horas AAC) */}
-                {(evento.palestrante || horasAAC) && (
+                {/* 🕒 CAIXA SECUNDÁRIA (Responsável, Certificação e Ocupação de Vagas) */}
+                {mostrarDetalhesSecundarios && (
                   <View style={localStyles.detalhesSecundariosBox}>
                     {evento.palestrante && (
                       <View style={localStyles.linhaDetalhe}>
@@ -203,61 +207,27 @@ export default function EventoDetalhe({
                         </Text>
                       </View>
                     )}
-                  </View>
-                )}
 
-                {/* 📊 PREENCHIMENTO DE VAGAS (QUANDO HABILITADA INSCRIÇÃO) */}
-                {inscricaoHabilitada && (
-                  <View style={{ marginTop: 14 }}>
-                    {temLimite && (
-                      <Text
-                        style={{
-                          fontSize: 12,
-                          fontWeight: "600",
-                          color: lotado ? "#DC2626" : "#475569",
-                          textAlign: "center",
-                          marginBottom: 6,
-                        }}
-                      >
-                        {carregandoVagas
-                          ? "Atualizando vagas..."
-                          : `${porcentagemOcupada}% das vagas ocupadas • ${vagasRestantes} restantes`}
-                      </Text>
+                    {inscricaoHabilitada && temLimite && (
+                      <View style={localStyles.linhaDetalhe}>
+                        <CustomIcon
+                          name="people-outline"
+                          size={15}
+                          color={lotado ? "#DC2626" : "#64748B"}
+                        />
+                        <Text style={localStyles.labelDetalhe}>Vagas:</Text>
+                        <Text
+                          style={[
+                            localStyles.valorDetalhe,
+                            { color: corBarra, fontWeight: "700" },
+                          ]}
+                        >
+                          {carregandoVagas
+                            ? "A atualizar..."
+                            : `${porcentagemOcupada}% ocupadas (${vagasOcupadas}/${limiteVagas} • ${vagasRestantes} restantes)`}
+                        </Text>
+                      </View>
                     )}
-
-                    <TouchableOpacity
-                      disabled={lotado}
-                      style={[
-                        localStyles.btnNotificarClean,
-                        {
-                          backgroundColor: lotado ? "#94A3B8" : "#173EA5",
-                          paddingVertical: isCompact ? 11 : 12,
-                          borderRadius: 10,
-                          justifyContent: "center",
-                          width: "100%",
-                        },
-                      ]}
-                      onPress={() => {
-                        setFeedback({ tipo: "", mensagem: "" });
-                        setModalInscricaoVisivel(true);
-                      }}
-                      activeOpacity={0.85}
-                    >
-                      <CustomIcon
-                        name={lotado ? "lock-closed-outline" : "create-outline"}
-                        size={18}
-                        color="#FFFFFF"
-                      />
-                      <Text
-                        numberOfLines={1}
-                        style={[
-                          localStyles.btnNotificarTextoClean,
-                          isVeryNarrow && { fontSize: 13 },
-                        ]}
-                      >
-                        {lotado ? "Vagas esgotadas" : "Inscreva-se"}
-                      </Text>
-                    </TouchableOpacity>
                   </View>
                 )}
 
@@ -267,28 +237,45 @@ export default function EventoDetalhe({
                 </Text>
                 <Text style={localStyles.modalDescricaoClean}>
                   {evento.descricao ||
-                    "Informações detalhadas sobre o evento acadêmico."}
+                    "Informações detalhadas sobre o evento académico."}
                 </Text>
 
                 {/* 📝 BOTÃO DE INSCRIÇÃO */}
-                {inscricaoHabilitada && temLimite && (
-                  <View style={localStyles.linhaDetalhe}>
+                {inscricaoHabilitada && (
+                  <TouchableOpacity
+                    disabled={lotado}
+                    style={[
+                      localStyles.btnNotificarClean,
+                      {
+                        backgroundColor: lotado ? "#94A3B8" : "#173EA5",
+                        marginTop: 14,
+                        paddingVertical: isCompact ? 11 : 12,
+                        borderRadius: 10,
+                        justifyContent: "center",
+                        width: "100%",
+                      },
+                    ]}
+                    onPress={() => {
+                      setFeedback({ tipo: "", mensagem: "" });
+                      setModalInscricaoVisivel(true);
+                    }}
+                    activeOpacity={0.85}
+                  >
                     <CustomIcon
-                      name="people-outline"
-                      size={15}
-                      color={lotado ? "#DC2626" : "#64748B"}
+                      name={lotado ? "lock-closed-outline" : "create-outline"}
+                      size={18}
+                      color="#FFFFFF"
                     />
-                    <Text style={localStyles.labelDetalhe}>Vagas:</Text>
                     <Text
+                      numberOfLines={1}
                       style={[
-                        localStyles.valorDetalhe,
-                        { color: corBarra, fontWeight: "700" },
+                        localStyles.btnNotificarTextoClean,
+                        isVeryNarrow && { fontSize: 13 },
                       ]}
                     >
-                      {porcentagemOcupada}% ocupadas ({vagasOcupadas}/{limiteVagas} •{" "}
-                      {vagasRestantes} restantes)
+                      {lotado ? "Vagas esgotadas" : "Inscreva-se"}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 )}
               </View>
             </ScrollView>

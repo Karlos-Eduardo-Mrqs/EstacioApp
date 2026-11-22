@@ -1,6 +1,29 @@
 import { StyleSheet } from "react-native";
 
+const baseActionButton = {
+  flex: 1,
+  minWidth: 150,
+  paddingVertical: 11,
+  paddingHorizontal: 14,
+  borderRadius: 9,
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 7,
+};
+
+const baseChipOrBadge = {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 6,
+  paddingHorizontal: 10,
+  paddingVertical: 5,
+  borderRadius: 8,
+  borderWidth: 1,
+};
+
 export const painelInscStyles = StyleSheet.create({
+  // Busca e navegação
   searchInput: {
     borderWidth: 1,
     borderColor: "#CBD5E1",
@@ -25,6 +48,8 @@ export const painelInscStyles = StyleSheet.create({
     fontWeight: "700",
     color: "#173EA5",
   },
+
+  // Cabeçalho do evento selecionado
   eventHeaderCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
@@ -54,14 +79,8 @@ export const painelInscStyles = StyleSheet.create({
     borderTopColor: "#F1F5F9",
   },
   eventMetaBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+    ...baseChipOrBadge,
     backgroundColor: "#F8FAFC",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
     borderColor: "#E2E8F0",
   },
   eventMetaText: {
@@ -69,6 +88,18 @@ export const painelInscStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#475569",
   },
+  speakerBadge: {
+    ...baseChipOrBadge,
+    backgroundColor: "#EFF6FF",
+    borderColor: "#BFDBFE",
+  },
+  speakerBadgeText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#173EA5",
+  },
+
+  // Métricas e ocupação
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -144,6 +175,8 @@ export const painelInscStyles = StyleSheet.create({
     height: "100%",
     borderRadius: 999,
   },
+
+  // Botões de ação principais
   actionsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -151,36 +184,20 @@ export const painelInscStyles = StyleSheet.create({
     marginTop: 14,
   },
   exportButton: {
-    flex: 1,
-    minWidth: 150,
-    marginTop: 0,
-    paddingVertical: 11,
-    paddingHorizontal: 14,
-    borderRadius: 9,
+    ...baseActionButton,
     backgroundColor: "#15803D",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 7,
   },
   newButton: {
-    flex: 1,
-    minWidth: 150,
-    marginTop: 0,
-    paddingVertical: 11,
-    paddingHorizontal: 14,
-    borderRadius: 9,
+    ...baseActionButton,
     backgroundColor: "#173EA5",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 7,
   },
   actionBtnText: {
     color: "#FFFFFF",
     fontSize: 13.5,
     fontWeight: "700",
   },
+
+  // Filtros
   filterHeaderRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -219,6 +236,8 @@ export const painelInscStyles = StyleSheet.create({
   filterChipTextActive: {
     color: "#FFFFFF",
   },
+
+  // Lista de eventos
   eventListCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
@@ -235,11 +254,8 @@ export const painelInscStyles = StyleSheet.create({
     fontWeight: "700",
     color: "#0F172A",
   },
-  eventListSub: {
-    fontSize: 12,
-    color: "#64748B",
-    marginTop: 4,
-  },
+
+  // Card de cada inscrito
   itemCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
@@ -247,6 +263,14 @@ export const painelInscStyles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: "#E2E8F0",
+  },
+  itemCardActive: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#16A34A",
+  },
+  itemCardCanceled: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#DC2626",
   },
   itemHeader: {
     flexDirection: "row",
@@ -281,11 +305,52 @@ export const painelInscStyles = StyleSheet.create({
     fontWeight: "700",
     color: "#DC2626",
   },
-  itemMeta: {
-    fontSize: 12,
-    color: "#475569",
-    marginTop: 4,
+  itemDetailsBox: {
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: "#F1F5F9",
+    gap: 5,
   },
+  itemMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flexWrap: "wrap",
+  },
+  itemMetaText: {
+    fontSize: 12.5,
+    color: "#334155",
+    fontWeight: "500",
+  },
+  itemFooterMetaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+  },
+  itemCodeBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    paddingHorizontal: 9,
+    paddingVertical: 4,
+    borderRadius: 7,
+  },
+  itemCodeText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#173EA5",
+  },
+
+  // Ações por inscrito
   itemActionsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -351,26 +416,13 @@ export const painelInscStyles = StyleSheet.create({
     fontWeight: "600",
     color: "#DC2626",
   },
+
+  // Estado vazio
   emptyText: {
     textAlign: "center",
     color: "#64748B",
     marginTop: 24,
     marginBottom: 12,
     fontSize: 13.5,
-  },speakerBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#EFF6FF",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#BFDBFE",
-  },
-  speakerBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#173EA5",
   },
 });

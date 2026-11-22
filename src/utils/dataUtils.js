@@ -1,3 +1,26 @@
+export function normalizarParaDataLocal(valor) {
+  if (!valor) return null;
+
+  if (typeof valor === 'string') {
+    const matchIso = /^(\d{4})-(\d{2})-(\d{2})/.exec(valor.trim());
+    if (matchIso) {
+      const [, ano, mes, dia] = matchIso;
+      return new Date(Number(ano), Number(mes) - 1, Number(dia));
+    }
+
+    const matchBr = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(valor.trim());
+    if (matchBr) {
+      const [, dia, mes, ano] = matchBr;
+      return new Date(Number(ano), Number(mes) - 1, Number(dia));
+    }
+  }
+
+  const dataObj = valor instanceof Date ? new Date(valor.getTime()) : new Date(valor);
+  if (isNaN(dataObj.getTime())) return null;
+
+  return new Date(dataObj.getFullYear(), dataObj.getMonth(), dataObj.getDate());
+}
+
 export function formatarDataHora(valor) {
   if (!valor) return '';
   const d = new Date(valor);
@@ -128,6 +151,26 @@ export function formatarEntradaTelefone(texto) {
   }
   if (digitos.length > 9) {
     formatado += "-" + digitos.substring(9, 13); // Ex: +55 (21) 99999-9999
+  }
+
+  return formatado;
+}
+
+export function formatarEntradaCPF(texto) {
+  const digitos = String(texto || "").replace(/\D/g, "").substring(0, 11);
+
+  let formatado = "";
+  if (digitos.length > 0) {
+    formatado = digitos.substring(0, 3);
+  }
+  if (digitos.length > 3) {
+    formatado += "." + digitos.substring(3, 6);
+  }
+  if (digitos.length > 6) {
+    formatado += "." + digitos.substring(6, 9);
+  }
+  if (digitos.length > 9) {
+    formatado += "-" + digitos.substring(9, 11);
   }
 
   return formatado;

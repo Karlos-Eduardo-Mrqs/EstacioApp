@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Linking, Platform } from "react-native";
 import { filtrarEventosDoDia } from "./Calendario";
 
@@ -13,7 +13,6 @@ export function useMuralUI(eventosValidos = []) {
 
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
   const [diaFocado, setDiaFocado] = useState(null);
-  const [eventosDoDia, setEventosDoDia] = useState([]);
 
   const [modalDevsVisivel, setModalDevsVisivel] = useState(false);
   const [cursoSelecionado, setCursoSelecionado] = useState(null);
@@ -32,6 +31,19 @@ export function useMuralUI(eventosValidos = []) {
     return () => subscription?.remove();
   }, []);
 
+  const eventosDoDia = useMemo(() => {
+    if (!diaFocado) return [];
+    const partes = diaFocado.split(" de ");
+    if (partes.length < 3) return [];
+
+    const diaNum = Number(partes[0]);
+    const mesStr = partes[1];
+    const anoNum = Number(partes[2]);
+
+    if (isNaN(diaNum) || !mesStr || isNaN(anoNum)) return [];
+    return filtrarEventosDoDia(eventosValidos, mesStr, diaNum, anoNum);
+  }, [eventosValidos, diaFocado]);
+
   const exibirPopup = (titulo, mensagem, tipo = "sucesso", duracaoSegundos = 4) => {
     setPopupInfo({
       visible: true,
@@ -48,7 +60,6 @@ export function useMuralUI(eventosValidos = []) {
 
   const handleDiaClick = (mesNome, diaNumero, anoMes) => {
     setDiaFocado(`${diaNumero} de ${mesNome} de ${anoMes}`);
-    setEventosDoDia(filtrarEventosDoDia(eventosValidos, mesNome, diaNumero, anoMes));
   };
 
   const handleSelecionarCurso = (curso) => {

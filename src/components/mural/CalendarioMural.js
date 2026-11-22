@@ -1,7 +1,6 @@
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { appStyles as styles } from "../../styles/mural/mainStyles";
-import CustomIcon from "../CustomIcon";
-import AvisosGerencia from "./AvisosGerencia"; // 👈 Importa o componente separado
+import AvisosGerencia from "./AvisosGerencia";
 
 export default function CalendarioAcademico({
   semestre, diasSemana, renderizarDias,
@@ -10,16 +9,14 @@ export default function CalendarioAcademico({
 }) {
   return (
     <View>
-      {/* 🔔 Chamada limpa em forma de componente/função */}
-      <AvisosGerencia 
-        avisosAtivos={avisosAtivos} 
-        onReexibirAviso={onReexibirAviso} 
+      <AvisosGerencia
+        avisosAtivos={avisosAtivos}
+        onReexibirAviso={onReexibirAviso}
       />
 
-      {/* CALENDÁRIO COMPLETO DO SEMESTRE */}
       <View style={styles.blocoSection}>
         <Text style={styles.tituloSecaoBloco}>
-          AGENDA ACADÊMICA — PRÓXIMOS 4 MESES
+          AGENDA ACADÊMICA — PRÓXIMOS 6 MESES
         </Text>
         <ScrollView
           horizontal
@@ -51,7 +48,7 @@ export default function CalendarioAcademico({
             ))}
         </ScrollView>
         <Text style={styles.legendaCalendario}>
-          Dias em amarelo possuem eventos acadêmicos
+          Dias em amarelo possuem eventos ativos
         </Text>
         {carregandoEventos && (
           <Text style={styles.textoMutavel}>Carregando eventos...</Text>
@@ -63,7 +60,6 @@ export default function CalendarioAcademico({
         )}
       </View>
 
-      {/* CAIXA DE EVENTOS DO DIA CLICADO */}
       {diaFocado && (
         <View style={styles.areaEventosDoDia}>
           <Text style={styles.tituloDiaFocado}>Eventos de {diaFocado}</Text>
@@ -78,7 +74,7 @@ export default function CalendarioAcademico({
                     📍 {evento.local || "A definir"}  |  🕛 {evento.horasAAC || evento.horas_acc || 0}h ACC
                   </Text>
                 </View>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={{ backgroundColor: '#032551', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 6 }}
                   onPress={() => onSelectEvento(evento)}
                 >

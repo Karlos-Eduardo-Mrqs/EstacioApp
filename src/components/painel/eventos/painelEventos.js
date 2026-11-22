@@ -1,13 +1,13 @@
-import {ActivityIndicator,ScrollView,StatusBar,Text,View,} from "react-native";
+import { ActivityIndicator, ScrollView, StatusBar, Text, View } from "react-native";
 import { useGerenciarEventos } from "../../../hooks/useGerenciarEventos";
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
 import ConfirmPopup from "../../ConfirmPopup";
 import ToastPopup from "../../Popup";
-import GerenciarListaEventos from "../eventos/gerenciarListaEventos"; 
+import GerenciarListaEventos from "../eventos/gerenciarListaEventos";
 import ModalGerenciarEvento from "../eventos/modalGerenciarEvento";
 import CustomIcon from "../../CustomIcon";
 
-export default function PainelEventosTela({usuarioAtual}) {
+export default function PainelEventosTela({ usuarioAtual }) {
   const {
     eventos,
     eventosFiltrados,
@@ -35,9 +35,24 @@ export default function PainelEventosTela({usuarioAtual}) {
     setStatus,
     descricaoImagem,
     setDescricaoImagem,
-    dataApenas, setDataApenas, horaApenas, setHoraApenas,
-    proporcao, setProporcao,linkTransmissao, setLinkTransmissao,
+    dataApenas,
+    setDataApenas,
+    horaApenas,
+    setHoraApenas,
+    dataFimApenas,
+    setDataFimApenas,
+    horaFimApenas,
+    setHoraFimApenas,
+    possuiEventos,
+    setPossuiEventos,
+    limiteVagas,
+    setLimiteVagas,
+    proporcao,
+    setProporcao,
+    linkTransmissao,
+    setLinkTransmissao,
     feedback,
+    setFeedback,
     toast,
     setToast,
     confirmacao,
@@ -47,26 +62,32 @@ export default function PainelEventosTela({usuarioAtual}) {
     selecionarImagem,
     salvarEvento,
     excluirEvento,
-    carregando, solicitarRemocaoImagem, agora
+    carregando,
+    solicitarRemocaoImagem,
+    agora,
   } = useGerenciarEventos(usuarioAtual);
 
-  // 📊 Conta quantos eventos estão com status falso (Encerrado) no banco
   const quantidadeEncerrados = eventos.filter((evento) => evento.status === false).length;
 
   return (
     <View style={styles.safeArea}>
       <StatusBar backgroundColor="#F4F5F7" barStyle="dark-content" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.tituloPagina}>Painel de Eventos</Text>
-        <Text style={styles.subtitulo}>Gerencie os eventos e o calendário acadêmico.</Text>
+        <Text style={styles.subtitulo}>
+          Gerencie os eventos e o calendário acadêmico.
+        </Text>
 
-        {/* 📈 Cartões de Resumo Atualizados (3 colunas) */}
         <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
-
           <View style={[styles.resumoCard, { flex: 1 }]}>
             <CustomIcon name="time-outline" size={21} color="#DC2626" />
-            <Text style={[styles.resumoNumero, { color: "#DC2626" }]}>{quantidadeEncerrados}</Text>
+            <Text style={[styles.resumoNumero, { color: "#DC2626" }]}>
+              {quantidadeEncerrados}
+            </Text>
             <Text style={styles.resumoTexto}>Encerrados</Text>
           </View>
 
@@ -78,13 +99,17 @@ export default function PainelEventosTela({usuarioAtual}) {
         </View>
 
         {carregando ? (
-          <ActivityIndicator size="large" color="#173EA5" style={{ marginVertical: 20 }} />
+          <ActivityIndicator
+            size="large"
+            color="#173EA5"
+            style={{ marginVertical: 20 }}
+          />
         ) : (
           <GerenciarListaEventos
             eventos={eventosFiltrados}
             agora={agora}
             onEditar={(evento) => abrirEdicao(evento)}
-            onExcluir={(id) => excluirEvento({ id })}
+            onExcluir={(evento) => excluirEvento(evento)}
             onNovoEvento={abrirNovoEvento}
           />
         )}
@@ -94,27 +119,45 @@ export default function PainelEventosTela({usuarioAtual}) {
         visible={modalEvento}
         onClose={() => setModalEvento(false)}
         eventoEditando={eventoEditando}
-        titulo={titulo} setTitulo={setTitulo}
-        dataTexto={dataTexto} setDataTexto={setDataTexto}
-        palestrante={palestrante} setPalestrante={setPalestrante}
-        horasAAC={horasAAC} setHorasAAC={setHorasAAC}
-        cursos={cursos} cursoId={cursoId} setCursoId={setCursoId}
-        descricao={descricao} setDescricao={setDescricao}
-        local={local} setLocal={setLocal}
-        imagem={imagem} setImagem={setImagem}
+        titulo={titulo}
+        setTitulo={setTitulo}
+        dataTexto={dataTexto}
+        setDataTexto={setDataTexto}
+        palestrante={palestrante}
+        setPalestrante={setPalestrante}
+        horasAAC={horasAAC}
+        setHorasAAC={setHorasAAC}
+        cursos={cursos}
+        cursoId={cursoId}
+        setCursoId={setCursoId}
+        descricao={descricao}
+        setDescricao={setDescricao}
+        local={local}
+        setLocal={setLocal}
+        imagem={imagem}
+        setImagem={setImagem}
         descricaoImagem={descricaoImagem}
-        status={status}         
-        setStatus={setStatus}   
+        setDescricaoImagem={setDescricaoImagem}
+        status={status}
+        setStatus={setStatus}
         dataApenas={dataApenas}
-        setDataApenas={setDataApenas}     
+        setDataApenas={setDataApenas}
         horaApenas={horaApenas}
         setHoraApenas={setHoraApenas}
-        setDescricaoImagem={setDescricaoImagem}
+        dataFimApenas={dataFimApenas}
+        setDataFimApenas={setDataFimApenas}
+        horaFimApenas={horaFimApenas}
+        setHoraFimApenas={setHoraFimApenas}
         proporcao={proporcao}
         setProporcao={setProporcao}
-        linkTransmissao = {linkTransmissao}
-        setLinkTransmissao = {setLinkTransmissao}
+        linkTransmissao={linkTransmissao}
+        setLinkTransmissao={setLinkTransmissao}
+        possuiEventos={possuiEventos}
+        setPossuiEventos={setPossuiEventos}
+        limiteVagas={limiteVagas}
+        setLimiteVagas={setLimiteVagas}
         feedback={feedback}
+        setFeedback={setFeedback}
         selecionarImagem={selecionarImagem}
         solicitarRemocaoImagem={solicitarRemocaoImagem}
         salvarEvento={salvarEvento}

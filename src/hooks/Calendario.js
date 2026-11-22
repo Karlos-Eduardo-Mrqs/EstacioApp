@@ -8,7 +8,9 @@ export const nomesMeses = [
 export const CAMPOS_EVENTO = {
   id: 'id',
   titulo: 'titulo',
-  data: 'data',
+  data: 'data_inicio',
+  dataInicio: 'data_inicio',
+  dataFim: 'data_fim',
   curso: 'curso_id',
   palestrante: 'palestrante',
   descricao: 'descricao',
@@ -16,17 +18,71 @@ export const CAMPOS_EVENTO = {
   status: 'status',
 };
 
+function normalizarParaDataLocal(valor) {
+  if (!valor) return null;
+
+  if (typeof valor === 'string') {
+    const matchIso = /^(\d{4})-(\d{2})-(\d{2})/.exec(valor.trim());
+    if (matchIso) {
+      const [, ano, mes, dia] = matchIso;
+      return new Date(Number(ano), Number(mes) - 1, Number(dia));
+    }
+
+    const matchBr = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(valor.trim());
+    if (matchBr) {
+      const [, dia, mes, ano] = matchBr;
+      return new Date(Number(ano), Number(mes) - 1, Number(dia));
+    }
+  }
+
+  const dataObj = valor instanceof Date ? new Date(valor.getTime()) : new Date(valor);
+  if (isNaN(dataObj.getTime())) return null;
+
+  return new Date(dataObj.getFullYear(), dataObj.getMonth(), dataObj.getDate());
+}
+
+function mesmaDataCalendario(dataA, dataB) {
+  if (!dataA || !dataB) return false;
+  return (
+    dataA.getFullYear() === dataB.getFullYear() &&
+    dataA.getMonth() === dataB.getMonth() &&
+    dataA.getDate() === dataB.getDate()
+  );
+}
+
+export function eventoOcorreNoDia(evento, anoMes, mesIndex, diaNumero) {
+  if (!evento || evento.status === false) return false;
+
+  const dataAlvo = new Date(anoMes, mesIndex, diaNumero);
+  const inicioBruto =
+    evento.data_inicio || evento.inicio || evento.data || evento.dataEvento;
+  const fimBruto = evento.data_fim || evento.fim || null;
+
+  const dataInicio = normalizarParaDataLocal(inicioBruto) || normalizarParaDataLocal(evento.dataEvento);
+  if (!dataInicio) return false;
+
+  const dataFim = normalizarParaDataLocal(fimBruto);
+
+  // Aparece no dia de início e, se houver data_fim, também no dia de fim
+  if (mesmaDataCalendario(dataInicio, dataAlvo)) {
+    return true;
+  }
+
+  if (dataFim && mesmaDataCalendario(dataFim, dataAlvo)) {
+    return true;
+  }
+
+  return false;
+}
+
 export function converterData(data) {
-  if (typeof data !== 'string') return null;
-  const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(data);
-  if (!partes) return null;
-  const [, ano, mes, dia] = partes;
-  const dataConvertida = new Date(Number(ano), Number(mes) - 1, Number(dia));
-  return dataConvertida;
+  return normalizarParaDataLocal(data);
 }
 
 export function mapearEvento(registro, indice) {
-  const dataEvento = converterData(registro.data);
+  const inicioRaw = registro.data_inicio || registro.data;
+  const dataEvento = converterData(inicioRaw);
+  const dataFim = converterData(registro.data_fim);
   const titulo = registro.titulo;
 
   if (!dataEvento || typeof titulo !== 'string' || !titulo.trim()) {
@@ -39,10 +95,14 @@ export function mapearEvento(registro, indice) {
     id: registro.id ?? `${dataEvento.toISOString()}-${indice}`,
     titulo,
     dataEvento,
+    dataFim,
+    data_inicio: registro.data_inicio ?? inicioRaw,
+    data_fim: registro.data_fim ?? null,
+    status: registro.status,
     dia: dataEvento.getDate(),
     mes: nomesMeses[dataEvento.getMonth()].slice(0, 3),
     tipo: 'Evento',
-    local: '',
+    local: registro.local ?? '',
     turma: registro.curso?.nome ?? 'Geral',
     autor: registro.palestrante ?? 'Não informado',
     descricao: registro.descricao ?? 'Sem descrição informada para este evento.',
@@ -69,22 +129,40 @@ export function gerarMesesCalendario(quantidade = 4) {
 }
 
 export function normalizarEventosComData(eventos = []) {
-  return (eventos || []).map((evento) => ({
-    ...evento,
-    dataEvento:
+  return (eventos || []).map((evento) => {
+    const inicioRaw =
+      evento.data_inicio || evento.inicio || evento.data || evento.dataEvento;
+    const dataEvento =
       evento.dataEvento instanceof Date && !isNaN(evento.dataEvento)
         ? evento.dataEvento
-        : evento.data
-          ? new Date(evento.data)
-          : new Date(),
-  }));
+        : inicioRaw
+          ? new Date(inicioRaw)
+          : new Date();
+
+    const dataFim =
+      evento.dataFim instanceof Date && !isNaN(evento.dataFim)
+        ? evento.dataFim
+        : evento.data_fim
+          ? new Date(evento.data_fim)
+          : null;
+
+    return {
+      ...evento,
+      dataEvento,
+      dataFim,
+    };
+  });
 }
 
 export function obterListasEventosPorPeriodo(eventosValidos = []) {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
 
-  const eventosOrdenados = [...eventosValidos].sort(
+  const eventosAtivos = (eventosValidos || []).filter(
+    (evento) => evento.status !== false
+  );
+
+  const eventosOrdenados = [...eventosAtivos].sort(
     (a, b) => a.dataEvento.getTime() - b.dataEvento.getTime()
   );
 
@@ -120,12 +198,12 @@ export function obterListasEventosPorPeriodo(eventosValidos = []) {
 }
 
 export function filtrarEventosDoDia(eventosValidos, mesNome, diaNumero, anoMes) {
-  const mesIndex = nomesMeses.indexOf(mesNome);
-  return (eventosValidos || []).filter(
-    (evento) =>
-      evento.dataEvento.getFullYear() === anoMes &&
-      evento.dataEvento.getMonth() === mesIndex &&
-      evento.dataEvento.getDate() === diaNumero
+  const nomeMesLimpo = (mesNome || "").split(" ")[0];
+  const mesIndex = nomesMeses.indexOf(nomeMesLimpo);
+  if (mesIndex === -1) return [];
+
+  return (eventosValidos || []).filter((evento) =>
+    eventoOcorreNoDia(evento, anoMes, mesIndex, diaNumero)
   );
 }
 
@@ -148,15 +226,13 @@ export function renderizarCelulasDiasCalendario({
   const mesIndex = nomesMeses.indexOf(nomeMesLimpo);
 
   for (let dia = 1; dia <= totalDias; dia++) {
-    const isDestaque = (eventosValidos || []).some(
-      (evento) =>
-        evento.dataEvento &&
-        evento.dataEvento.getFullYear() === anoMes &&
-        evento.dataEvento.getMonth() === mesIndex &&
-        evento.dataEvento.getDate() === dia
+    const isDestaque = (eventosValidos || []).some((evento) =>
+      eventoOcorreNoDia(evento, anoMes, mesIndex, dia)
     );
 
-    const isSelecionado = diaFocado === `${dia} de ${nomeMesLimpo}`;
+    const isSelecionado =
+      diaFocado === `${dia} de ${nomeMesLimpo}` ||
+      diaFocado === `${dia} de ${nomeMesLimpo} de ${anoMes}`;
 
     celulas.push(
       <TouchableOpacity

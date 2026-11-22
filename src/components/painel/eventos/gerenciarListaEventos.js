@@ -1,7 +1,237 @@
 import { useState } from "react";
-import {ScrollView,Text,TextInput,TouchableOpacity,View,} from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { formatarDataApenas } from "../../../utils/dataUtils";
 import CustomIcon from "../../CustomIcon";
+
+function formatarPeriodoEvento(evento) {
+  const inicioFmt = formatarDataApenas(
+    evento.data_inicio || evento.inicio || evento.data || evento.dataEvento,
+  );
+  const fimFmt = evento.data_fim ? formatarDataApenas(evento.data_fim) : "";
+
+  if (inicioFmt && fimFmt && fimFmt !== inicioFmt) {
+    return `${inicioFmt} até ${fimFmt}`;
+  }
+
+  return inicioFmt || "Data a definir";
+}
+
+function calcularEstadoTempoEvento(evento, agora) {
+  const isEncerrado = evento.status === false;
+  const referenciaData =
+    evento.dataFimObj && !isNaN(evento.dataFimObj.getTime())
+      ? evento.dataFimObj
+      : evento.dataObj;
+
+  if (isEncerrado) {
+    return {
+      textoTempo: "🔴 Encerrado",
+      corBadgeFundo: "#FEF2F2",
+      corBadgeTexto: "#DC2626",
+    };
+  }
+
+  const diffMs = referenciaData.getTime() - agora;
+  const segundosTotais = Math.floor(diffMs / 1000);
+
+  if (segundosTotais < 0) {
+    return {
+      textoTempo: "🔴 Encerrado (Passou da data)",
+      corBadgeFundo: "#FEF2F2",
+      corBadgeTexto: "#DC2626",
+    };
+  }
+
+  const dias = Math.floor(segundosTotais / (3600 * 24));
+  const horasFaltam = Math.floor((segundosTotais % (3600 * 24)) / 3600);
+  const minutosFaltam = Math.floor((segundosTotais % 3600) / 60);
+  const segundosFaltam = segundosTotais % 60;
+
+  const h = String(horasFaltam).padStart(2, "0");
+  const m = String(minutosFaltam).padStart(2, "0");
+  const s = String(segundosFaltam).padStart(2, "0");
+
+  return {
+    textoTempo: dias > 0 ? `⏳ ${dias} dias • ${h}:${m}:${s}` : `⏳ ${h}:${m}:${s}`,
+    corBadgeFundo: "#EFF6FF",
+    corBadgeTexto: "#2563EB",
+  };
+}
+
+function CabecalhoListaEventos({ onNovoEvento }) {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 16,
+      }}
+    >
+      <View>
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: "#032551" }}>
+          Eventos cadastrados
+        </Text>
+        <Text style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
+          Gerencie datas, locais e status.
+        </Text>
+      </View>
+
+      {onNovoEvento && (
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#173EA5",
+            width: 42,
+            height: 42,
+            borderRadius: 8,
+            justifyContent: "center",
+            alignItems: "center",
+            borderLeftWidth: 4,
+            borderLeftColor: "#F2C500",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 3,
+            elevation: 2,
+          }}
+          onPress={onNovoEvento}
+          activeOpacity={0.8}
+        >
+          <CustomIcon name="add" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+function RodapeInfoEvento({ evento, agora }) {
+  const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
+  const temHoras =
+    horas !== undefined && horas !== null && horas !== "" && horas !== 0;
+
+  const { textoTempo, corBadgeFundo, corBadgeTexto } = calcularEstadoTempoEvento(
+    evento,
+    agora,
+  );
+
+  const inscricoesAbertas = Boolean(
+    evento.possui_inscricao ?? evento.possui_eventos,
+  );
+
+  return (
+    <View>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 8,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: corBadgeFundo,
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 6,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              color: corBadgeTexto,
+              fontWeight: "600",
+            }}
+          >
+            {textoTempo}
+          </Text>
+        </View>
+
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#64748B",
+            fontWeight: "500",
+          }}
+        >
+          🕒 {temHoras ? `${horas} h AAC` : "Horas não definidas"}
+        </Text>
+      </View>
+
+      {inscricoesAbertas && (
+        <View
+          style={{
+            alignSelf: "flex-start",
+            backgroundColor: "#F0FDF4",
+            borderWidth: 1,
+            borderColor: "#BBF7D0",
+            paddingHorizontal: 8,
+            paddingVertical: 3,
+            borderRadius: 6,
+            marginTop: 6,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              color: "#15803D",
+              fontWeight: "600",
+            }}
+          >
+            📝 Inscrições abertas
+            {evento.limite_vagas ? ` • Máx. ${evento.limite_vagas}` : ""}
+          </Text>
+        </View>
+      )}
+
+      {evento.link_transmissao && (
+        <Text
+          style={{
+            fontSize: 12,
+            color: "#2563EB",
+            fontWeight: "500",
+            marginTop: 6,
+          }}
+        >
+          🔗 Evento com link online disponível
+        </Text>
+      )}
+    </View>
+  );
+}
+
+function AcoesEventoCard({ evento, onEditar, onExcluir }) {
+  if (!onEditar && !onExcluir) return null;
+
+  return (
+    <View style={{ flexDirection: "row", gap: 6 }}>
+      {onEditar && (
+        <TouchableOpacity
+          style={{
+            padding: 8,
+            backgroundColor: "#F1F5F9",
+            borderRadius: 8,
+          }}
+          onPress={() => onEditar(evento)}
+        >
+          <CustomIcon name="pencil-outline" size={16} color="#334155" />
+        </TouchableOpacity>
+      )}
+      {onExcluir && (
+        <TouchableOpacity
+          style={{
+            padding: 8,
+            backgroundColor: "#FEF2F2",
+            borderRadius: 8,
+          }}
+          onPress={() => onExcluir(evento)}
+        >
+          <CustomIcon name="trash-outline" size={16} color="#DC2626" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
 
 export default function GerenciarListaEventos({
   eventos = [],
@@ -14,12 +244,16 @@ export default function GerenciarListaEventos({
 
   const eventosProcessados = eventos
     .map((evento) => {
-      const dataObj = new Date(
-        evento.inicio || evento.data || evento.dataEvento,
-      );
+      const inicioRaw =
+        evento.data_inicio || evento.inicio || evento.data || evento.dataEvento;
+      const fimRaw = evento.data_fim || evento.fim || null;
+      const dataObj = new Date(inicioRaw);
+      const dataFimObj = fimRaw ? new Date(fimRaw) : null;
+
       return {
         ...evento,
-        dataObj
+        dataObj,
+        dataFimObj,
       };
     })
     .filter((evento) => {
@@ -36,28 +270,18 @@ export default function GerenciarListaEventos({
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "#fff" }}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <View>
-          <Text style={{ fontSize: 18, fontWeight: "bold", color: "#032551" }}>Eventos cadastrados</Text>
-          <Text style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>Gerencie datas, locais e status.</Text>
-        </View>
-
-        {onNovoEvento && (
-          <TouchableOpacity
-            style={{
-              backgroundColor: "#173EA5", width: 42, height: 42, borderRadius: 8,
-              justifyContent: "center", alignItems: "center", borderLeftWidth: 4, borderLeftColor: "#F2C500",
-              shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.15, shadowRadius: 3, elevation: 2,
-            }}
-            onPress={onNovoEvento} activeOpacity={0.8}
-          >
-            <CustomIcon name="add" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        )}
-      </View>
+      <CabecalhoListaEventos onNovoEvento={onNovoEvento} />
 
       <TextInput
-        style={{ borderWidth: 1, borderColor: "#d1d5db", borderRadius: 8, padding: 10, marginBottom: 16, fontSize: 14, backgroundColor: "#FAFAFA" }}
+        style={{
+          borderWidth: 1,
+          borderColor: "#d1d5db",
+          borderRadius: 8,
+          padding: 10,
+          marginBottom: 16,
+          fontSize: 14,
+          backgroundColor: "#FAFAFA",
+        }}
         placeholder="Pesquisar evento por título ou local..."
         placeholderTextColor="#94A3B8"
         value={pesquisa}
@@ -67,11 +291,7 @@ export default function GerenciarListaEventos({
       <ScrollView showsVerticalScrollIndicator={false}>
         {eventosProcessados.length > 0 ? (
           eventosProcessados.map((evento) => {
-            const dataFormatada = formatarDataApenas(evento.inicio || evento.data || evento.dataEvento);
-
-            // 🔍 LÓGICA DO STATUS (true = Ativo, false = Encerrado)
-            // Se o status for estritamente false, consideramos encerrado. Caso contrário, avalia se a data já passou.
-            const isEncerrado = evento.status === false; 
+            const periodoFormatado = formatarPeriodoEvento(evento);
 
             return (
               <View
@@ -98,15 +318,28 @@ export default function GerenciarListaEventos({
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
+                      flexWrap: "wrap",
                       gap: 8,
                       marginBottom: 6,
                     }}
                   >
-                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
-                      📅 {dataFormatada || "Data a definir"}
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#475569",
+                        fontWeight: "500",
+                      }}
+                    >
+                      📅 {periodoFormatado}
                     </Text>
                     <Text style={{ fontSize: 12, color: "#CBD5E1" }}>•</Text>
-                    <Text style={{ fontSize: 12, color: "#475569", fontWeight: "500" }}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        color: "#475569",
+                        fontWeight: "500",
+                      }}
+                    >
                       📍 {evento.local || "Local a definir"}
                     </Text>
                   </View>
@@ -122,92 +355,26 @@ export default function GerenciarListaEventos({
                   >
                     {evento.titulo}
                   </Text>
-                  
-                  {(() => {
-                    const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
-                    const temHoras = horas !== undefined && horas !== null && horas !== "" && horas !== 0;
 
-                    const diffMs = evento.dataObj.getTime() - agora;
-
-                    let textoTempo = "";
-                    let corBadgeFundo = isEncerrado ? "#FEF2F2" : "#EFF6FF";
-                    let corBadgeTexto = isEncerrado ? "#DC2626" : "#2563EB";
-
-                    if (isEncerrado) {
-                      textoTempo = "🔴 Encerrado";
-                    } else {
-                      const segundosTotais = Math.floor(diffMs / 1000);
-                      if (segundosTotais < 0) {
-                        textoTempo = "🔴 Encerrado (Passou da data)";
-                      } else {
-                        const dias = Math.floor(segundosTotais / (3600 * 24));
-                        const horasFaltam = Math.floor((segundosTotais % (3600 * 24)) / 3600);
-                        const minutosFaltam = Math.floor((segundosTotais % 3600) / 60);
-                        const segundosFaltam = segundosTotais % 60;
-
-                        const h = String(horasFaltam).padStart(2, "0");
-                        const m = String(minutosFaltam).padStart(2, "0");
-                        const s = String(segundosFaltam).padStart(2, "0");
-
-                        if (dias > 0) {
-                          textoTempo = `⏳ ${dias} dias • ${h}:${m}:${s}`;
-                        } else {
-                          textoTempo = `⏳ ${h}:${m}:${s}`;
-                        }
-                      }
-                    }
-                    {evento.link_transmissao && (
-                      <Text style={{ fontSize: 12, color: "#2563EB", fontWeight: "500", marginTop: 4 }}>
-                        🔗 Evento com link online disponível
-                      </Text>
-                    )}
-                    return (
-                      <View style={{ flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                        <View style={{
-                          backgroundColor: corBadgeFundo,
-                          paddingHorizontal: 8,
-                          paddingVertical: 3,
-                          borderRadius: 6,
-                        }}>
-                          <Text style={{ fontSize: 11, color: corBadgeTexto, fontWeight: "600" }}>
-                            {textoTempo}
-                          </Text>
-                        </View>
-
-                        <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "500" }}>
-                          🕒 {temHoras ? `${horas} h AAC` : "Horas não definidas"}
-                        </Text>
-                      </View>
-                    );
-                  })()}
+                  <RodapeInfoEvento evento={evento} agora={agora} />
                 </View>
 
-                <View style={{ flexDirection: "row", gap: 6 }}>
-                  {onEditar && (
-                    <TouchableOpacity
-                      style={{ padding: 8, backgroundColor: "#F1F5F9", borderRadius: 8 }}
-                      onPress={() => onEditar(evento)}
-                    >
-                      <CustomIcon name="pencil-outline" size={16} color="#334155" />
-                    </TouchableOpacity>
-                  )}
-                  {onExcluir && (
-                    <TouchableOpacity
-                      style={{ padding: 8, backgroundColor: "#FEF2F2", borderRadius: 8 }}
-                      onPress={() => onExcluir(evento)}
-                    >
-                      <CustomIcon name="trash-outline" size={16} color="#DC2626" />
-                    </TouchableOpacity>
-                  )}
-                </View>
+                <AcoesEventoCard
+                  evento={evento}
+                  onEditar={onEditar}
+                  onExcluir={onExcluir}
+                />
               </View>
             );
           })
         ) : (
-          <Text style={{ textAlign: "center", color: "#6b7280", marginTop: 32 }}>Nenhum evento encontrado.</Text>
+          <Text
+            style={{ textAlign: "center", color: "#6b7280", marginTop: 32 }}
+          >
+            Nenhum evento encontrado.
+          </Text>
         )}
       </ScrollView>
     </View>
-    
   );
 }

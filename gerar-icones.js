@@ -40,7 +40,8 @@ const nomesDosIcones = [
  "airplane-outline",
  "flash-outline",
  "business-outline",
- "restaurant-outline","chevron-up","grid-outline","lock-open-outline","link-outline",'rocket-outline','finger-print-outline','planet-outline',"square-outline","checkbox","chevron-back"
+ "restaurant-outline","chevron-up","grid-outline","lock-open-outline","link-outline",'rocket-outline','finger-print-outline','planet-outline',
+ "square-outline","checkbox","chevron-back","mic-outline"
 ];
 
  async function iniciar() {

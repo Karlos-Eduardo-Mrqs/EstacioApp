@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import {Modal,Platform,Text,TouchableOpacity,useWindowDimensions,View} from "react-native";
+import {
+  Modal,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { painelNavegacaostyles as styles } from "../../styles/painel/painelNavegacaostyles";
 import ConfirmPopup from "../ConfirmPopup";
 import CustomIcon from "../CustomIcon";
@@ -20,8 +28,11 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
 
   const [abaAtiva, setAbaAtiva] = useState(() => obterAbaInicial(ehCoordenador));
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+
   const isDesktop = Platform.OS === "web" && width >= 768;
+  const isCompactHeight = height < 680;
+  const drawerWidth = Math.min(Math.max(width * 0.74, 240), 320);
 
   const [confirmPopup, setConfirmPopup] = useState({
     visible: false,
@@ -66,7 +77,11 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
       return (
         <TouchableOpacity
           key={item.id}
-          style={[styles.botaoNav, ativa && styles.botaoNavAtivo]}
+          style={[
+            styles.botaoNav,
+            isCompactHeight && { paddingVertical: 9 },
+            ativa && styles.botaoNavAtivo,
+          ]}
           onPress={() => selecionarAba(item.id)}
           activeOpacity={0.8}
         >
@@ -75,6 +90,7 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
           </Text>
           {(isDesktop || drawerOpen) && (
             <Text
+              numberOfLines={1}
               style={[
                 styles.textoBotaoNav,
                 ativa && styles.textoBotaoNavAtivo,
@@ -102,22 +118,32 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
         {!isDesktop && (
           <View
             style={{
-              height: 60,
+              height: 56,
               backgroundColor: "#032551",
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              paddingHorizontal: 16,
+              paddingHorizontal: 14,
               elevation: 4,
             }}
           >
             <TouchableOpacity
               onPress={() => setDrawerOpen(true)}
-              style={{ padding: 8 }}
+              style={{ padding: 6 }}
             >
-              <Text style={{ fontSize: 24, color: "#fff" }}>☰</Text>
+              <Text style={{ fontSize: 22, color: "#fff" }}>☰</Text>
             </TouchableOpacity>
-            <Text style={{ fontSize: 16, fontWeight: "bold", color: "#fff" }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                flex: 1,
+                textAlign: "center",
+                fontSize: width < 360 ? 14 : 16,
+                fontWeight: "bold",
+                color: "#fff",
+                marginHorizontal: 8,
+              }}
+            >
               {tituloPainel}
             </Text>
             <View style={{ width: 32 }} />
@@ -139,7 +165,13 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
               </Text>
             </View>
 
-            <View style={styles.botoesWrapper}>{renderBotoesNav()}</View>
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={styles.botoesWrapper}
+              showsVerticalScrollIndicator={false}
+            >
+              {renderBotoesNav()}
+            </ScrollView>
 
             <TouchableOpacity
               style={styles.botaoSair}
@@ -166,62 +198,80 @@ export default function PainelNavigator({ usuarioAtual, onClose, onLogout }) {
             >
               <View
                 style={{
-                  width: "75%",
-                  maxWidth: 280,
+                  width: drawerWidth,
                   backgroundColor: "#032551",
                   height: "100%",
-                  padding: 20,
+                  paddingHorizontal: 16,
+                  paddingTop: isCompactHeight ? 14 : 20,
+                  paddingBottom: 16,
                   justifyContent: "space-between",
                 }}
               >
-                <View>
+                <View
+                  style={{
+                    marginBottom: isCompactHeight ? 12 : 16,
+                    borderBottomWidth: 1,
+                    borderBottomColor: "rgba(255,255,255,0.1)",
+                    paddingBottom: isCompactHeight ? 10 : 14,
+                  }}
+                >
                   <View
                     style={{
-                      marginBottom: 24,
-                      borderBottomWidth: 1,
-                      borderBottomColor: "rgba(255,255,255,0.1)",
-                      paddingBottom: 16,
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 10,
                     }}
                   >
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 12,
-                      }}
-                    >
-                      <View style={styles.logoBadge}>
-                        <Text style={styles.logoTextoBadge}>PAINEL</Text>
-                      </View>
-                      <TouchableOpacity onPress={() => setDrawerOpen(false)}>
-                        <Text style={{ fontSize: 22, color: "#fff" }}>✕</Text>
-                      </TouchableOpacity>
+                    <View style={styles.logoBadge}>
+                      <Text style={styles.logoTextoBadge}>PAINEL</Text>
                     </View>
-                    <Text
-                      style={[styles.tituloMenu, { color: "#fff", fontSize: 16 }]}
+                    <TouchableOpacity
+                      onPress={() => setDrawerOpen(false)}
+                      style={{ padding: 4 }}
                     >
-                      {tituloPainel}
-                    </Text>
-                    <Text
-                      style={[styles.subtituloMenu, { color: "#cbd5e1" }]}
-                      numberOfLines={1}
-                    >
-                      {usuarioAtual?.nome}
-                    </Text>
-                    <Text
-                      style={[styles.perfilBadgeTexto, { color: "#fbbf24" }]}
-                      numberOfLines={1}
-                    >
-                      [{usuarioAtual?.perfil}]
-                    </Text>
+                      <Text style={{ fontSize: 20, color: "#fff" }}>✕</Text>
+                    </TouchableOpacity>
                   </View>
-
-                  <View style={{ gap: 8 }}>{renderBotoesNav()}</View>
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.tituloMenu,
+                      { color: "#fff", fontSize: width < 360 ? 14 : 16 },
+                    ]}
+                  >
+                    {tituloPainel}
+                  </Text>
+                  <Text
+                    style={[styles.subtituloMenu, { color: "#cbd5e1" }]}
+                    numberOfLines={1}
+                  >
+                    {usuarioAtual?.nome}
+                  </Text>
+                  <Text
+                    style={[styles.perfilBadgeTexto, { color: "#fbbf24" }]}
+                    numberOfLines={1}
+                  >
+                    [{usuarioAtual?.perfil}]
+                  </Text>
                 </View>
 
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ gap: isCompactHeight ? 5 : 8, paddingBottom: 8 }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  {renderBotoesNav()}
+                </ScrollView>
+
                 <TouchableOpacity
-                  style={[styles.botaoSair, { marginTop: "auto" }]}
+                  style={[
+                    styles.botaoSair,
+                    {
+                      marginTop: 10,
+                      paddingVertical: isCompactHeight ? 10 : 12,
+                    },
+                  ]}
                   onPress={solicitarLogout}
                   activeOpacity={0.8}
                 >

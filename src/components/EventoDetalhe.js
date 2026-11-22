@@ -1,162 +1,109 @@
-import { useEffect, useRef, useState } from "react";
-import { Image, Linking, Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { compartilharCard } from "../services/compartilharServices";
-import { solicitarPermissaoEAgendarLembrete } from "../services/notificacaoService";
-import { carregarFallbackImagemEvento, obterUrlImagemEvento } from "../services/imagemServices";
-import { formatarDataApenas } from "../utils/dataUtils";
+import {
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useEventoDetalhe } from "../hooks/useEventoDetalhe";
 import ConfirmPopup from "./ConfirmPopup";
 import CustomIcon from "./CustomIcon";
 import FeedbackBox from "./FeedPopup";
 import BotaoFechar from "./BotaoFechar";
 import ModalVisualizarImagem from "./ModalVisualizarImagemCheia";
+import ModalFormularioInscricao from "./modalInscricao";
 import { detalheStyles as localStyles } from "../styles/detalhesStyles";
 
-export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadraoUrl }) {
-  const viewRef = useRef();
-  const [feedback, setFeedback] = useState({ tipo: "", mensagem: "" });
-  const [fallbackUrl, setFallbackUrl] = useState(imagemPadraoUrl || null);
-  const [imagemTelaCheiaVisivel, setImagemTelaCheiaVisivel] = useState(false);
-
-  const [confirmVisible, setConfirmVisible] = useState(false);
-  const [confirmConfig, setConfirmConfig] = useState({
-    titulo: "",
-    mensagem: "",
-    onConfirm: () => {},
-    tipo: "info",
+export default function EventoDetalhe({
+  evento,
+  onClose,
+  onNotificar,
+  imagemPadraoUrl,
+  usuarioAtual = null,
+}) {
+  const {
+    viewRef,
+    width,
+    isCompact,
+    isVeryNarrow,
+    feedback,
+    setFeedback,
+    imagemTelaCheiaVisivel,
+    setImagemTelaCheiaVisivel,
+    modalInscricaoVisivel,
+    setModalInscricaoVisivel,
+    salvandoInscricao,
+    confirmVisible,
+    setConfirmVisible,
+    confirmConfig,
+    inscricaoHabilitada,
+    linkEvento,
+    estatisticasVagas,
+    carregandoVagas,
+    urlFinal,
+    imagemFonte,
+    localExibido,
+    dataFormatada,
+    horasAAC,
+    handleAcessarLink,
+    handleConfirmarInscricao,
+    handleCompartilharClick,
+    handleNotificarClick,
+  } = useEventoDetalhe({
+    evento,
+    onClose,
+    onNotificar,
+    imagemPadraoUrl,
+    usuarioAtual,
   });
-
-  useEffect(() => {
-    let ativo = true;
-
-    if (imagemPadraoUrl) {
-      setFallbackUrl(imagemPadraoUrl);
-      return () => {
-        ativo = false;
-      };
-    }
-
-    carregarFallbackImagemEvento(21).then((url) => {
-      if (ativo && url) {
-        setFallbackUrl(url);
-      }
-    });
-
-    return () => {
-      ativo = false;
-    };
-  }, [imagemPadraoUrl]);
 
   if (!evento) return null;
 
-  // 🔗 Extração segura do link do evento (verifica link_transmissao ou link)
-  const linkEvento = evento.link_transmissao || evento.link;
+  const {
+    temLimite,
+    limiteVagas,
+    vagasOcupadas,
+    vagasRestantes,
+    porcentagemOcupada,
+    lotado,
+  } = estatisticasVagas;
 
-  const handleAcessarLink = async () => {
-    if (!linkEvento) return;
-    try {
-      const supported = await Linking.canOpenURL(linkEvento);
-      if (supported) {
-        await Linking.openURL(linkEvento);
-      } else {
-        setFeedback({ tipo: "erro", mensagem: "Não foi possível abrir este link." });
-      }
-    } catch (error) {
-      setFeedback({ tipo: "erro", mensagem: "Erro ao tentar abrir o link." });
-    }
-  };
-
-  // 🔗 Ação de Compartilhar
-  const handleCompartilharClick = () => {
-    setConfirmConfig({
-      titulo: "📥 Permitir Download",
-      mensagem: "Deseja permitir o download da imagem deste evento no seu dispositivo?",
-      tipo: "info",
-      onConfirm: async () => {
-        setConfirmVisible(false);
-        setFeedback({ tipo: "", mensagem: "" });
-        const resultado = await compartilharCard(viewRef, evento);
-        setFeedback({
-          tipo: resultado.tipo,
-          mensagem: resultado.mensagem,
-        });
-      },
-    });
-    setConfirmVisible(true);
-  };
-
-  // 🔔 Ação de Notificar
-  const handleNotificarClick = () => {
-    setConfirmConfig({
-      titulo: "🔔 Salvar Notificação",
-      mensagem: "Deseja guardar este evento nas suas notificações e agendar o lembrete?",
-      tipo: "info",
-      onConfirm: async () => {
-        setConfirmVisible(false);
-        setFeedback({ tipo: "", mensagem: "" });
-
-        const resultado = await solicitarPermissaoEAgendarLembrete(evento);
-
-        setFeedback({
-          tipo: resultado.tipo,
-          mensagem: resultado.mensagem,
-        });
-
-        if (resultado.sucesso) {
-          if (onNotificar) {
-            onNotificar(evento);
-          }
-          setTimeout(() => {
-            onClose();
-          }, 1200);
-        }
-      },
-    });
-    setConfirmVisible(true);
-  };
-
-  const urlFinal = obterUrlImagemEvento(evento, fallbackUrl);
-  const imagemFonte = urlFinal ? { uri: urlFinal } : null;
-
-  let localExibido = "Estácio Nova América";
-  if (evento?.local) {
-    localExibido =
-      typeof evento.local === "object"
-        ? evento.local.nome || "Estácio Nova América"
-        : evento.local;
-  } else if (evento?.turma) {
-    localExibido =
-      typeof evento.turma === "object"
-        ? evento.turma.nome || "Estácio Nova América"
-        : evento.turma;
-  } else if (evento?.curso) {
-    localExibido =
-      typeof evento.curso === "object"
-        ? evento.curso.nome || "Estácio Nova América"
-        : evento.curso;
-  }
-
-  const dataFormatada = formatarDataApenas(
-    evento.inicio || evento.dia || evento.dataEvento,
-  );
-
-  const horasAAC = evento.horasAAC || evento.horas_acc;
+  const corBarra =
+    porcentagemOcupada >= 90
+      ? "#DC2626"
+      : porcentagemOcupada >= 70
+        ? "#D97706"
+        : "#173EA5";
 
   return (
     <>
       <Modal
         animationType="fade"
         transparent={true}
-        visible={!imagemTelaCheiaVisivel}
+        visible={!imagemTelaCheiaVisivel && !modalInscricaoVisivel}
         onRequestClose={onClose}
       >
         <View style={localStyles.modalOverlay}>
           <View
             ref={viewRef}
-            style={localStyles.modalContentClean}
+            style={[
+              localStyles.modalContentClean,
+              {
+                maxHeight: "92%",
+                width: width < 640 ? "95%" : undefined,
+                overflow: "hidden",
+              },
+            ]}
             collapsable={false}
           >
             {/* TOPO COM BANNER 16:9 E BOTÃO FECHAR FLUTUANTE */}
-            <View style={localStyles.bannerContainer}>
+            <View
+              style={[
+                localStyles.bannerContainer,
+                isCompact && { height: 155 },
+              ]}
+            >
               <TouchableOpacity
                 activeOpacity={0.9}
                 disabled={!urlFinal}
@@ -169,7 +116,10 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                   resizeMode="cover"
                 />
               </TouchableOpacity>
-              <BotaoFechar onPress={onClose} style={localStyles.closeButtonClean} />
+              <BotaoFechar
+                onPress={onClose}
+                style={localStyles.closeButtonClean}
+              />
             </View>
 
             <ScrollView
@@ -186,15 +136,36 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                 <Text style={localStyles.modalTituloClean}>{evento.titulo}</Text>
 
                 {/* 📅 GRID DE DATA E LOCAL DESTAQUE */}
-                <View style={localStyles.infoGrid}>
+                <View
+                  style={[
+                    localStyles.infoGrid,
+                    isVeryNarrow && {
+                      flexDirection: "column",
+                      alignItems: "stretch",
+                      gap: 6,
+                    },
+                  ]}
+                >
                   <View style={localStyles.infoBadgeItem}>
-                    <CustomIcon name="calendar-outline" size={16} color="#173EA5" />
-                    <Text style={localStyles.infoBadgeTexto}>{dataFormatada || "Data a definir"}</Text>
+                    <CustomIcon
+                      name="calendar-outline"
+                      size={16}
+                      color="#173EA5"
+                    />
+                    <Text style={localStyles.infoBadgeTexto}>
+                      {dataFormatada || "Data a definir"}
+                    </Text>
                   </View>
 
                   <View style={localStyles.infoBadgeItem}>
-                    <CustomIcon name="location-outline" size={16} color="#173EA5" />
-                    <Text style={localStyles.infoBadgeTexto} numberOfLines={1}>{localExibido}</Text>
+                    <CustomIcon
+                      name="location-outline"
+                      size={16}
+                      color="#173EA5"
+                    />
+                    <Text style={localStyles.infoBadgeTexto} numberOfLines={1}>
+                      {localExibido}
+                    </Text>
                   </View>
                 </View>
 
@@ -203,41 +174,150 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                   <View style={localStyles.detalhesSecundariosBox}>
                     {evento.palestrante && (
                       <View style={localStyles.linhaDetalhe}>
-                        <CustomIcon name="person-outline" size={15} color="#64748B" />
-                        <Text style={localStyles.labelDetalhe}>Responsável:</Text>
-                        <Text style={localStyles.valorDetalhe} numberOfLines={1}>{evento.palestrante}</Text>
+                        <CustomIcon
+                          name="person-outline"
+                          size={15}
+                          color="#64748B"
+                        />
+                        <Text style={localStyles.labelDetalhe}>
+                          Responsável:
+                        </Text>
+                        <Text style={localStyles.valorDetalhe} numberOfLines={1}>
+                          {evento.palestrante}
+                        </Text>
                       </View>
                     )}
 
                     {horasAAC && (
                       <View style={localStyles.linhaDetalhe}>
-                        <CustomIcon name="time-outline" size={15} color="#64748B" />
-                        <Text style={localStyles.labelDetalhe}>Certificação:</Text>
-                        <Text style={localStyles.valorDestaqueAAC}>{horasAAC}h AAC</Text>
+                        <CustomIcon
+                          name="time-outline"
+                          size={15}
+                          color="#64748B"
+                        />
+                        <Text style={localStyles.labelDetalhe}>
+                          Certificação:
+                        </Text>
+                        <Text style={localStyles.valorDestaqueAAC}>
+                          {horasAAC}h AAC
+                        </Text>
                       </View>
                     )}
                   </View>
                 )}
 
+                {/* 📊 PREENCHIMENTO DE VAGAS (QUANDO HABILITADA INSCRIÇÃO) */}
+                {inscricaoHabilitada && (
+                  <View style={{ marginTop: 14 }}>
+                    {temLimite && (
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          fontWeight: "600",
+                          color: lotado ? "#DC2626" : "#475569",
+                          textAlign: "center",
+                          marginBottom: 6,
+                        }}
+                      >
+                        {carregandoVagas
+                          ? "Atualizando vagas..."
+                          : `${porcentagemOcupada}% das vagas ocupadas • ${vagasRestantes} restantes`}
+                      </Text>
+                    )}
+
+                    <TouchableOpacity
+                      disabled={lotado}
+                      style={[
+                        localStyles.btnNotificarClean,
+                        {
+                          backgroundColor: lotado ? "#94A3B8" : "#173EA5",
+                          paddingVertical: isCompact ? 11 : 12,
+                          borderRadius: 10,
+                          justifyContent: "center",
+                          width: "100%",
+                        },
+                      ]}
+                      onPress={() => {
+                        setFeedback({ tipo: "", mensagem: "" });
+                        setModalInscricaoVisivel(true);
+                      }}
+                      activeOpacity={0.85}
+                    >
+                      <CustomIcon
+                        name={lotado ? "lock-closed-outline" : "create-outline"}
+                        size={18}
+                        color="#FFFFFF"
+                      />
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          localStyles.btnNotificarTextoClean,
+                          isVeryNarrow && { fontSize: 13 },
+                        ]}
+                      >
+                        {lotado ? "Vagas esgotadas" : "Inscreva-se"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+
                 {/* SOBRE O EVENTO */}
-                <Text style={localStyles.modalSecaoLabelClean}>SOBRE O EVENTO:</Text>
-                <Text style={localStyles.modalDescricaoClean}>
-                  {evento.descricao || "Informações detalhadas sobre o evento acadêmico."}
+                <Text style={localStyles.modalSecaoLabelClean}>
+                  SOBRE O EVENTO:
                 </Text>
+                <Text style={localStyles.modalDescricaoClean}>
+                  {evento.descricao ||
+                    "Informações detalhadas sobre o evento acadêmico."}
+                </Text>
+
+                {/* 📝 BOTÃO DE INSCRIÇÃO */}
+                {inscricaoHabilitada && temLimite && (
+                  <View style={localStyles.linhaDetalhe}>
+                    <CustomIcon
+                      name="people-outline"
+                      size={15}
+                      color={lotado ? "#DC2626" : "#64748B"}
+                    />
+                    <Text style={localStyles.labelDetalhe}>Vagas:</Text>
+                    <Text
+                      style={[
+                        localStyles.valorDetalhe,
+                        { color: corBarra, fontWeight: "700" },
+                      ]}
+                    >
+                      {porcentagemOcupada}% ocupadas ({vagasOcupadas}/{limiteVagas} •{" "}
+                      {vagasRestantes} restantes)
+                    </Text>
+                  </View>
+                )}
               </View>
             </ScrollView>
 
             {/* RODAPÉ COM AÇÕES */}
-            <View style={localStyles.actionButtonsRowClean}>
-              {/* 🌐 BOTÃO CONDICIONAL DE ACESSAR LINK (Aparece se houver link cadastrado) */}
+            <View
+              style={[
+                localStyles.actionButtonsRowClean,
+                isCompact && {
+                  flexWrap: "wrap",
+                  gap: 8,
+                  paddingVertical: 10,
+                  paddingHorizontal: 12,
+                },
+              ]}
+            >
               {linkEvento ? (
                 <TouchableOpacity
-                  style={[localStyles.btnNotificarClean, { backgroundColor: "#059669" }]}
+                  style={[
+                    localStyles.btnNotificarClean,
+                    { backgroundColor: "#059669" },
+                  ]}
                   onPress={handleAcessarLink}
                   activeOpacity={0.8}
                 >
                   <CustomIcon name="globe-outline" size={17} color="#ffffff" />
-                  <Text style={localStyles.btnNotificarTextoClean}>Acessar link</Text>
+                  <Text style={localStyles.btnNotificarTextoClean}>
+                    Acessar link
+                  </Text>
                 </TouchableOpacity>
               ) : null}
 
@@ -246,7 +326,11 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
                 onPress={handleNotificarClick}
                 activeOpacity={0.8}
               >
-                <CustomIcon name="notifications-outline" size={17} color="#ffffff" />
+                <CustomIcon
+                  name="notifications-outline"
+                  size={17}
+                  color="#ffffff"
+                />
                 <Text style={localStyles.btnNotificarTextoClean}>Notificar</Text>
               </TouchableOpacity>
 
@@ -263,6 +347,14 @@ export default function EventoDetalhe({ evento, onClose, onNotificar, imagemPadr
           </View>
         </View>
       </Modal>
+
+      <ModalFormularioInscricao
+        visible={modalInscricaoVisivel}
+        onClose={() => setModalInscricaoVisivel(false)}
+        evento={evento}
+        onSalvar={handleConfirmarInscricao}
+        salvando={salvandoInscricao}
+      />
 
       <ModalVisualizarImagem
         visible={imagemTelaCheiaVisivel}

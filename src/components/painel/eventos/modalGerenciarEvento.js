@@ -1,22 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
-import {
-  Image,
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from "react-native";
-import {
-  LISTA_PROPORCOES,
-  obterAspectRatioNumerico,
-} from "../../../constants/proporcoesConstantes";
+import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
+import {LISTA_PROPORCOES,obterAspectRatioNumerico} from "../../../constants/proporcoesConstantes";
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
-import {
-  formatarEntradaData,
-  formatarEntradaHora,
-} from "../../../utils/dataUtils";
+import {formatarEntradaData,formatarEntradaHora} from "../../../utils/dataUtils";
 import BotaoFechar from "../../BotaoFechar";
 import CustomIcon from "../../CustomIcon";
 import FeedbackBox from "../../FeedPopup";
@@ -61,14 +47,23 @@ export default function ModalGerenciarEvento({
   setProporcao,
   linkTransmissao,
   setLinkTransmissao,
+  possuiEventos,
+  setPossuiEventos,
+  limiteVagas,
+  setLimiteVagas,
   dataApenas,
   setDataApenas,
   horaApenas,
   setHoraApenas,
+  dataFimApenas,
+  setDataFimApenas,
+  horaFimApenas,
+  setHoraFimApenas,
   solicitarRemocaoImagem,
   descricaoImagem,
   setDescricaoImagem,
   feedback,
+  setFeedback,
   selecionarImagem,
   salvarEvento,
 }) {
@@ -94,8 +89,12 @@ export default function ModalGerenciarEvento({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            
-            <FeedbackBox tipo={feedback.tipo} mensagem={feedback.mensagem} onClose={() => setFeedback({ tipo: '', mensagem: '' })} />
+            <FeedbackBox
+              tipo={feedback?.tipo}
+              mensagem={feedback?.mensagem}
+              onClose={() => setFeedback?.({ tipo: '', mensagem: '' })}
+            />
+
             <Campo
               label="Título do evento *"
               value={titulo}
@@ -104,14 +103,14 @@ export default function ModalGerenciarEvento({
               maxLength={100}
             />
 
-            {/* Bloco de Data e Hora Único e Otimizado */}
+            {/* Data e Hora de Início */}
             <View style={{ flexDirection: "row", gap: 12 }}>
               <View style={{ flex: 2 }}>
                 <Campo
-                  label="Data *"
+                  label="Data de início *"
                   value={dataApenas}
                   onChangeText={(t) => setDataApenas(formatarEntradaData(t))}
-                  placeholder="15/12/2026"
+                  placeholder="28/11/2026"
                   keyboardType="numeric"
                   maxLength={10}
                 />
@@ -119,10 +118,35 @@ export default function ModalGerenciarEvento({
 
               <View style={{ flex: 1.2 }}>
                 <Campo
-                  label="Hora *"
+                  label="Hora de início *"
                   value={horaApenas}
                   onChangeText={(t) => setHoraApenas(formatarEntradaHora(t))}
                   placeholder="19:00:00"
+                  keyboardType="numeric"
+                  maxLength={8}
+                />
+              </View>
+            </View>
+
+            {/* Data e Hora de Fim (Opcional) */}
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <View style={{ flex: 2 }}>
+                <Campo
+                  label="Data de fim (Opcional)"
+                  value={dataFimApenas}
+                  onChangeText={(t) => setDataFimApenas(formatarEntradaData(t))}
+                  placeholder="03/12/2026"
+                  keyboardType="numeric"
+                  maxLength={10}
+                />
+              </View>
+
+              <View style={{ flex: 1.2 }}>
+                <Campo
+                  label="Hora de fim (Opcional)"
+                  value={horaFimApenas}
+                  onChangeText={(t) => setHoraFimApenas(formatarEntradaHora(t))}
+                  placeholder="21:00:00"
                   keyboardType="numeric"
                   maxLength={8}
                 />
@@ -154,7 +178,58 @@ export default function ModalGerenciarEvento({
               maxLength={3}
             />
 
-            {/* 🛑 O status só aparece se estivermos editando um evento existente */}
+            {/* Habilitar inscrições (bool true / false) */}
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 10,
+                paddingVertical: 12,
+                paddingHorizontal: 12,
+                borderRadius: 8,
+                borderWidth: 1,
+                borderColor: possuiEventos ? "#173EA5" : "#CBD5E1",
+                backgroundColor: possuiEventos ? "#EFF6FF" : "#F8FAFC",
+                marginBottom: possuiEventos ? 12 : 16,
+              }}
+              onPress={() => {
+                const proximo = !possuiEventos;
+                setPossuiEventos(proximo);
+                if (!proximo) {
+                  setLimiteVagas("");
+                }
+              }}
+              activeOpacity={0.75}
+            >
+              <CustomIcon
+                name={possuiEventos ? "checkbox" : "square-outline"}
+                size={22}
+                color="#173EA5"
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13.5, fontWeight: "700", color: "#0F172A" }}>
+                  Habilitar inscrições para este evento
+                </Text>
+                <Text style={{ fontSize: 11.5, color: "#64748B", marginTop: 2 }}>
+                  {possuiEventos
+                    ? "Ativado"
+                    : "Desativado"}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Quantidade máxima de inscritos (opcional, só aparece se habilitado) */}
+            {possuiEventos && (
+              <Campo
+                label="Quantidade máxima de inscritos *"
+                value={limiteVagas}
+                onChangeText={setLimiteVagas}
+                placeholder="Ex.: 50 (vazio = sem limite)"
+                keyboardType="numeric"
+                maxLength={5}
+              />
+            )}
+
             {eventoEditando && (
               <View style={styles.campo}>
                 <Text style={styles.label}>Status do Evento</Text>
@@ -199,32 +274,32 @@ export default function ModalGerenciarEvento({
                 }}
               >
                 <Picker
-                    selectedValue={
-                      cursoId === null || cursoId === undefined
-                        ? ""
-                        : String(cursoId)
+                  selectedValue={
+                    cursoId === null || cursoId === undefined
+                      ? ""
+                      : String(cursoId)
+                  }
+                  onValueChange={(itemValue) => {
+                    if (itemValue === "") {
+                      setCursoId("");
+                    } else if (itemValue === "NULL") {
+                      setCursoId("NULL");
+                    } else {
+                      setCursoId(Number(itemValue));
                     }
-                    onValueChange={(itemValue) => {
-                      if (itemValue === "") {
-                        setCursoId("");
-                      } else if (itemValue === "NULL") {
-                        setCursoId("NULL");
-                      } else {
-                        setCursoId(Number(itemValue));
-                      }
-                    }}
-                    style={{
-                      height: 48,
-                      width: "100%",
-                      color: "#0F172A",
-                      backgroundColor: "transparent",
-                    }}
-                  >
-                    <Picker.Item label="Selecione um curso..." value="" />
-                    <Picker.Item label="Todos" value="NULL" />
-                    {cursos.map((c) => (
-                      <Picker.Item key={c.id} label={c.titulo} value={String(c.id)} />
-                    ))}
+                  }}
+                  style={{
+                    height: 48,
+                    width: "100%",
+                    color: "#0F172A",
+                    backgroundColor: "transparent",
+                  }}
+                >
+                  <Picker.Item label="Selecione um curso..." value="" />
+                  <Picker.Item label="Todos" value="NULL" />
+                  {cursos.map((c) => (
+                    <Picker.Item key={c.id} label={c.titulo} value={String(c.id)} />
+                  ))}
                 </Picker>
               </View>
             </View>
@@ -258,7 +333,6 @@ export default function ModalGerenciarEvento({
                   Formatação da Imagem *
                 </Text>
 
-                {/* LISTA DINÂMICA DE PROPORÇÕES */}
                 <View
                   style={{
                     flexDirection: "row",
@@ -299,7 +373,6 @@ export default function ModalGerenciarEvento({
                   ))}
                 </View>
 
-                {/* PRÉVIA USANDO A FUNÇÃO CENTRALIZADA */}
                 <View
                   style={{
                     width: "100%",
@@ -340,7 +413,7 @@ export default function ModalGerenciarEvento({
                 <CustomIcon name="image-outline" size={34} color="#173EA5" />
                 <Text style={styles.textoSeletorImagem}>Selecionar imagem</Text>
                 <Text style={styles.textoAuxiliar}>
-                  Esolha uma imagem para salvar na base de dados.
+                  Escolha uma imagem para salvar na base de dados.
                 </Text>
               </TouchableOpacity>
             )}

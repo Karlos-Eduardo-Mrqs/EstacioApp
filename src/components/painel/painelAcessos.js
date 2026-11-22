@@ -6,6 +6,7 @@ import PainelServicos from "./servicos/painelServicos";
 import ParceriaTab from "./parcerias/parceriaTab";
 import PainelPublicacoes from "./publicacoes/painelPublicacoes";
 import GerenciarUsuarios from "./usuarios/painelGerenciarUsuarios";
+import PainelInscricoes from "./inscricao/painelInscricao";
 
 export const PERFIS_PERMITIDOS_PAINEL = [
   "Gerência Acadêmica",
@@ -34,6 +35,13 @@ export const ITENS_PAINEL = [
     icon: "calendar",
     apenasGerencia: false,
     component: GerenciarEventos,
+  },
+  {
+    id: "inscricao",
+    label: "Inscrições",
+    icon: "chatbubbles-outline",
+    apenasGerencia: false,
+    component: PainelInscricoes,
   },
   {
     id: "notificacao",

@@ -1,12 +1,23 @@
 import { supabase } from '../../lib/supabase';
 
+function normalizarEvento(ev) {
+  if (!ev) return ev;
+  const dataInicio = ev.data_inicio ?? ev.data ?? null;
+  const dataFim = ev.data_fim ?? null;
+  return {
+    ...ev,
+    data_inicio: dataInicio,
+    data_fim: dataFim,
+    data: dataInicio,
+  };
+}
+
 export async function buscarEventosDoBanco(usuarioAtual = null) {
   let query = supabase
     .from('evento')
     .select('*, curso(nome), imagem(*)')
-    .order('data', { ascending: true });
+    .order('data_inicio', { ascending: true });
 
-  // 🔒 Se o usuário for Coordenador, filtra apenas pelos eventos criados por ele
   if (usuarioAtual) {
     const perfilStr = usuarioAtual.perfil ? usuarioAtual.perfil.trim().toLowerCase() : "";
     const ehCoordenador = perfilStr.includes("coordenador");
@@ -19,7 +30,7 @@ export async function buscarEventosDoBanco(usuarioAtual = null) {
   const { data, error } = await query;
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map(normalizarEvento);
 }
 
 export async function criarEventoNoBanco(novoEvento) {
@@ -30,11 +41,10 @@ export async function criarEventoNoBanco(novoEvento) {
     .single();
 
   if (error) throw error;
-  return data;
+  return normalizarEvento(data);
 }
 
 export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaObj = null) {
-  // 1. Atualiza os dados do evento
   const { data, error } = await supabase
     .from('evento')
     .update(eventoAtualizado)
@@ -44,7 +54,6 @@ export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaO
 
   if (error) throw error;
 
-  // 2. Se uma nova imagem foi associada e era diferente da anterior, limpa a antiga do Storage
   if (imagemAntigaObj && eventoAtualizado.imagem_id && imagemAntigaObj.id !== eventoAtualizado.imagem_id) {
     try {
       const caminhoCompleto = imagemAntigaObj.caminho_img;
@@ -60,7 +69,7 @@ export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaO
     }
   }
 
-  return data;
+  return normalizarEvento(data);
 }
 
 export async function removerEventoDoBanco(eventoOuId) {
@@ -80,7 +89,6 @@ export async function removerEventoDoBanco(eventoOuId) {
     idEvento = idEvento.id;
   }
 
-  // 1. Tenta remover o evento primeiro (evita travar caso a imagem dê conflito de chave estrangeira)
   const { error: erroEvento } = await supabase
     .from('evento')
     .delete()
@@ -90,7 +98,6 @@ export async function removerEventoDoBanco(eventoOuId) {
     throw new Error(erroEvento.message);
   }
 
-  // 2. Se o evento foi apagado com sucesso, remove a imagem associada (se existir)
   if (imagemId) {
     try {
       await supabase
@@ -104,4 +111,3 @@ export async function removerEventoDoBanco(eventoOuId) {
 
   return true;
 }
-

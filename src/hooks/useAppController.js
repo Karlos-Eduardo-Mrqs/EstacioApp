@@ -1,14 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import {gerarMesesCalendario,normalizarEventosComData,obterListasEventosPorPeriodo,renderizarCelulasDiasCalendario,} from "./Calendario";
+import {
+  gerarMesesCalendario,
+  normalizarEventosComData,
+  obterListasEventosPorPeriodo,
+  renderizarCelulasDiasCalendario,
+} from "./Calendario";
 import { useNotificacoes } from "./useNotificacoes";
 import { useMuralUI } from "./useMuralUI";
 import { buscarServicosDoBanco } from "../services/servicoService";
-import {buscarCursosDoBanco} from "../services/cursoServices";
-import {buscarEventosDoBanco,} from "../services/eventoServices";
+import { buscarCursosDoBanco } from "../services/cursoServices";
+import { buscarEventosDoBanco } from "../services/eventoServices";
 import { buscarAvisosAtivosDoBanco } from "../services/notificacaoService";
-import {limparSessaoUsuario,recuperarSessaoUsuario,salvarSessaoUsuario,} from "../services/sessaoServices";
+import {
+  limparSessaoUsuario,
+  recuperarSessaoUsuario,
+  salvarSessaoUsuario,
+} from "../services/sessaoServices";
 
 export function useAppController(styles) {
   const [todosOsEventos, setTodosOsEventos] = useState([]);
@@ -27,17 +36,23 @@ export function useAppController(styles) {
   const [utilizadorLogado, setUtilizadorLogado] = useState(null);
   const [avisosAtivos, setAvisosAtivos] = useState([]);
 
-  const eventosValidos = normalizarEventosComData(todosOsEventos);
+  const eventosValidos = useMemo(
+    () => normalizarEventosComData(todosOsEventos),
+    [todosOsEventos]
+  );
 
   const ui = useMuralUI(eventosValidos);
   const { notificacoesSalvas, salvarNotificacao, removerNotificacao } = useNotificacoes(
     ui.exibirPopup
   );
 
-  const semestre = gerarMesesCalendario(4);
-  const diasSemana = ["D", "S", "T", "Q", "Q", "S", "S"];
-  const { listaProximos, listaSemana, eventosProximoMes } =
-    obterListasEventosPorPeriodo(eventosValidos);
+  const semestre = useMemo(() => gerarMesesCalendario(6), []);
+  const diasSemana = useMemo(() => ["D", "S", "T", "Q", "Q", "S", "S"], []);
+
+  const { listaProximos, listaSemana, eventosProximoMes } = useMemo(
+    () => obterListasEventosPorPeriodo(eventosValidos),
+    [eventosValidos]
+  );
 
   const renderizarDias = (mesNome, totalDias, espacosVazios, anoMes) =>
     renderizarCelulasDiasCalendario({
@@ -69,12 +84,20 @@ export function useAppController(styles) {
     </View>
   );
 
-  const cursosDestaque = (cursosDoBanco || []).filter(
-    (curso) => curso.modalidade === "Graduação" && curso.tipo !== "Online/EAD"
+  const cursosDestaque = useMemo(
+    () =>
+      (cursosDoBanco || []).filter(
+        (curso) => curso.modalidade === "Graduação" && curso.tipo !== "Online/EAD"
+      ),
+    [cursosDoBanco]
   );
 
-  const cursosTecnicos = (cursosDoBanco || []).filter(
-    (curso) => curso.tipo === "Online/EAD" || curso.modalidade === "Técnico"
+  const cursosTecnicos = useMemo(
+    () =>
+      (cursosDoBanco || []).filter(
+        (curso) => curso.tipo === "Online/EAD" || curso.modalidade === "Técnico"
+      ),
+    [cursosDoBanco]
   );
 
   useEffect(() => {

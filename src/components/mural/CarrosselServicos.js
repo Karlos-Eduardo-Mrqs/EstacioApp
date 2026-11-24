@@ -5,6 +5,16 @@ import ModalDetalhesServico from "./ModalServicos";
 import { carrosselServicosStyles as styles } from "../../styles/mural/carrosselServicosStyles";
 import ControlesCarrossel from "../ControlesCarrossel";
 
+function estaDesativado(item) {
+  if (!item) return false;
+  if (item.status === false) return true;
+  if (typeof item.status === "string") {
+    const st = item.status.trim().toLowerCase();
+    return st === "cancelado" || st === "desativado" || st === "inativo";
+  }
+  return false;
+}
+
 export default function CarrosselServicos({ servicos = [], onSelectServico }) {
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const scrollRef = useRef(null);
@@ -59,41 +69,137 @@ export default function CarrosselServicos({ servicos = [], onSelectServico }) {
           onContentSizeChange={(w) => setLarguraConteudo(w)}
           contentContainerStyle={styles.listaServicos}
         >
-          {servicos.map((item, index) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.cardCarrosselModerno}
-              activeOpacity={0.85}
-              onPress={() => handlePressServico(item)}
-            >
-              <View style={styles.cardHeaderTop}>
-                <View style={styles.badgeNumero}>
-                  <Text style={styles.cardNumero}>#{index + 1}</Text>
+          {servicos.map((item, index) => {
+            const desativado = estaDesativado(item);
+
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.cardCarrosselModerno,
+                  desativado && {
+                    backgroundColor: "#F8FAFC",
+                    borderColor: "#FECACA",
+                    opacity: 0.78,
+                  },
+                ]}
+                activeOpacity={0.85}
+                onPress={() => handlePressServico(item)}
+              >
+                <View
+                  style={[
+                    styles.cardHeaderTop,
+                    desativado && {
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.badgeNumero,
+                      desativado && { backgroundColor: "#E2E8F0" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.cardNumero,
+                        desativado && { color: "#64748B" },
+                      ]}
+                    >
+                      #{index + 1}
+                    </Text>
+                  </View>
+
+                  {desativado && (
+                    <View
+                      style={{
+                        backgroundColor: "#FEE2E2",
+                        borderWidth: 1,
+                        borderColor: "#FECACA",
+                        paddingHorizontal: 8,
+                        paddingVertical: 2,
+                        borderRadius: 6,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          fontWeight: "800",
+                          color: "#DC2626",
+                        }}
+                      >
+                        DESATIVADO
+                      </Text>
+                    </View>
+                  )}
                 </View>
-              </View>
 
-              <View style={styles.cardBody}>
-                <Text style={styles.cardTitulo} numberOfLines={2}>
-                  {item.nome}
-                </Text>
-                <Text style={styles.cardDescricao} numberOfLines={2}>
-                  {item.descricao || "Conheça este serviço institucional da Estácio."}
-                </Text>
-              </View>
-
-              <View style={styles.cardFooter}>
-                <View style={styles.tagContainer}>
-                  <Text style={styles.tagTexto} numberOfLines={1}>
-                    📌 {item.curso || "Geral"}
+                <View style={styles.cardBody}>
+                  <Text
+                    style={[
+                      styles.cardTitulo,
+                      desativado && {
+                        color: "#64748B",
+                        textDecorationLine: "line-through",
+                      },
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {item.nome}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cardDescricao,
+                      desativado && { color: "#94A3B8" },
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {desativado
+                      ? "Serviço desativado no momento."
+                      : item.descricao ||
+                        "Conheça este serviço institucional da Estácio."}
                   </Text>
                 </View>
 
-                <View style={styles.botaoDetalhesPequeno}>
-                  <Text style={styles.botaoDetalhesText}>Detalhes →</Text>
+                <View style={styles.cardFooter}>
+                  <View
+                    style={[
+                      styles.tagContainer,
+                      desativado && { backgroundColor: "#E2E8F0" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tagTexto,
+                        desativado && { color: "#475569" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      📌 {item.curso || "Geral"}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={[
+                      styles.botaoDetalhesPequeno,
+                      desativado && { backgroundColor: "#E2E8F0" },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.botaoDetalhesText,
+                        desativado && { color: "#64748B" },
+                      ]}
+                    >
+                      {desativado ? "Desativado" : "Detalhes →"}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
         <View

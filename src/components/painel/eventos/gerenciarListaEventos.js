@@ -17,17 +17,27 @@ function formatarPeriodoEvento(evento) {
 }
 
 function calcularEstadoTempoEvento(evento, agora) {
-  const isEncerrado = evento.status === false;
+  const isEncerradoOuCancelado =
+    evento.status === false || evento.status === "false";
+
+  if (isEncerradoOuCancelado) {
+    return {
+      textoTempo: "🔴 Encerrado / Cancelado",
+      corBadgeFundo: "#FEF2F2",
+      corBadgeTexto: "#DC2626",
+    };
+  }
+
   const referenciaData =
     evento.dataFimObj && !isNaN(evento.dataFimObj.getTime())
       ? evento.dataFimObj
       : evento.dataObj;
 
-  if (isEncerrado) {
+  if (!referenciaData || isNaN(referenciaData.getTime())) {
     return {
-      textoTempo: "🔴 Encerrado",
-      corBadgeFundo: "#FEF2F2",
-      corBadgeTexto: "#DC2626",
+      textoTempo: "🟢 Ativo",
+      corBadgeFundo: "#F0FDF4",
+      corBadgeTexto: "#15803D",
     };
   }
 
@@ -107,7 +117,7 @@ function CabecalhoListaEventos({ onNovoEvento }) {
 function RodapeInfoEvento({ evento, agora }) {
   const horas = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
   const temHoras =
-    horas !== undefined && horas !== null && horas !== "" && horas !== 0;
+    horas !== undefined && horas !== null && horas !== "" && Number(horas) !== 0;
 
   const { textoTempo, corBadgeFundo, corBadgeTexto } = calcularEstadoTempoEvento(
     evento,
@@ -247,7 +257,7 @@ export default function GerenciarListaEventos({
       const inicioRaw =
         evento.data_inicio || evento.inicio || evento.data || evento.dataEvento;
       const fimRaw = evento.data_fim || evento.fim || null;
-      const dataObj = new Date(inicioRaw);
+      const dataObj = inicioRaw ? new Date(inicioRaw) : new Date(NaN);
       const dataFimObj = fimRaw ? new Date(fimRaw) : null;
 
       return {
@@ -257,14 +267,18 @@ export default function GerenciarListaEventos({
       };
     })
     .filter((evento) => {
-      const termo = pesquisa.toLowerCase();
+      const termo = pesquisa.trim().toLowerCase();
+      if (!termo) return true;
       const tituloMatch = evento.titulo?.toLowerCase().includes(termo);
       const localMatch = evento.local?.toLowerCase().includes(termo);
-      return tituloMatch || localMatch;
+      return Boolean(tituloMatch || localMatch);
     })
     .sort((a, b) => {
-      if (isNaN(a.dataObj.getTime())) return 1;
-      if (isNaN(b.dataObj.getTime())) return -1;
+      const aValida = !isNaN(a.dataObj.getTime());
+      const bValida = !isNaN(b.dataObj.getTime());
+      if (!aValida && !bValida) return 0;
+      if (!aValida) return 1;
+      if (!bValida) return -1;
       return b.dataObj - a.dataObj;
     });
 
@@ -292,6 +306,8 @@ export default function GerenciarListaEventos({
         {eventosProcessados.length > 0 ? (
           eventosProcessados.map((evento) => {
             const periodoFormatado = formatarPeriodoEvento(evento);
+            const inativo =
+              evento.status === false || evento.status === "false";
 
             return (
               <View
@@ -304,8 +320,8 @@ export default function GerenciarListaEventos({
                   marginBottom: 12,
                   borderRadius: 12,
                   borderWidth: 1,
-                  borderColor: "#E2E8F0",
-                  backgroundColor: "#FFFFFF",
+                  borderColor: inativo ? "#FECACA" : "#E2E8F0",
+                  backgroundColor: inativo ? "#FFFBFB" : "#FFFFFF",
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 1 },
                   shadowOpacity: 0.05,
@@ -348,7 +364,7 @@ export default function GerenciarListaEventos({
                     style={{
                       fontSize: 15,
                       fontWeight: "700",
-                      color: "#0F172A",
+                      color: inativo ? "#64748B" : "#0F172A",
                       marginBottom: 8,
                     }}
                     numberOfLines={1}

@@ -58,6 +58,8 @@ export function useGerenciarEventos(usuarioAtual = null) {
 
   const [modalEvento, setModalEvento] = useState(false);
   const [eventoEditando, setEventoEditando] = useState(null);
+  const [imagemAntigaEdicao, setImagemAntigaEdicao] = useState(null);
+  const [imagemRemovidaNaEdicao, setImagemRemovidaNaEdicao] = useState(false);
 
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -67,6 +69,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
   const [horasAAC, setHorasAAC] = useState('');
   const [imagem, setImagem] = useState(null);
   const [descricaoImagem, setDescricaoImagem] = useState('');
+  const [status, setStatus] = useState(true);
   const [carregando, setCarregando] = useState(false);
   const [local, setLocal] = useState('');
   const [linkTransmissao, setLinkTransmissao] = useState('');
@@ -134,6 +137,8 @@ export function useGerenciarEventos(usuarioAtual = null) {
 
   const abrirNovoEvento = () => {
     setEventoEditando(null);
+    setImagemAntigaEdicao(null);
+    setImagemRemovidaNaEdicao(false);
     setTitulo('');
     setDataApenas('');
     setHoraApenas('');
@@ -147,6 +152,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
     setImagem(null);
     setProporcao('16:9');
     setDescricaoImagem('');
+    setStatus(true);
     setPossuiEventos(false);
     setLimiteVagas('');
     setFeedback({ tipo: '', mensagem: '' });
@@ -156,6 +162,10 @@ export function useGerenciarEventos(usuarioAtual = null) {
 
   const abrirEdicao = (evento) => {
     setEventoEditando(evento);
+    setImagemAntigaEdicao(
+      typeof evento.imagem === 'object' && evento.imagem ? evento.imagem : null
+    );
+    setImagemRemovidaNaEdicao(false);
     setTitulo(evento.titulo || '');
 
     const inicioBr = evento.data_inicio || evento.inicio || evento.data || evento.dataEvento;
@@ -185,7 +195,8 @@ export function useGerenciarEventos(usuarioAtual = null) {
       setCursoId(idCursoBanco);
     }
 
-    // Ao abrir edição:
+    setStatus(evento.status !== false);
+
     const inscricaoHabilitada = Boolean(
       evento.possui_inscricao ?? evento.permite_inscricao
     );
@@ -196,9 +207,10 @@ export function useGerenciarEventos(usuarioAtual = null) {
         : ''
     );
 
+    const horasValor = evento.horasAAC ?? evento.horas_aac ?? evento.horasacc;
     setPalestrante(evento.palestrante || '');
     setLocal(evento.local || '');
-    setHorasAAC(evento.horasAAC ? String(evento.horasAAC) : '');
+    setHorasAAC(horasValor !== undefined && horasValor !== null ? String(horasValor) : '');
     setDescricao(evento.descricao || '');
     setProporcao(evento.imagem?.proporcao || '16:9');
     setLinkTransmissao(evento.link_transmissao || evento.linkTransmissao || '');
@@ -249,6 +261,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
           { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG },
         );
 
+        setImagemRemovidaNaEdicao(false);
         setImagem(imagemOtimizada.uri);
       }
     } catch (error) {
@@ -318,8 +331,9 @@ export function useGerenciarEventos(usuarioAtual = null) {
     }
 
     try {
-      let imagemId = eventoEditando?.imagem_id || 21;
-      let urlDefinitiva = null;
+      let imagemId = eventoEditando
+        ? (imagemRemovidaNaEdicao ? null : (eventoEditando.imagem_id ?? null))
+        : 21;
 
       if (imagem) {
         const ehLocalTemp =
@@ -328,7 +342,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
           imagem.startsWith('content://');
 
         if (ehLocalTemp) {
-          urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem);
+          const urlDefinitiva = await fazerUploadParaSupabaseStorage(imagem);
 
           const novaImagemPayload = {
             titulo: `Capa: ${titulo.trim()}`,
@@ -344,13 +358,21 @@ export function useGerenciarEventos(usuarioAtual = null) {
             const imagemCriada = await criarImagemNoBanco(novaImagemPayload);
             imagemId = imagemCriada.id;
           }
+        } else if (eventoEditando && eventoEditando.imagem_id && eventoEditando.imagem_id !== 21) {
+          await atualizarImagemNoBanco(eventoEditando.imagem_id, {
+            titulo: `Capa: ${titulo.trim()}`,
+            descricao: descricaoImagem.trim() || 'Divulgação do evento',
+            caminho_img: imagem,
+            proporcao: proporcao,
+          });
         }
       }
 
       const referenciaMs = dataFimIso
         ? new Date(dataFimIso).getTime()
         : new Date(dataInicioIso).getTime();
-      const statusAutomatico = referenciaMs >= Date.now();
+      const statusPorData = referenciaMs >= Date.now();
+      const statusFinal = eventoEditando ? Boolean(status) : statusPorData;
 
       const cursoTratado =
         cursoId && cursoId !== "NULL" && cursoId !== "" ? Number(cursoId) : null;
@@ -365,17 +387,18 @@ export function useGerenciarEventos(usuarioAtual = null) {
         curso_id: cursoTratado,
         horasAAC: horasAAC ? Number(horasAAC) : 0,
         imagem_id: imagemId,
-        usuario_id: usuarioAtual?.id || null,
+        usuario_id: eventoEditando?.usuario_id ?? usuarioAtual?.id ?? null,
         link_transmissao: linkTransmissao.trim() || null,
         possui_inscricao: Boolean(possuiEventos),
         limite_vagas: possuiEventos ? limiteNumerico : null,
-        status: statusAutomatico,
+        status: statusFinal,
       };
 
       if (eventoEditando) {
         const eventoAtualizadoBanco = await atualizarEventoNoBanco(
           eventoEditando.id,
           payloadEvento,
+          imagemAntigaEdicao,
         );
 
         setEventos((prev) =>
@@ -408,6 +431,9 @@ export function useGerenciarEventos(usuarioAtual = null) {
       }
 
       setModalEvento(false);
+      setEventoEditando(null);
+      setImagemAntigaEdicao(null);
+      setImagemRemovidaNaEdicao(false);
       setFeedback({ tipo: '', mensagem: '' });
     } catch (error) {
       console.log('Erro ao salvar evento:', error);
@@ -447,6 +473,7 @@ export function useGerenciarEventos(usuarioAtual = null) {
           });
         }
       },
+      
     });
   }
 
@@ -489,18 +516,19 @@ export function useGerenciarEventos(usuarioAtual = null) {
         visible: true,
         titulo: 'Remover Imagem',
         mensagem:
-          'Deseja remover a imagem atual? Se não escolher outra antes de salvar, a imagem padrão será aplicada.',
+          'Deseja remover a imagem atual? Se não escolher outra antes de salvar, o evento ficará sem imagem personalizada.',
         tipo: 'danger',
         onConfirm: () => {
           setConfirmacao((prev) => ({ ...prev, visible: false }));
           setImagem(null);
           setDescricaoImagem('');
+          setImagemRemovidaNaEdicao(true);
           setEventoEditando((prev) => ({ ...prev, imagem_id: null, imagem: null }));
           setToast({
             visible: true,
             titulo: 'Imagem Removida',
             mensagem:
-              'Pode selecionar uma nova imagem ou salvar para usar a padrão.',
+              'Pode selecionar uma nova imagem ou salvar para aplicar a remoção.',
           });
         },
       });
@@ -537,6 +565,8 @@ export function useGerenciarEventos(usuarioAtual = null) {
     setHorasAAC,
     imagem,
     setImagem,
+    status,
+    setStatus,
     proporcao,
     setProporcao,
     descricaoImagem,

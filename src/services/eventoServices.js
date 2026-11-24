@@ -4,11 +4,14 @@ function normalizarEvento(ev) {
   if (!ev) return ev;
   const dataInicio = ev.data_inicio ?? ev.data ?? null;
   const dataFim = ev.data_fim ?? null;
+  const horas = ev.horasAAC ?? ev.horas_aac ?? ev.horasacc ?? 0;
+
   return {
     ...ev,
     data_inicio: dataInicio,
     data_fim: dataFim,
     data: dataInicio,
+    horasAAC: horas,
   };
 }
 
@@ -37,7 +40,7 @@ export async function criarEventoNoBanco(novoEvento) {
   const { data, error } = await supabase
     .from('evento')
     .insert([novoEvento])
-    .select()
+    .select('*, curso(nome), imagem(*)')
     .single();
 
   if (error) throw error;
@@ -45,6 +48,10 @@ export async function criarEventoNoBanco(novoEvento) {
 }
 
 export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaObj = null) {
+  if (!id) {
+    throw new Error("ID do evento é obrigatório para atualização.");
+  }
+
   const { data, error } = await supabase
     .from('evento')
     .update(eventoAtualizado)
@@ -53,8 +60,16 @@ export async function atualizarEventoNoBanco(id, eventoAtualizado, imagemAntigaO
     .single();
 
   if (error) throw error;
+  if (!data) {
+    throw new Error("Nenhum registro foi atualizado no banco de dados.");
+  }
 
-  if (imagemAntigaObj && eventoAtualizado.imagem_id && imagemAntigaObj.id !== eventoAtualizado.imagem_id) {
+  if (
+    imagemAntigaObj &&
+    eventoAtualizado.imagem_id &&
+    imagemAntigaObj.id &&
+    imagemAntigaObj.id !== eventoAtualizado.imagem_id
+  ) {
     try {
       const caminhoCompleto = imagemAntigaObj.caminho_img;
       if (caminhoCompleto) {

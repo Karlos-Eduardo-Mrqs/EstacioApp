@@ -15,6 +15,16 @@ import { useBuscaEventos } from "../../hooks/useBuscaTab";
 import { buscaTabstyles as styles } from "../../styles/detalhesStyles";
 import CustomIcon from "../CustomIcon";
 
+function estaEventoCancelado(item) {
+  if (!item) return false;
+  if (item.status === false) return true;
+  if (typeof item.status === "string") {
+    const st = item.status.trim().toLowerCase();
+    return st === "cancelado" || st === "desativado" || st === "inativo";
+  }
+  return false;
+}
+
 function AnimacaoRolagemRodape({ visivel, carregando }) {
   const pulseAnim = useRef(new Animated.Value(0.45)).current;
   const translateAnim = useRef(new Animated.Value(6)).current;
@@ -111,7 +121,9 @@ export default function BuscaTab({ eventosLista }) {
         data={eventosFiltrados}
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.gridContainer}
-        columnWrapperStyle={styles.gridRow}
+        columnWrapperStyle={
+          eventosFiltrados.length >= 3 ? styles.gridRow : undefined
+        }
         numColumns={3}
         initialNumToRender={21}
         maxToRenderPerBatch={21}
@@ -119,6 +131,7 @@ export default function BuscaTab({ eventosLista }) {
         onEndReached={carregarMaisEventos}
         onEndReachedThreshold={0.25}
         renderItem={({ item }) => {
+          const cancelado = estaEventoCancelado(item);
           const urlCapaCard =
             typeof item?.imagem === "object" ? item.imagem?.caminho_img : item?.imagem;
 
@@ -134,20 +147,73 @@ export default function BuscaTab({ eventosLista }) {
 
           return (
             <TouchableOpacity
-              style={styles.gridCard}
+              style={[
+                styles.gridCard,
+                eventosFiltrados.length < 3 && { marginRight: 12 },
+                cancelado && {
+                  opacity: 0.75,
+                  borderColor: "#FECACA",
+                  borderWidth: 1.5,
+                },
+              ]}
               onPress={() => setEventoModal(item)}
               activeOpacity={0.9}
             >
               <ImageBackground
                 source={imagemFonte}
-                style={styles.cardImageBackground}
+                style={[
+                  styles.cardImageBackground,
+                  cancelado && { opacity: 0.55 },
+                ]}
                 resizeMode="cover"
               >
-                <View style={styles.cardOverlay}>
-                  <Text style={styles.cardTag} numberOfLines={1}>
-                    {nomeTurma}
-                  </Text>
-                  <Text style={styles.cardTitle} numberOfLines={3}>
+                <View
+                  style={[
+                    styles.cardOverlay,
+                    cancelado && { backgroundColor: "rgba(15, 23, 42, 0.72)" },
+                  ]}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 6,
+                    }}
+                  >
+                    <Text style={styles.cardTag} numberOfLines={1}>
+                      {nomeTurma}
+                    </Text>
+
+                    {cancelado && (
+                      <View
+                        style={{
+                          backgroundColor: "#DC2626",
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#FFFFFF",
+                            fontSize: 9,
+                            fontWeight: "800",
+                          }}
+                        >
+                          CANCELADO
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <Text
+                    style={[
+                      styles.cardTitle,
+                      cancelado && { textDecorationLine: "line-through" },
+                    ]}
+                    numberOfLines={3}
+                  >
                     {item.titulo}
                   </Text>
                 </View>

@@ -1,8 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
-import {Image,Modal,ScrollView,Text,TextInput,TouchableOpacity,View} from "react-native";
-import {LISTA_PROPORCOES,obterAspectRatioNumerico} from "../../../constants/proporcoesConstantes";
+import { Image, Modal, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { LISTA_PROPORCOES, obterAspectRatioNumerico } from "../../../constants/proporcoesConstantes";
 import { painelEventosStyles as styles } from "../../../styles/painel/painelEventosStyles";
-import {formatarEntradaData,formatarEntradaHora} from "../../../utils/dataUtils";
+import { formatarEntradaData, formatarEntradaHora } from "../../../utils/dataUtils";
 import BotaoFechar from "../../BotaoFechar";
 import CustomIcon from "../../CustomIcon";
 import FeedbackBox from "../../FeedPopup";
@@ -41,8 +41,8 @@ export default function ModalGerenciarEvento({
   setDescricao,
   imagem,
   setImagem,
-  status,
-  setStatus,
+  status = true,
+  setStatus = () => {},
   proporcao,
   setProporcao,
   linkTransmissao,
@@ -67,6 +67,12 @@ export default function ModalGerenciarEvento({
   selecionarImagem,
   salvarEvento,
 }) {
+  const handleAlterarStatus = (itemValue) => {
+    if (typeof setStatus === "function") {
+      setStatus(itemValue);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -80,9 +86,7 @@ export default function ModalGerenciarEvento({
             <Text style={styles.tituloModal}>
               {eventoEditando ? "Editar evento" : "Novo evento"}
             </Text>
-            <TouchableOpacity onPress={onClose}>
-              <BotaoFechar onPress={onClose} />
-            </TouchableOpacity>
+            <BotaoFechar onPress={onClose} />
           </View>
 
           <ScrollView
@@ -92,7 +96,7 @@ export default function ModalGerenciarEvento({
             <FeedbackBox
               tipo={feedback?.tipo}
               mensagem={feedback?.mensagem}
-              onClose={() => setFeedback?.({ tipo: '', mensagem: '' })}
+              onClose={() => setFeedback?.({ tipo: "", mensagem: "" })}
             />
 
             <Campo
@@ -194,9 +198,9 @@ export default function ModalGerenciarEvento({
               }}
               onPress={() => {
                 const proximo = !possuiEventos;
-                setPossuiEventos(proximo);
+                setPossuiEventos?.(proximo);
                 if (!proximo) {
-                  setLimiteVagas("");
+                  setLimiteVagas?.("");
                 }
               }}
               activeOpacity={0.75}
@@ -211,9 +215,7 @@ export default function ModalGerenciarEvento({
                   Habilitar inscrições para este evento
                 </Text>
                 <Text style={{ fontSize: 11.5, color: "#64748B", marginTop: 2 }}>
-                  {possuiEventos
-                    ? "Ativado"
-                    : "Desativado"}
+                  {possuiEventos ? "Ativado" : "Desativado"}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -243,8 +245,13 @@ export default function ModalGerenciarEvento({
                   }}
                 >
                   <Picker
-                    selectedValue={status}
-                    onValueChange={(itemValue) => setStatus(itemValue)}
+                    selectedValue={status === false || status === "false" ? "false" : "true"}
+                    onValueChange={(itemValue) => {
+                      const booleano = itemValue === "true";
+                      if (typeof setStatus === "function") {
+                        setStatus(booleano);
+                      }
+                    }}
                     style={{
                       height: 48,
                       width: "100%",
@@ -254,9 +261,12 @@ export default function ModalGerenciarEvento({
                   >
                     <Picker.Item
                       label="🟢 Ativo (Aberto / Em andamento)"
-                      value={true}
+                      value="true"
                     />
-                    <Picker.Item label="🔴 Encerrado" value={false} />
+                    <Picker.Item
+                      label="🔴 Cancelado / Encerrado"
+                      value="false"
+                    />
                   </Picker>
                 </View>
               </View>
@@ -281,11 +291,11 @@ export default function ModalGerenciarEvento({
                   }
                   onValueChange={(itemValue) => {
                     if (itemValue === "") {
-                      setCursoId("");
+                      setCursoId?.("");
                     } else if (itemValue === "NULL") {
-                      setCursoId("NULL");
+                      setCursoId?.("NULL");
                     } else {
-                      setCursoId(Number(itemValue));
+                      setCursoId?.(Number(itemValue));
                     }
                   }}
                   style={{
@@ -357,7 +367,7 @@ export default function ModalGerenciarEvento({
                           proporcao === item.value ? "#173EA5" : "#CBD5E1",
                         alignItems: "center",
                       }}
-                      onPress={() => setProporcao(item.value)}
+                      onPress={() => setProporcao?.(item.value)}
                     >
                       <Text
                         style={{
@@ -431,4 +441,4 @@ export default function ModalGerenciarEvento({
       </View>
     </Modal>
   );
-}
+} 

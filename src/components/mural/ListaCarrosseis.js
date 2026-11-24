@@ -8,6 +8,16 @@ import CarrosselEventosCursosFavoritos from "./CarrosselEventosCursosFavoritos";
 import CarrosselServicos from "./CarrosselServicos";
 import ControlesCarrossel from "../ControlesCarrossel";
 
+function estaDesativado(item) {
+  if (!item) return false;
+  if (item.status === false) return true;
+  if (typeof item.status === "string") {
+    const st = item.status.trim().toLowerCase();
+    return st === "cancelado" || st === "desativado" || st === "inativo";
+  }
+  return false;
+}
+
 function SecaoCarrosselEventos({
   titulo,
   eventos = [],
@@ -77,6 +87,8 @@ export default function ListaCarrosseis({
   todosOsEventos = [],
 }) {
   const renderCartaoCarrossel = (evento) => {
+    const cancelado = estaDesativado(evento);
+
     let nomeTurma = "Geral";
     if (evento?.turma) {
       nomeTurma =
@@ -95,28 +107,105 @@ export default function ListaCarrosseis({
     );
 
     return (
-      <View key={evento.id} style={estilosCarrosselEvento.cartao}>
-        <Text style={estilosCarrosselEvento.tag} numberOfLines={1}>
-          {nomeTurma}
-        </Text>
+      <View
+        key={evento.id}
+        style={[
+          estilosCarrosselEvento.cartao,
+          cancelado && {
+            backgroundColor: "#F8FAFC",
+            borderColor: "#FECACA",
+            borderWidth: 1,
+            opacity: 0.78,
+          },
+        ]}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <Text
+            style={[
+              estilosCarrosselEvento.tag,
+              cancelado && {
+                backgroundColor: "#E2E8F0",
+                color: "#475569",
+              },
+            ]}
+            numberOfLines={1}
+          >
+            {nomeTurma}
+          </Text>
 
-        <Text style={estilosCarrosselEvento.titulo} numberOfLines={2}>
+          {cancelado && (
+            <View
+              style={{
+                backgroundColor: "#FEE2E2",
+                borderWidth: 1,
+                borderColor: "#FECACA",
+                paddingHorizontal: 7,
+                paddingVertical: 2,
+                borderRadius: 6,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "800",
+                  color: "#DC2626",
+                }}
+              >
+                CANCELADO
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <Text
+          style={[
+            estilosCarrosselEvento.titulo,
+            cancelado && {
+              color: "#64748B",
+              textDecorationLine: "line-through",
+            },
+          ]}
+          numberOfLines={2}
+        >
           {evento.titulo}
         </Text>
 
-        <Text style={estilosCarrosselEvento.data}>
+        <Text
+          style={[
+            estilosCarrosselEvento.data,
+            cancelado && { color: "#94A3B8" },
+          ]}
+        >
           📅 {dataFormatada || "Data a definir"}
         </Text>
 
-        <Text style={estilosCarrosselEvento.local} numberOfLines={1}>
+        <Text
+          style={[
+            estilosCarrosselEvento.local,
+            cancelado && { color: "#94A3B8" },
+          ]}
+          numberOfLines={1}
+        >
           📍 {evento.local || "Local a definir"}
         </Text>
 
         <TouchableOpacity
-          style={estilosCarrosselEvento.botaoDetalhes}
+          style={[
+            estilosCarrosselEvento.botaoDetalhes,
+            cancelado && { backgroundColor: "#94A3B8" },
+          ]}
           onPress={() => onSelectEvento?.(evento)}
         >
-          <Text style={estilosCarrosselEvento.textoBotao}>+ Detalhes</Text>
+          <Text style={estilosCarrosselEvento.textoBotao}>
+            {cancelado ? "Cancelado" : "+ Detalhes"}
+          </Text>
         </TouchableOpacity>
       </View>
     );

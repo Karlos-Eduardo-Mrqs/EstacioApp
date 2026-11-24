@@ -175,3 +175,13 @@ export function formatarEntradaCPF(texto) {
 
   return formatado;
 }
+
+export function estaDesativado(item) {
+  if (!item) return false;
+  if (item.status === false) return true;
+  if (typeof item.status === "string") {
+    const st = item.status.trim().toLowerCase();
+    return st === "cancelado" || st === "desativado" || st === "inativo";
+  }
+  return false;
+}
